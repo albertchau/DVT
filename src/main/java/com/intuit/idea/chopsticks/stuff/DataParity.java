@@ -11,10 +11,16 @@ import java.util.List;
  */
 public final class DataParity {
     DataProvider source;
+
     DataProvider target;
+
     List<ComparisonEngine> comparisonEngines;
 
-    public DataParity(Config testConfig) {
-
+    public DataParity(DataProvider source, DataProvider target, List<ComparisonEngine> comparisonEngines) {
+        this.source = source;
+        this.target = target;
+        this.comparisonEngines = comparisonEngines;
     }
+
+
 }

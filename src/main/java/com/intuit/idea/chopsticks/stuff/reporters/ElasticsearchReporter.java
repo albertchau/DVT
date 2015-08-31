@@ -1,4 +1,4 @@
-package com.intuit.idea.chopsticks.stuff;
+package com.intuit.idea.chopsticks.stuff.reporters;
 
 /**
  * Copyright 2015

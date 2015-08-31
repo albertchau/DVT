@@ -7,6 +7,26 @@ import java.util.List;
  *
  * @author albert
  */
-public interface DataProvider <E extends List<? extends Number>> {
+public interface DataProvider {
+
+    List getData();
+
+    List getExistenceData();
+
+    List getPrimaryKeys();
+
+    Integer getCountData();
+
+    DataProviderType getType();
+
+    String getDataQuery();
+
+    String getExistenceQuery();
+
+    String getCountQuery();
+
+    List getMetadata();
+
+    String getName();
 
 }

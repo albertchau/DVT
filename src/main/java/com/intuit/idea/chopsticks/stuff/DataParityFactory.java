@@ -1,5 +1,6 @@
 package com.intuit.idea.chopsticks.stuff;
 
+import com.google.gson.JsonObject;
 import com.typesafe.config.Config;
 
 import java.util.List;
@@ -9,15 +10,41 @@ import java.util.List;
  *
  * @author albert
  */
-public interface DataParityFactory {
+public final class DataParityFactory {
+    private DataParityFactory() {
+    }
 
-    DataProvider createSource();
+    public static List<DataParity> create(Config config) {
+        return null;
+    }
 
-    DataProvider createTarget();
+    public static List<DataParity> create(JsonObject config) {
+        return null;
+    }
 
-    ComparisonOptions createOptions();
+    public static List<DataParity> create(String config) {
+        return null;
+    }
 
-    ComparisonMappings createMappings();
+    public static DataParity create(DataProvider source, DataProvider target, ComparisonOptions options, ComparisonMappings mappings) {
+        return null;
+    }
 
-    List<ComparisonEngine> createComparisonEngines();
+    public static DataParity create(DataProvider source, DataProvider target, List<ComparisonEngine> comparisonEngines) {
+        return null;
+    }
+
+    public static DataParity create(DataProvider source, DataProvider target, ComparisonEngine comparisonEngines) {
+        return null;
+    }
+
+//    DataProvider createSource();
+//
+//    DataProvider createTarget();
+//
+//    ComparisonOptions createOptions();
+//
+//    ComparisonMappings createMappings();
+//
+//    List<ComparisonEngine> createComparisonEngines();
 }

@@ -12,6 +12,9 @@
         <guava.version>19.0-rc1</guava.version>
         <slf4-j.version>1.7.12</slf4-j.version>
         <log4j-core.version>2.3</log4j-core.version>
+        <jackson-databind.version>2.6.1</jackson-databind.version>
+        <functionaljava.version>4.4</functionaljava.version>
+        <gson.version>2.3.1</gson.version>
     </properties>
 
     <groupId>com.intuit.idea</groupId>
@@ -39,7 +42,24 @@
             <artifactId>log4j-core</artifactId>
             <version>${log4j-core.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.8.2</version>
+        </dependency>
 
+        <!--JDBC DRIVERS-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.36</version>
+        </dependency>
+        <!--JDBC DRIVERS-->
     </dependencies>
 
     <build>

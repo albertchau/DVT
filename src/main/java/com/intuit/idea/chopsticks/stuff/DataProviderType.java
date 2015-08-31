@@ -5,5 +5,5 @@ package com.intuit.idea.chopsticks.stuff;
  *
  * @author albert
  */
-public class HtmlReporter {
+public enum DataProviderType {
 }
