@@ -64,7 +64,8 @@ crashlytics-build.properties
 
 # IntelliJ project files
 .idea
-*.iml
 out
 gen
 # Created by .ignore support plugin (hsz.mobi)
+
+src/main/java/Main.java

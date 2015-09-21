@@ -9,9 +9,21 @@
         </layout>
     </appender>
 
+    <appender name="file" class="org.apache.log4j.RollingFileAppender">
+        <param name="append" value="false"/>
+        <param name="maxFileSize" value="10KB"/>
+        <param name="maxBackupIndex" value="5"/>
+        <!-- For Tomcat -->
+        <param name="file" value="log.log"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/>
+        </layout>
+    </appender>
+
     <root>
         <priority value ="debug" />
         <appender-ref ref="console" />
+        <appender-ref ref="file"/>
     </root>
 
 </log4j:configuration>
