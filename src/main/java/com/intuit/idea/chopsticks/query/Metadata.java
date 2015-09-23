@@ -28,7 +28,7 @@ public class Metadata implements Comparable {
     @Override
     public int compareTo(Object o) {
         if (!(o instanceof Metadata))
-            return -1;
+            throw new ClassCastException("Cannot compare Metadata.class to " + o.getClass() + ". Please only compare with Metadata classes");
         return column.compareTo(((Metadata) o).getColumn());
     }
 

@@ -1,13 +1,17 @@
 package com.intuit.idea.chopsticks.query;
 
 import com.intuit.idea.chopsticks.utils.Pair;
+import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.IntStream;
 
-import static com.intuit.idea.chopsticks.utils.StreamUtils.zip;
 import static java.util.Collections.sort;
 
 /**
@@ -17,7 +21,7 @@ import static java.util.Collections.sort;
  * ************************************
  */
 public abstract class QueryServiceBase implements QueryService {
-
+    private static final Logger logger = LoggerFactory.getLogger(QueryServiceBase.class);
     protected final String tableName;
     protected final String schema;
     protected final List<String> includedColumns;
@@ -41,61 +45,68 @@ public abstract class QueryServiceBase implements QueryService {
                                DateTimeFormatter dateTimeFormat) {
         this.tableName = tableName;
         this.schema = schema;
-        this.includedColumns = includedColumns;
-        this.excludedColumns = excludedColumns;
-        sort(metadatas); //todo override the equals
+        this.includedColumns = new ArrayList<>(includedColumns);
+        this.excludedColumns = new ArrayList<>(excludedColumns);
+        sort(metadatas);
         this.metadatas = metadatas;
         this.fetchAmount = fetchAmount;
         this.testType = testType;
-        this.whereClauses = whereClauses;
+        this.whereClauses = new ArrayList<>(whereClauses);
         this.orderDirection = orderDirection;
         this.dateTimeFormat = dateTimeFormat;
     }
 
-    protected void addSampledWhereClauses(List<List<String>> pksToInclude, List<String> columns) {
-        if (pksToInclude.isEmpty()) {
-            return; //todo prob throw error
+    protected void addSampledWhereClauses(Map<String, List<String>> pksWithHeaders) throws QueryCreationError {
+        if (pksWithHeaders == null || pksWithHeaders.isEmpty()) {
+            logger.error("Did not pass in any primary keys or values into sampling.");
+            throw new QueryCreationError("Did not pass in any primary keys or values into sampling.");
         }
-        int numOfInputPks = pksToInclude.get(0).size();
-        if (numOfInputPks < 1) {
-            return; //todo prob throw error...
+        List<Pair<Metadata, List<String>>> pkPairedList = metadatas.stream()
+                .filter(Metadata::isPk)
+                .map(md -> new Pair<>(md, pksWithHeaders.get(md.getColumn())))
+                .filter(pkPair -> pkPair.getCar() != null && pkPair.getCdr() != null)
+                .collect(Collectors.toList());
+        int numOfInputPks = pkPairedList.size();
+        int numOfRows = pkPairedList.stream()
+                .map(pkPair -> pkPair.getCdr().size())
+                .min(Integer::compareTo)
+                .orElse(0);
+        if (numOfRows < 1) {
+            logger.error("At least one of the primary key's used to sample has zero passed in values.");
+            throw new QueryCreationError("At least one of the primary key's used to sample has zero passed in values.");
         }
         if (numOfInputPks != metadatas.stream().filter(Metadata::isPk).count()) {
-            return; //todo prob throw error...
+            logger.error("The number of registered primary keys from this QueryService's creation does not match the number of primary keys to sample the data set from.");
+            throw new QueryCreationError("The number of registered primary keys from this QueryService's creation does not match the number of primary keys to sample the data set from.");
         }
         if (numOfInputPks == 1) {
             Metadata pkMetadata = metadatas.stream().filter(Metadata::isPk).collect(Collectors.toList()).get(0);
             Class<?> type = pkMetadata.getType();
             if (type.equals(String.class)) {
-                List<String> inBounds = pksToInclude.stream()
-                        .map(ls -> ls.get(0))
-                        .collect(Collectors.toList());
-                whereClauses.add(WhereClause.createInBounded(inBounds, pkMetadata.getColumn()));
+                List<String> inBounds = pkPairedList.get(0).getCdr();
+                whereClauses.add(WhereClause.createInSet(inBounds, pkMetadata.getColumn()));
             } else if (type.equals(Long.class) || type.equals(Integer.class)) {
-                List<Integer> inBounds = pksToInclude.stream()
-                        .map(ls -> (Integer.parseInt(ls.get(0))))
+                List<Integer> inBounds = pkPairedList.get(0).getCdr().stream()
+                        .map(stringInt -> (Integer.parseInt(stringInt)))
                         .collect(Collectors.toList());
-                whereClauses.add(WhereClause.createInBounded(inBounds, pkMetadata.getColumn()));
+                whereClauses.add(WhereClause.createInSet(inBounds, pkMetadata.getColumn()));
             }
         } else {
-            List<Metadata> pkStream = columns.stream()
-                    .flatMap((c -> metadatas.stream()
-                            .filter(md -> md.getColumn().equalsIgnoreCase(c) && md.isPk())
-                            .collect(Collectors.toList())
-                            .stream()))
-                    .collect(Collectors.toList());
-            String outJoined = pksToInclude.stream().map(ls -> {
-                Stream<Pair<Metadata, String>> pkZipVal = zip(pkStream.stream(), ls.stream(), Pair::new);
-                String inJoined = pkZipVal.map(p -> {
-                    Class<?> type = p.getCar().getType();
-                    if (type.equals(Long.class) || type.equals(Integer.class)) {
-                        return p.getCar().getColumn() + " = " + p.getCdr();
-                    } else {
-                        return p.getCar().getColumn() + " = '" + p.getCdr() + "'";
-                    }
-                }).collect(Collectors.joining(" AND "));
-                return "(" + inJoined + ")";
-            }).collect(Collectors.joining(" OR "));
+            String outJoined = IntStream.range(0, numOfRows).boxed()
+                    .map(i -> {
+                        String inJoined = pkPairedList.stream()
+                                .map(p -> {
+                                    Class<?> type = p.getCar().getType();
+                                    if (type.equals(Long.class) || type.equals(Integer.class)) {
+                                        return p.getCar().getColumn() + " = " + p.getCdr().get(i);
+                                    } else {
+                                        return p.getCar().getColumn() + " = '" + p.getCdr().get(i) + "'";
+                                    }
+                                })
+                                .collect(Collectors.joining(" AND "));
+                        return "(" + inJoined + ")";
+                    })
+                    .collect(Collectors.joining(" OR ")); //todo
             whereClauses.add(WhereClause.createCustom("(" + outJoined + ")"));
         }
     }

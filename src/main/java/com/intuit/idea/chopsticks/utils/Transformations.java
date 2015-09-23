@@ -1,5 +1,7 @@
 package com.intuit.idea.chopsticks.utils;
 
+import com.intuit.idea.chopsticks.utils.exceptions.DataAccessException;
+
 import java.math.BigDecimal;
 import java.util.Optional;
 

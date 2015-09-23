@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,8 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
 
     @Override
     public ResultSets getData(ComparisonService cs) throws SQLException {
-        return getData(getQuery(cs));
+        String query = getQuery(cs);
+        return getData(query);
     }
 
     private ResultSets getData(String query) throws SQLException {
@@ -51,7 +53,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             throw new SQLException("There are no active connections open");
         }
 
-        List<ResultSet> resultSetStream = connections.stream()
+        List<ResultSet> resultSetList = connections.stream()
                 .map(c -> {
                     Statement stmt = null;
                     ResultSet rs = null;
@@ -67,17 +69,17 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        if (resultSetStream.size() < 1) {
+        if (resultSetList.size() < 1) {
             logger.error("Could not get any resultSets. they were all null");
             throw new SQLException("Could not get any resultSets. they were all null");
         }
 
-        return new ResultSets(resultSetStream);
+        return new ResultSets(resultSetList);
     }
 
     @Override
-    public ResultSets getData(ComparisonService cs, List<List<String>> sampledPrimaryKeys, List<String> pkColumns) throws SQLException {
-        return getData(getQuery(cs, sampledPrimaryKeys, pkColumns));
+    public ResultSets getData(ComparisonService cs, Map<String, List<String>> pksWithHeaders) throws SQLException {
+        return getData(getQuery(cs, pksWithHeaders));
     }
 
     @Override
@@ -94,14 +96,14 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
         }
     }
 
-    private String getQuery(ComparisonService cs, List<List<String>> sampledPrimaryKeys, List<String> pkColumns) {
+    private String getQuery(ComparisonService cs, Map<String, List<String>> pksWithHeaders) {
         if (cs instanceof CountComparisonService) {
             logger.info("Cannot use sampling for Count Comparison Service.");
             throw new UnsupportedOperationException("Cannot use sampling for Count Comparison Service.");
         } else if (cs instanceof DataComparisonService) {
-            return queryService.createDataQuery(sampledPrimaryKeys, pkColumns);
+            return queryService.createDataQuery(pksWithHeaders);
         } else if (cs instanceof ExistenceComparisonService) {
-            return queryService.createExistenceQuery(sampledPrimaryKeys, pkColumns);
+            return queryService.createExistenceQuery(pksWithHeaders);
         } else {
             logger.info("Unknown/Unsupported Comparison Service for sampling");
             throw new UnsupportedOperationException("Unknown/Unsupported Comparison Service for sampling");

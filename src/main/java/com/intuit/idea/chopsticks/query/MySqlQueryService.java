@@ -1,9 +1,13 @@
 package com.intuit.idea.chopsticks.query;
 
+import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -14,6 +18,7 @@ import java.util.stream.Collectors;
  * ************************************
  */
 public class MySqlQueryService extends QueryServiceBase {
+    private static final Logger logger = LoggerFactory.getLogger(MySqlQueryService.class);
 
     public MySqlQueryService(String tableName,
                              String schema,
@@ -38,9 +43,9 @@ public class MySqlQueryService extends QueryServiceBase {
     }
 
     @Override
-    public String createDataQuery() {
+    public String createDataQuery() throws QueryCreationError {
         StringBuilder query = new StringBuilder("SELECT ");
-        query.append(selectClause());
+        query.append(generateSelectStatement());
         query.append(" FROM ");
         query.append(getFrom());
         if (whereClauses != null) {
@@ -62,7 +67,7 @@ public class MySqlQueryService extends QueryServiceBase {
     }
 
     @Override
-    public String createExistenceQuery() {
+    public String createExistenceQuery() throws QueryCreationError {
         StringBuilder query = new StringBuilder("SELECT ");
         query.append(metadatas.stream()
                 .filter(Metadata::isPk)
@@ -103,7 +108,7 @@ public class MySqlQueryService extends QueryServiceBase {
     }
 
     @Override
-    public String createCountQuery() {
+    public String createCountQuery() throws QueryCreationError {
         StringBuilder query = new StringBuilder("SELECT ");
         query.append("count(*)");
         query.append(" FROM ");
@@ -121,40 +126,37 @@ public class MySqlQueryService extends QueryServiceBase {
     }
 
     @Override
-    public String createDataQuery(List<List<String>> pksToInclude, List<String> columns) {
-        addSampledWhereClauses(pksToInclude, columns);
+    public String createDataQuery(Map<String, List<String>> pksWithHeaders) throws QueryCreationError {
+        addSampledWhereClauses(pksWithHeaders);
         return createDataQuery();
     }
 
     @Override
-    public String createExistenceQuery(List<List<String>> pksToInclude, List<String> columns) {
-        addSampledWhereClauses(pksToInclude, columns);
+    public String createExistenceQuery(Map<String, List<String>> pksWithHeaders) throws QueryCreationError {
+        addSampledWhereClauses(pksWithHeaders);
         return createExistenceQuery();
     }
 
     @Override
     public String getDateRange(String dateColumn, DateTime startDate, DateTime endDate) {
         if (testType.equals(TestType.FULL)) {
-            return null;
-        }
-        if (startDate == null && endDate == null) {
-            return null;
+            return null; // is handled when filtering whereclauses by nulls
         }
         if (endDate == null) {
             String startStr = dateTimeFormat.print(startDate);
-            return String.format("date_column(%s) >= timestamp(%s)"
+            return String.format("%s >= \"%s\""
                     , dateColumn
                     , startStr);
         }
         if (startDate == null) {
             String endStr = dateTimeFormat.print(endDate);
-            return String.format("date_column(%s) <= timestamp(%s)"
+            return String.format("%s <= \"%s\""
                     , dateColumn
                     , endStr);
         }
         String startStr = dateTimeFormat.print(startDate);
         String endStr = dateTimeFormat.print(endDate);
-        return String.format("date_column(%s) between timestamp(%s) and timestamp(%s)"
+        return String.format("%s between \"%s\" and \"%s\""
                 , dateColumn
                 , startStr
                 , endStr);
@@ -189,14 +191,14 @@ public class MySqlQueryService extends QueryServiceBase {
         }
     }
 
-    private String selectClause() {
+    private String generateSelectStatement() throws QueryCreationError {
+        String collect;
         if (includedColumns.isEmpty() && excludedColumns.isEmpty()) {
-            return metadatas.stream()
+            collect = metadatas.stream()
                     .map(Metadata::getColumn)
                     .collect(Collectors.joining(","));
-        }
-        if (!includedColumns.isEmpty()) {
-            return metadatas.stream()
+        } else if (!includedColumns.isEmpty()) {
+            collect = metadatas.stream()
                     .filter(md -> {
                         String column = md.getColumn();
                         return (includedColumns.contains(column) && !excludedColumns.contains(column)) || md.isPk();
@@ -204,12 +206,16 @@ public class MySqlQueryService extends QueryServiceBase {
                     .map(Metadata::getColumn)
                     .collect(Collectors.joining(","));
         } else {
-            return metadatas.stream()
+            collect = metadatas.stream()
                     .filter(md -> !excludedColumns.contains(md.getColumn()) || md.isPk())
                     .map(Metadata::getColumn)
                     .collect(Collectors.joining(","));
-
         }
+        if (collect.isEmpty()) {
+            logger.error("Select Statement was empty");
+            throw new QueryCreationError("Select Statement was empty");
+        }
+        return collect;
     }
 
 }

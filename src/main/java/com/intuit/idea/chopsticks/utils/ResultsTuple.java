@@ -1,5 +1,7 @@
 package com.intuit.idea.chopsticks.utils;
 
+import com.intuit.idea.chopsticks.utils.exceptions.DataAccessException;
+
 import java.util.*;
 
 import static com.intuit.idea.chopsticks.utils.Pair.cons;

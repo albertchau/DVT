@@ -42,7 +42,7 @@ public class WhereClause<T extends Comparable> {
         return new WhereClause<>(lowerBound, null, column, null, null, null);
     }
 
-    public static <U extends Comparable> WhereClause createInBounded(List<U> inBounded, String column) {
+    public static <U extends Comparable> WhereClause createInSet(List<U> inBounded, String column) {
         return new WhereClause<>(null, null, column, null, inBounded, null);
     }
 

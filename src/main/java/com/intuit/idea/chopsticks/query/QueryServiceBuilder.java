@@ -25,7 +25,7 @@ public class QueryServiceBuilder {
     private List<WhereClause> whereClauses = new ArrayList<>();
     private Integer fetchAmount = 0;
     private OrderDirection orderDirection = OrderDirection.ASCENDING;
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("MMMM, yyyy");
+    private DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss");
 
     public QueryServiceBuilder setSchema(String schema) {
         this.schema = schema;
@@ -33,17 +33,17 @@ public class QueryServiceBuilder {
     }
 
     public QueryServiceBuilder setIncludedColumns(List<String> includedColumns) {
-        this.includedColumns = includedColumns;
+        this.includedColumns = new ArrayList<>(includedColumns);
         return this;
     }
 
     public QueryServiceBuilder setWhereClauses(List<WhereClause> whereClauses) {
-        this.whereClauses = whereClauses;
+        this.whereClauses = new ArrayList<>(whereClauses);
         return this;
     }
 
     public QueryServiceBuilder setExcludedColumns(List<String> excludedColumns) {
-        this.excludedColumns = excludedColumns;
+        this.excludedColumns = new ArrayList<>(excludedColumns);
         return this;
     }
 
@@ -69,7 +69,7 @@ public class QueryServiceBuilder {
             case HISTORIC:
                 long count = whereClauses.stream()
                         .filter(wc -> wc.type() == DateTime.class)
-                        .filter(wc -> wc.getLowerBound() != null && wc.getUpperBound() != null)
+                        .filter(wc -> wc.getLowerBound() != null || wc.getUpperBound() != null)
                         .count();
                 if (count < 1) {
                     return null; //todo throw error

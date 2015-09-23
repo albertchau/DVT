@@ -1,59 +1,120 @@
 package com.intuit.idea.chopsticks.query;
 
 import com.intuit.idea.chopsticks.providers.VendorType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.joda.time.DateTime;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class MySqlQueryServiceTest {
-    public static Logger logger = LoggerFactory.getLogger(MySqlQueryServiceTest.class);
+public class MySqlQueryServiceTest extends QueryServiceBaseTest {
+    private static final VendorType VENDOR_TYPE = VendorType.MYSQL;
 
     @DataProvider
-    public Object[][] getQueryServices() {
-        List<Metadata> metadatas = Arrays.asList(new Metadata("empId", true, Integer.class),
-                new Metadata("empName", false, String.class));
-        QueryService mqs = new QueryServiceBuilder()
-                .build("employees", VendorType.MYSQL, metadatas, TestType.FULL);
-        List<QueryService> qss = new ArrayList<>();
-
-        qss.add(mqs);
-        List<Object[]> collect = qss.stream().map(qs -> new Object[]{qs}).collect(Collectors.toList());
-        return collect.toArray(new Object[][]{{}});
+    public Object[][] happyCompositeQueryServices() {
+        List<Metadata> metadatas = COMPOSITE_PK_METADATA;
+        List<Object[]> collected = TEST_TYPES.stream()
+                .flatMap(testType -> {
+                    List<QueryService> qss = getQueryServices(metadatas, testType, VENDOR_TYPE);
+                    return qss.stream()
+                            .filter(Objects::nonNull);
+                })
+                .map(qs -> new Object[]{qs})
+                .collect(Collectors.toList());
+        return collected
+                .toArray(new Object[][]{{}});
     }
 
-    @Test(dataProvider = "getQueryServices")
-    public void testCreateDataQuery(QueryService mqs) throws Exception {
+    @DataProvider
+    public Object[][] happySingleIntQueryServices() {
+        List<TestType> testTypes = Arrays.asList(TestType.FULL, TestType.HISTORIC, TestType.INCREMENTAL);
+        List<Object[]> collected = testTypes.stream().flatMap(testType -> {
+            List<QueryService> qss = new ArrayList<>();
+            QueryServiceBuilder queryServiceBuilder = new QueryServiceBuilder();
+            QueryService singleIntPkQs = queryServiceBuilder
+                    .setSchema("test")
+                    .setFetchAmount(10)
+                    .setWhereClauses(Arrays.asList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
+                    .setOrderDirection(OrderDirection.DESCENDING)
+                    .build("employees", VendorType.MYSQL, SINGLE_INT_PK_METADATA, testType);
+            qss.add(singleIntPkQs);
+            return qss.stream().filter(Objects::nonNull);
+        }).map(qs -> new Object[]{qs})
+                .collect(Collectors.toList());
+        return collected.toArray(new Object[][]{{}});
+    }
+
+    @DataProvider
+    public Object[][] happySingleStrQueryServices() {
+        List<TestType> testTypes = Arrays.asList(TestType.FULL, TestType.HISTORIC, TestType.INCREMENTAL);
+        List<Object[]> collected = testTypes.stream().flatMap(testType -> {
+            List<QueryService> qss = new ArrayList<>();
+            QueryServiceBuilder queryServiceBuilder = new QueryServiceBuilder();
+            QueryService singleStrPkQs = queryServiceBuilder
+                    .setSchema("test")
+                    .setFetchAmount(10)
+                    .setWhereClauses(Arrays.asList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
+                    .setOrderDirection(OrderDirection.DESCENDING)
+                    .build("employees", VendorType.MYSQL, SINGLE_STR_PK_METADATA, testType);
+            qss.add(singleStrPkQs);
+            return qss.stream().filter(Objects::nonNull);
+        }).map(qs -> new Object[]{qs})
+                .collect(Collectors.toList());
+        return collected.toArray(new Object[][]{{}});
+    }
+
+    @Test(dataProvider = "happyCompositeQueryServices")
+    public void testHappyCompositeCreateDataQuery(QueryService mqs) throws Exception {
         logger.info(mqs.createDataQuery());
+        logger.info(mqs.createDataQuery(SAMPLED_MAP_COMPOSITE));
     }
 
-    @Test
-    public void testCreateExistenceQuery() throws Exception {
-
+    @Test(dataProvider = "happyCompositeQueryServices")
+    public void testHappyCompositeCreateExistenceQuery(QueryService mqs) throws Exception {
+        logger.info(mqs.createExistenceQuery());
+        logger.info(mqs.createExistenceQuery(SAMPLED_MAP_COMPOSITE));
     }
 
-    @Test
-    public void testCreateCountQuery() throws Exception {
-
+    @Test(dataProvider = "happyCompositeQueryServices")
+    public void testHappyCompositeCreateCountQuery(QueryService mqs) throws Exception {
+        logger.info(mqs.createCountQuery());
     }
 
-    @Test
-    public void testCreateDataQuerySampled() throws Exception {
-
+    @Test(dataProvider = "happySingleIntQueryServices")
+    public void testHappySingleCreateDataQuery(QueryService mqs) throws Exception {
+        logger.info(mqs.createDataQuery());
+        logger.info(mqs.createDataQuery(SAMPLED_MAP_SINGLE_INT));
     }
 
-    @Test
-    public void testCreateExistenceQuerySampled() throws Exception {
-
+    @Test(dataProvider = "happySingleIntQueryServices")
+    public void testHappySingleCreateExistenceQuery(QueryService mqs) throws Exception {
+        logger.info(mqs.createExistenceQuery());
+        logger.info(mqs.createExistenceQuery(SAMPLED_MAP_SINGLE_INT));
     }
 
-    @Test
-    public void testGetDateRange() throws Exception {
+    @Test(dataProvider = "happySingleIntQueryServices")
+    public void testHappySingleCreateCountQuery(QueryService mqs) throws Exception {
+        logger.info(mqs.createCountQuery());
+    }
 
+    @Test(dataProvider = "happySingleStrQueryServices")
+    public void testHappySingleStrCreateDataQuery(QueryService mqs) throws Exception {
+        logger.info(mqs.createDataQuery());
+        logger.info(mqs.createDataQuery(SAMPLED_MAP_SINGLE_STR));
+    }
+
+    @Test(dataProvider = "happySingleStrQueryServices")
+    public void testHappySingleStrCreateExistenceQuery(QueryService mqs) throws Exception {
+        logger.info(mqs.createExistenceQuery());
+        logger.info(mqs.createExistenceQuery(SAMPLED_MAP_SINGLE_STR));
+    }
+
+    @Test(dataProvider = "happySingleStrQueryServices")
+    public void testHappySingleStrCreateCountQuery(QueryService mqs) throws Exception {
+        logger.info(mqs.createCountQuery());
     }
 }

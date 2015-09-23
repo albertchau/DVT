@@ -1,8 +1,10 @@
 package com.intuit.idea.chopsticks.query;
 
+import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.joda.time.DateTime;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * ************************************
@@ -12,15 +14,15 @@ import java.util.List;
  */
 public interface QueryService {
 
-    String createDataQuery();
+    String createDataQuery() throws QueryCreationError;
 
-    String createExistenceQuery();
+    String createExistenceQuery() throws QueryCreationError;
 
-    String createCountQuery();
+    String createCountQuery() throws QueryCreationError;
 
-    String createDataQuery(List<List<String>> pksToInclude, List<String> columns);
+    String createDataQuery(Map<String, List<String>> pksWithHeaders) throws QueryCreationError;
 
-    String createExistenceQuery(List<List<String>> pksToInclude, List<String> columns);
+    String createExistenceQuery(Map<String, List<String>> pksWithHeaders) throws QueryCreationError;
 
     String getDateRange(String dateColumn, DateTime startDate, DateTime endDate);
 }

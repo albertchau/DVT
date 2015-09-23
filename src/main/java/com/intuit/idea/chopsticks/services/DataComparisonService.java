@@ -66,12 +66,14 @@ public class DataComparisonService implements ComparisonService {
 
     }
 
+    //TODO OOO Have dataprovider implement closable!!/autoclosable
     @Override
     public void compare(DataProvider source, DataProvider target) throws SQLException {
         source.openConnections();
         ResultSets sData = source.getData(this);
         target.openConnections();
-        ResultSets tData = target.getData(this);
+        ResultSets tData = target.getData(this); //todo deal with random sampling
+
         List<String> pks = comparePrimaryKeys(source.getPrimaryKeys(), target.getPrimaryKeys());
         Map<String, Class<? extends Comparable>> columns = compareColumns(source.getMetadata(), target.getMetadata());
         long start = System.nanoTime();
@@ -86,7 +88,7 @@ public class DataComparisonService implements ComparisonService {
         List<List<Object>> sListOfRows = new ArrayList<>();
         List<List<Object>> tListOfRows = new ArrayList<>();
         List<String> columnNames = new ArrayList<>(columnMap.keySet());
-
+//todo prevent too large/signal list
         while (sRs.next()) {
             List<Object> tmp = columnNames.stream()
                     .map(resultRowToList(sRs))
@@ -107,7 +109,7 @@ public class DataComparisonService implements ComparisonService {
         for (int i = 0; i < sListOfRows.size() && i < tListOfRows.size(); i++) {
             List<Object> objects1 = sListOfRows.get(i);
             List<Object> objects2 = tListOfRows.get(i);
-
+            //todo finish merge compare
             StringBuilder sb = new StringBuilder();
             for (int j = 0; j < objects1.size(); j++) {
                 Object val1 = objects1.get(j);
@@ -147,14 +149,17 @@ public class DataComparisonService implements ComparisonService {
             j++;
         }
 
-        listOfRows.sort((a, b) -> pkList.stream()
-                .mapToInt(pk -> compareAs(a.get(pk.getCar()), b.get(pk.getCar()), pk.getCdr()))
-                .filter(i -> i != 0)
-                .findFirst()
-                .orElse(0));
+        listOfRows.sort((a, b) -> {
+            return pkList.stream()
+                    .mapToInt(pk -> compareAs(a.get(pk.getCar()), b.get(pk.getCar()), pk.getCdr()))
+                    .filter(i -> i != 0)
+                    .findFirst()
+                    .orElse(0);
+        });
     }
 
     private int compareAs(Object o, Object o1, Class<? extends Comparable> aClass) {
+        //todo catch fatal exception from converting
         Comparable cast = TransformerService.convert(o, aClass);
         Comparable cast1 = TransformerService.convert(o1, aClass);
         return cast.compareTo(cast1);

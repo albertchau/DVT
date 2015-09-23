@@ -6,6 +6,7 @@ import com.intuit.idea.chopsticks.services.ComparisonService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * ************************************
@@ -24,7 +25,7 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public ResultSets getData(ComparisonService cs, List<List<String>> sampledPrimaryKeys, List<String> pkColumns) throws SQLException {
+    public ResultSets getData(ComparisonService cs, Map<String, List<String>> pksWithHeaders) throws SQLException {
         return null;
     }
 

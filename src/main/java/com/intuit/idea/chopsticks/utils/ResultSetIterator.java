@@ -1,5 +1,6 @@
 package com.intuit.idea.chopsticks.utils;
 
+import com.intuit.idea.chopsticks.utils.exceptions.DataAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

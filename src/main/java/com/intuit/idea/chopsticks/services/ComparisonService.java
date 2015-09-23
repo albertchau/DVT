@@ -13,6 +13,7 @@ import java.util.List;
  */
 public interface ComparisonService {
 
+    //todo make private
     void report(List<ColumnComparisonResult> rowResults);
 
     void init();

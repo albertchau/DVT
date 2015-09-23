@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -121,14 +122,14 @@ public class SqlServerQueryService extends QueryServiceBase {
     }
 
     @Override
-    public String createDataQuery(List<List<String>> pksToInclude, List<String> columns) {
-        addSampledWhereClauses(pksToInclude, columns);
+    public String createDataQuery(Map<String, List<String>> pksWithHeaders) {
+        addSampledWhereClauses(pksWithHeaders);
         return createDataQuery();
     }
 
     @Override
-    public String createExistenceQuery(List<List<String>> pksToInclude, List<String> columns) {
-        addSampledWhereClauses(pksToInclude, columns);
+    public String createExistenceQuery(Map<String, List<String>> pksWithHeaders) {
+        addSampledWhereClauses(pksWithHeaders);
         return createExistenceQuery();
     }
 
