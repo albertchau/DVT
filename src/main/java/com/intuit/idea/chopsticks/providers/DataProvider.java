@@ -13,6 +13,8 @@ import java.util.Map;
  *
  * @author albert
  */
+
+//TODO OOO Have dataprovider implement closable!!/autoclosable
 public interface DataProvider {
 
     void openConnections() throws SQLException;
@@ -21,7 +23,6 @@ public interface DataProvider {
 
     ResultSets getData(ComparisonService cs) throws SQLException;
 
-    //todo make them pairs.. to ensure that they are same lengths -- map
     ResultSets getData(ComparisonService cs, Map<String, List<String>> pksWithHeaders) throws SQLException;
 
     String getQuery(ComparisonService cs);

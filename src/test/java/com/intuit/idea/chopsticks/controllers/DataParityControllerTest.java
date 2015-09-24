@@ -12,6 +12,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.sql.SQLException;
 import java.sql.Timestamp;
 
 import static org.testng.Assert.assertEquals;
@@ -34,7 +35,7 @@ public class DataParityControllerTest {
     }
 
     @Test
-    public void mainTest() {
+    public void mainTest() throws SQLException {
         //use injectors here...
         QueryService sqf = new QueryServiceBuilder().build("", VendorType.MYSQL, null, TestType.FULL);
         DataProvider source = new StructuredJdbcDataProvider(
@@ -64,8 +65,11 @@ public class DataParityControllerTest {
                 null,
                 tqf
         );
+        source.getVendorType();
         DataParityController dpc = new DataParityController(source, target);
         ComparisonService dataComparisonService = new DataComparisonService();
+        source.getData(dataComparisonService, null);
+        source.getDataProviderType();
         dpc.registerComparisonService(dataComparisonService);
         dpc.run();
     }

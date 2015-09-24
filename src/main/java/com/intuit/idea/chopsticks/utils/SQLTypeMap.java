@@ -7,6 +7,8 @@ package com.intuit.idea.chopsticks.utils;
  * ************************************
  */
 
+import org.joda.time.DateTime;
+
 import java.sql.Types;
 
 /**
@@ -77,7 +79,7 @@ public class SQLTypeMap {
                 break;
 
             case Types.DATE:
-                result = java.sql.Date.class;
+                result = DateTime.class; //todo
                 break;
 
             case Types.TIME:
