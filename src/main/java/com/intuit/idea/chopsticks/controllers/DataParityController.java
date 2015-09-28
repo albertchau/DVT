@@ -2,10 +2,10 @@ package com.intuit.idea.chopsticks.controllers;
 
 import com.intuit.idea.chopsticks.providers.DataProvider;
 import com.intuit.idea.chopsticks.services.ComparisonService;
+import com.intuit.idea.chopsticks.utils.exceptions.ComparisonException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +48,7 @@ public final class DataParityController {
         comparisonServices.forEach(comparisonService -> {
             try {
                 comparisonService.compare(source, target);
-            } catch (SQLException e) {
+            } catch (ComparisonException e) {
                 e.printStackTrace();
             }
         });

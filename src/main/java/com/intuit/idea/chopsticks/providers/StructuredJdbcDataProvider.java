@@ -6,6 +6,7 @@ import com.intuit.idea.chopsticks.services.ComparisonService;
 import com.intuit.idea.chopsticks.services.CountComparisonService;
 import com.intuit.idea.chopsticks.services.DataComparisonService;
 import com.intuit.idea.chopsticks.services.ExistenceComparisonService;
+import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -38,19 +39,19 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public ResultSets getData(ComparisonService cs) throws SQLException {
+    public ResultSets getData(ComparisonService cs) throws DataProviderException {
         String query = getQuery(cs);
         return getData(query);
     }
 
-    private ResultSets getData(String query) throws SQLException {
+    private ResultSets getData(String query) throws DataProviderException {
         if (connections == null) {
             logger.error("You need to openConnections() before calling this getData() method.");
-            throw new SQLException("You need to openConnections() before calling this getData() method.");
+            throw new DataProviderException("You need to openConnections() before calling this getData() method.");
         }
         if (connections.size() < 1) {
-            logger.error("There are no active connections open");
-            throw new SQLException("There are no active connections open");
+            logger.error("There are no active connections open.");
+            throw new DataProviderException("There are no active connections open.");
         }
 
         List<ResultSet> resultSetList = connections.stream()
@@ -71,14 +72,14 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
 
         if (resultSetList.size() < 1) {
             logger.error("Could not get any resultSets. they were all null");
-            throw new SQLException("Could not get any resultSets. they were all null");
+            throw new DataProviderException("Could not get any resultSets. they were all null");
         }
 
         return new ResultSets(resultSetList);
     }
 
     @Override
-    public ResultSets getData(ComparisonService cs, Map<String, List<String>> pksWithHeaders) throws SQLException {
+    public ResultSets getData(ComparisonService cs, Map<String, List<String>> pksWithHeaders) throws DataProviderException {
         return getData(getQuery(cs, pksWithHeaders));
     }
 
@@ -111,7 +112,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public ResultSet getMetadata() throws SQLException {
+    public ResultSet getMetadata() throws DataProviderException {
         if (vendor.equals(VendorType.HIVE_1)) {
             //todo: hive_1 bs... like describe table and such
             throw new NotImplementedException();
@@ -130,7 +131,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
 
             if (tableMetadataStream.isEmpty()) {
                 logger.error("Could not get metadata. All connections returned null");
-                throw new SQLException("Could not get metadata. All connections returned null");
+                throw new DataProviderException("Could not get metadata. All connections returned null");
             } else {
                 //todo: maybe make sure they are all the same if it is sharded
                 return tableMetadataStream.get(0);
@@ -139,7 +140,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public List<String> getPrimaryKeys() throws SQLException {
+    public List<String> getPrimaryKeys() throws DataProviderException {
         if (vendor.equals(VendorType.HIVE_1)) {
             //todo: hive_1 bs... like describe table and such
             throw new NotImplementedException();
@@ -166,7 +167,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
 
             if (primaryKeys.isEmpty()) {
                 logger.error("Could not get primary keys for metadata. All connections returned null");
-                throw new SQLException("Could not get primary keys for metadata. All connections returned null");
+                throw new DataProviderException("Could not get primary keys for metadata. All connections returned null");
             } else {
                 //todo: maybe make sure they are all the same if it is sharded
                 return primaryKeys.get(0);

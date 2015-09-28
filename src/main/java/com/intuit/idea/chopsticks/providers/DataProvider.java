@@ -2,9 +2,9 @@ package com.intuit.idea.chopsticks.providers;
 
 import com.intuit.idea.chopsticks.results.ResultSets;
 import com.intuit.idea.chopsticks.services.ComparisonService;
+import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -14,22 +14,21 @@ import java.util.Map;
  * @author albert
  */
 
-//TODO OOO Have dataprovider implement closable!!/autoclosable
-public interface DataProvider {
+public interface DataProvider extends AutoCloseable {
 
-    void openConnections() throws SQLException;
+    void openConnections() throws DataProviderException;
 
-    void closeConnections() throws SQLException;
+    void closeConnections();
 
-    ResultSets getData(ComparisonService cs) throws SQLException;
+    ResultSets getData(ComparisonService cs) throws DataProviderException;
 
-    ResultSets getData(ComparisonService cs, Map<String, List<String>> pksWithHeaders) throws SQLException;
+    ResultSets getData(ComparisonService cs, Map<String, List<String>> pksWithHeaders) throws DataProviderException;
 
     String getQuery(ComparisonService cs);
 
-    ResultSet getMetadata() throws SQLException;
+    ResultSet getMetadata() throws DataProviderException;
 
-    List<String> getPrimaryKeys() throws SQLException;
+    List<String> getPrimaryKeys() throws DataProviderException;
 
     VendorType getVendorType();
 

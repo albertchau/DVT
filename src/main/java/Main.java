@@ -1,5 +1,3 @@
-import org.h2.tools.Server;
-
 import java.sql.*;
 
 public class Main {
@@ -187,9 +185,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws SQLException {
-        Server server = null;
         try {
-            server = Server.createTcpServer("-tcpAllowOthers").start();
             Class.forName("org.h2.Driver");
 //            Connection conn = DriverManager.
 //                    getConnections("jdbc:h2:tcp://localhost/~/test", "sa", "");
@@ -201,7 +197,6 @@ public class Main {
 //            insertEmployee();
             showEmployeeInfo();
 
-            server.stop();
         } catch (Exception e) {
             e.printStackTrace();
         }

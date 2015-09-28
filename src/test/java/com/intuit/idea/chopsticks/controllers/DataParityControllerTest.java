@@ -8,6 +8,7 @@ import com.intuit.idea.chopsticks.query.QueryServiceBuilder;
 import com.intuit.idea.chopsticks.query.TestType;
 import com.intuit.idea.chopsticks.services.ComparisonService;
 import com.intuit.idea.chopsticks.services.DataComparisonService;
+import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -15,8 +16,8 @@ import org.testng.annotations.Test;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
 
 /**
  * ************************************
@@ -35,7 +36,7 @@ public class DataParityControllerTest {
     }
 
     @Test
-    public void mainTest() throws SQLException {
+    public void mainTest() throws SQLException, DataProviderException {
         //use injectors here...
         QueryService sqf = new QueryServiceBuilder().build("", VendorType.MYSQL, null, TestType.FULL);
         DataProvider source = new StructuredJdbcDataProvider(
@@ -67,7 +68,7 @@ public class DataParityControllerTest {
         );
         source.getVendorType();
         DataParityController dpc = new DataParityController(source, target);
-        ComparisonService dataComparisonService = new DataComparisonService();
+        ComparisonService dataComparisonService = new DataComparisonService(null);
         source.getData(dataComparisonService, null);
         source.getDataProviderType();
         dpc.registerComparisonService(dataComparisonService);

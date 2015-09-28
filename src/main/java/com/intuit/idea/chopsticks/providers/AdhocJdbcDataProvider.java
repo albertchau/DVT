@@ -4,7 +4,6 @@ import com.intuit.idea.chopsticks.results.ResultSets;
 import com.intuit.idea.chopsticks.services.ComparisonService;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -20,12 +19,12 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public ResultSets getData(ComparisonService cs) throws SQLException {
+    public ResultSets getData(ComparisonService cs) {
         return null;
     }
 
     @Override
-    public ResultSets getData(ComparisonService cs, Map<String, List<String>> pksWithHeaders) throws SQLException {
+    public ResultSets getData(ComparisonService cs, Map<String, List<String>> pksWithHeaders) {
         return null;
     }
 
@@ -35,17 +34,22 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public ResultSet getMetadata() throws SQLException {
+    public ResultSet getMetadata() {
         return null;
     }
 
     @Override
-    public List<String> getPrimaryKeys() throws SQLException {
+    public List<String> getPrimaryKeys() {
         return null;
     }
 
     @Override
     public DataProviderType getDataProviderType() {
         return null;
+    }
+
+    @Override
+    public void close() {
+
     }
 }

@@ -30,7 +30,7 @@ public class DataComparisonServiceTest {
                 new DateTime(2012, 2, 3, 0, 0, 0, 0),
                 new DateTime(2012, 2, 3, 0, 0, 0, 0)});
 
-        DataComparisonService dataComparisonService = new DataComparisonService();
+        DataComparisonService dataComparisonService = new DataComparisonService(null);
         List<String> sPk = Arrays.asList("employeeId", "firstName");
         List<String> tPk = Arrays.asList("employeeId", "firstName");
         MockResultSet sMd = new MockResultSet("sourceMetadataResultSetMock");
@@ -39,6 +39,6 @@ public class DataComparisonServiceTest {
         MockResultSet tMd = new MockResultSet("targetMetadataResultSetMock");
         tMd.addColumn("COLUMN_NAME", new String[]{"employeeId", "companyId", "firstName", "lastName", "createDate"});
         tMd.addColumn("DATA_TYPE", new Integer[]{4, 4, 12, 12, 91});
-        dataComparisonService.open(srcRs, tarRs, sPk, tPk, sMd, tMd);
+        dataComparisonService.dataCompare(srcRs, tarRs, sPk, tPk, sMd, tMd);
     }
 }

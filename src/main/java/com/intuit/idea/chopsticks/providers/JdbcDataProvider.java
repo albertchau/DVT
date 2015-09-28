@@ -1,5 +1,6 @@
 package com.intuit.idea.chopsticks.providers;
 
+import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ abstract public class JdbcDataProvider implements DataProvider {
     }
 
     @Override
-    public void openConnections() {
+    public void openConnections() throws DataProviderException {
         if (connections == null) {
             connections = new ArrayList<>();
         }
@@ -52,10 +53,10 @@ abstract public class JdbcDataProvider implements DataProvider {
         if (shards != null && !shards.isEmpty()) {
             shards.stream()
                     .flatMap(shard -> {
-                        shard.openConnections();
                         try {
+                            shard.openConnections();
                             return shard.getConnections().stream();
-                        } catch (SQLException e) {
+                        } catch (DataProviderException e) {
                             e.printStackTrace();
                             return null;
                         }
@@ -63,13 +64,14 @@ abstract public class JdbcDataProvider implements DataProvider {
                     .filter(Objects::nonNull)
                     .forEach(connections::add);
         } else {
-            Connection connection = null;
+            Connection connection;
             try {
                 connection = DriverManager.getConnection(url, user, password);
                 logger.info("Connected to " + url);
-            } catch (Exception e) {
+            } catch (SQLException e) {
                 e.printStackTrace();
-                logger.error("Could not connect to " + url + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
+                logger.error("SqlException. Could not connect to " + url + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
+                throw new DataProviderException("SqlException. Could not connect to " + url + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
             }
             connections.add(connection);
         }
@@ -91,11 +93,17 @@ abstract public class JdbcDataProvider implements DataProvider {
         connections = null;
     }
 
-    public List<Connection> getConnections() throws SQLException {
+    public List<Connection> getConnections() throws DataProviderException {
         if (connections == null) {
-            throw new SQLException("have not opened up connections yet");
+            throw new DataProviderException("Have not opened up connections yet.");
         }
         return connections;
+    }
+
+    @Override
+    public void close() {
+        logger.info("Closing Connections.");
+        closeConnections();
     }
 
     @Override
