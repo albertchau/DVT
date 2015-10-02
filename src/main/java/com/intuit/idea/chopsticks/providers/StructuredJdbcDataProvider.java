@@ -128,7 +128,6 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-
             if (tableMetadataStream.isEmpty()) {
                 logger.error("Could not get metadata. All connections returned null");
                 throw new DataProviderException("Could not get metadata. All connections returned null");

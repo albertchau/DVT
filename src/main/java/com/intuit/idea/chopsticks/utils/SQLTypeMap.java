@@ -75,6 +75,7 @@ public class SQLTypeMap {
             case Types.BINARY:
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
+                result = String.class;
 //                result = Byte[].class; todo
                 break;
 
@@ -104,9 +105,8 @@ public class SQLTypeMap {
             case Types.NCLOB:
             case Types.SQLXML:
             case Types.REF_CURSOR:
-//                result = Object.class; todo
-                break;
             case Types.ARRAY:
+                result = String.class;
 //                result = Object[].class; todo
                 break;
         }

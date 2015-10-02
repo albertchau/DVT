@@ -93,22 +93,8 @@ public class DataComparisonService implements ComparisonService {
         List<String> columnNames = Stream.of(orderedMetadata)
                 .map(Metadata::getColumn)
                 .collect(Collectors.toList());
-        List<Object[]> sRowList;
-        try {
-            sRowList = rowsToList(sData, columnNames);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            logger.error("During setup, retrieving source's resultsets into memory failed.");
-            throw new ComparisonException("During setup, retrieving source's resultsets into memory failed.");
-        }
-        List<Object[]> tRowList;
-        try {
-            tRowList = rowsToList(tData, columnNames);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            logger.error("During setup, retrieving target's resultsets into memory failed.");
-            throw new ComparisonException("During setup, retrieving target's resultsets into memory failed.");
-        }
+        List<Object[]> sRowList = rowsToList(sData, columnNames);
+        List<Object[]> tRowList = rowsToList(tData, columnNames);
         comparisonStrategy(sRowList, tRowList, orderedMetadata);
         long end = System.nanoTime();
         logger.info("start - end /100000 = " + ((end - start) / 1000000));
@@ -118,12 +104,14 @@ public class DataComparisonService implements ComparisonService {
         List<Metadata> sColumns = convert(sMd)
                 .map(s -> new Metadata(s.asString("COLUMN_NAME"),
                         orderedPks.stream().anyMatch(pk -> pk.equalsIgnoreCase(s.asString("COLUMN_NAME"))),
+                        s.asString("TYPE_NAME"),
                         toClass(s.asInt("DATA_TYPE"))))
                 .sorted()
                 .collect(Collectors.toList());
         List<Metadata> tColumns = convert(tMd)
                 .map(t -> new Metadata(t.asString("COLUMN_NAME"),
                         orderedPks.stream().anyMatch(pk -> pk.equalsIgnoreCase(t.asString("COLUMN_NAME"))),
+                        t.asString("TYPE_NAME"),
                         toClass(t.asInt("DATA_TYPE"))))
                 .sorted()
                 .collect(Collectors.toList());
@@ -241,14 +229,20 @@ public class DataComparisonService implements ComparisonService {
         resultStores.stream().forEach(rs -> rs.storeRowResults(this, tmp));
     }
 
-    private List<Object[]> rowsToList(ResultSet resultSet, List<String> columnNames) throws SQLException {
+    private List<Object[]> rowsToList(ResultSet resultSet, List<String> columnNames) throws ComparisonException {
         List<Object[]> listOfRows = new ArrayList<>();
         int rowWidth = columnNames.size();
-        while (resultSet.next()) {
-            Object[] tmp = columnNames.stream()
-                    .map(valueOfColumn(resultSet))
-                    .toArray(size -> new Object[rowWidth]);
-            listOfRows.add(tmp);
+        try {
+            while (resultSet.next()) {
+                Object[] tmp = columnNames.stream()
+                        .map(valueOfColumn(resultSet))
+                        .toArray(size -> new Object[rowWidth]);
+                listOfRows.add(tmp);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.error("During setup, retrieving resultsets into memory failed.");
+            throw new ComparisonException("During setup, retrieving resultsets into memory failed.");
         }
         return listOfRows;
     }

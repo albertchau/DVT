@@ -3,6 +3,7 @@ package com.intuit.idea.chopsticks.results;
 import com.intuit.idea.chopsticks.query.Metadata;
 
 /**
+ * TODO - make this a message class. subclass the messages for data/exist...meta...
  * ************************************
  * Author: achau1
  * Created On: 9/12/15
@@ -47,6 +48,14 @@ public class ColumnComparisonResult {
 
     public static ColumnComparisonResult createOnlyTarget(Metadata target, Object tVal) {
         return new ColumnComparisonResult(false, null, target.getColumn(), null, tVal, target.isPk());
+    }
+
+    public static ColumnComparisonResult createOnlySourceField(String sField, boolean isPk) {
+        return new ColumnComparisonResult(false, sField, null, null, null, isPk);
+    }
+
+    public static ColumnComparisonResult createOnlyTargetField(String tField, boolean isPk) {
+        return new ColumnComparisonResult(false, null, tField, null, null, isPk);
     }
 
     public boolean isPk() {

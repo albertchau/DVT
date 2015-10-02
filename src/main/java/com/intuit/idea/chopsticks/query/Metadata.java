@@ -1,20 +1,47 @@
 package com.intuit.idea.chopsticks.query;
 
+import java.util.function.BiFunction;
+
 /**
  * ************************************
  * Author: achau1
  * Created On: 9/18/15
  * ************************************
  */
-public class Metadata implements Comparable {
+public final class Metadata implements Comparable {
     private final String column;
     private final boolean pk;
+    private final String sqlTypeName;
     private final Class<? extends Comparable> type;
+    private final BiFunction<Comparable, Comparable, Integer> comparer;
 
-    public Metadata(String column, boolean pk, Class<? extends Comparable> type) {
+
+    public Metadata(String column, boolean pk, String sqlTypeName, Class<? extends Comparable> type, BiFunction<Comparable, Comparable, Integer> comparer) {
         this.column = column;
         this.pk = pk;
+        this.sqlTypeName = sqlTypeName;
         this.type = type;
+        this.comparer = comparer;
+    }
+
+    public Metadata(String column, boolean pk, String sqlTypeName, Class<? extends Comparable> type) {
+        this.column = column;
+        this.pk = pk;
+        this.sqlTypeName = sqlTypeName;
+        this.type = type;
+        this.comparer = null;
+    }
+
+    public static Metadata createWithType(String column, boolean pk, Class<? extends Comparable> type) {
+        return new Metadata(column, pk, null, type, null);
+    }
+
+    public static Metadata createWithComparer(String column, boolean pk, BiFunction<Comparable, Comparable, Integer> comparer) {
+        return new Metadata(column, pk, null, null, comparer);
+    }
+
+    public String getSqlTypeName() {
+        return sqlTypeName;
     }
 
     public String getColumn() {
@@ -27,6 +54,10 @@ public class Metadata implements Comparable {
 
     public Class<? extends Comparable> getType() {
         return type;
+    }
+
+    public BiFunction<Comparable, Comparable, Integer> getComparer() {
+        return comparer;
     }
 
     @Override

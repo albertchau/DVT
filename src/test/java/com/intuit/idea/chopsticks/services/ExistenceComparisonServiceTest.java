@@ -16,7 +16,6 @@ import java.util.Random;
  * @author albert
  */
 public class ExistenceComparisonServiceTest {
-
     private static final Logger logger = LoggerFactory.getLogger(ExistenceComparisonServiceTest.class);
     Random r = new Random();
     private MockResultSet srcRs;
