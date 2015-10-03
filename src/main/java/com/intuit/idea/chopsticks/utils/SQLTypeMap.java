@@ -7,8 +7,7 @@ package com.intuit.idea.chopsticks.utils;
  * ************************************
  */
 
-import org.joda.time.DateTime;
-
+import java.sql.Date;
 import java.sql.Types;
 
 /**
@@ -24,7 +23,7 @@ public class SQLTypeMap {
      * value, or Object.class if the getType has no known mapping.
      */
     public static Class<? extends Comparable> toClass(int type) {
-        Class<? extends Comparable> result = null;
+        Class<? extends Comparable> result = String.class;
 
         switch (type) {
             case Types.CHAR:
@@ -75,11 +74,11 @@ public class SQLTypeMap {
             case Types.BINARY:
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
-//                result = Byte[].class; todo
+                result = String.class; // todo?
                 break;
 
             case Types.DATE:
-                result = DateTime.class; //todo
+                result = Date.class;
                 break;
 
             case Types.TIME:
@@ -104,10 +103,10 @@ public class SQLTypeMap {
             case Types.NCLOB:
             case Types.SQLXML:
             case Types.REF_CURSOR:
-//                result = Object.class; todo
+                result = String.class; // todo?
                 break;
             case Types.ARRAY:
-//                result = Object[].class; todo
+                result = String.class; // todo?
                 break;
         }
 

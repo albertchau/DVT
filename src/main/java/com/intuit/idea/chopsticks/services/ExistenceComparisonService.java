@@ -3,8 +3,10 @@ package com.intuit.idea.chopsticks.services;
 import com.intuit.idea.chopsticks.providers.DataProvider;
 import com.intuit.idea.chopsticks.query.Metadata;
 import com.intuit.idea.chopsticks.results.ColumnComparisonResult;
+import com.intuit.idea.chopsticks.results.ResultSets;
 import com.intuit.idea.chopsticks.results.ResultStore;
 import com.intuit.idea.chopsticks.utils.exceptions.ComparisonException;
+import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +22,17 @@ import java.util.stream.Stream;
 
 import static com.intuit.idea.chopsticks.results.ColumnComparisonResult.createMatesFromMeta;
 import static com.intuit.idea.chopsticks.results.ColumnComparisonResult.createOnlySource;
+import static com.intuit.idea.chopsticks.services.CombinedMetadata.combineMetadata;
 import static com.intuit.idea.chopsticks.utils.SQLTypeMap.toClass;
 
 /**
  * Copyright 2015
- *
+ * 1) get metadata map to comparable Java
+ * 2) get data
+ * 3) use metadata to cast each data column when converting to int
+ * 4) find colcompareto
+ * 5) create combined metadata from both metadatas and colcompareto
+ * 6)
  * @author albert
  */
 public class ExistenceComparisonService implements ComparisonService {
@@ -43,8 +51,29 @@ public class ExistenceComparisonService implements ComparisonService {
     }
 
     @Override
-    public void compare(DataProvider source, DataProvider target) {
-
+    public void compare(DataProvider source, DataProvider target) throws ComparisonException {
+        try {
+            source.openConnections();
+        } catch (DataProviderException e) {
+            e.printStackTrace();
+            throw new ComparisonException("Could not dataCompare connections to source.");
+        }
+        try {
+            target.openConnections();
+        } catch (DataProviderException e) {
+            e.printStackTrace();
+            throw new ComparisonException("Could not dataCompare connections to target.");
+        }
+        try (ResultSets sData = source.getData(this);
+             ResultSets tData = target.getData(this)) { //todo deal with random sampling
+            existenceCompare(sData, tData, source.getPrimaryKeys(), target.getPrimaryKeys());
+        } catch (DataProviderException | SQLException e) {
+            e.printStackTrace();
+            logger.error("Could not get data for comparison.");
+            throw new ComparisonException("Could not get data for comparison.");
+        }
+        source.closeConnections();
+        target.closeConnections();
     }
 
     @Override
@@ -61,19 +90,28 @@ public class ExistenceComparisonService implements ComparisonService {
      * @param tData Target result set that is to be compared with source.
      * @param sPks  Source primary key columns. Must exist in source result set columns. Order nor case matter.
      * @param tPks  Target primary key columns. Must exist in target result set columns. Order nor case matter.
-     * @param sMd   ResultSet containing metadata that describes the srsRs. Namely, fields Specifically COLUMN_NAME and DATA_TYPE are looked at.
-     * @param tMd   ResultSet containing metadata that describes the tarRs. Namely, fields Specifically COLUMN_NAME and DATA_TYPE are looked at.
+    //     * @param sMd   ResultSet containing metadata that describes the srsRs. Namely, fields Specifically COLUMN_NAME and DATA_TYPE are looked at.
+    //     * @param tMd   ResultSet containing metadata that describes the tarRs. Namely, fields Specifically COLUMN_NAME and DATA_TYPE are looked at.
      * @throws ComparisonException sdf
      */
-    public void existenceCompare(ResultSet sData, ResultSet tData, List<String> sPks, List<String> tPks, ResultSet sMd, ResultSet tMd) throws ComparisonException {
-        Metadata[] orderedPkMetadata = createMetadataForPrimaryKeys(sPks, sMd, tPks, tMd);
+    public void existenceCompare(ResultSet sData, ResultSet tData, List<String> sPks, List<String> tPks) throws ComparisonException {
+        Metadata[] sMetadata;
+        Metadata[] tMetadata;
+        try {
+            sMetadata = columnLabelsFromResultSet(sData, tPks);
+            tMetadata = columnLabelsFromResultSet(tData, sPks);
+            CombinedMetadata[] orderedPkMetadata = mergeMetadata(sMetadata, tMetadata);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        Metadata[] orderedPkMetadata = new Metadata[2];
         long start = System.nanoTime();
         List<String> columnNames = Stream.of(orderedPkMetadata)
                 .map(Metadata::getColumn)
                 .collect(Collectors.toList());
         List<Comparable[]> sRowList;
         try {
-            sRowList = rowsToList(sData, columnNames, Comparable.class);
+            sRowList = rowsToLists(sData, null /*columnNames*/);
         } catch (SQLException e) {
             e.printStackTrace();
             logger.error("During setup, retrieving source's resultsets into memory failed.");
@@ -81,7 +119,7 @@ public class ExistenceComparisonService implements ComparisonService {
         }
         List<Comparable[]> tRowList;
         try {
-            tRowList = rowsToList(tData, columnNames, Comparable.class);
+            tRowList = rowsToLists(tData, null /*columnNames*/);
         } catch (SQLException e) {
             e.printStackTrace();
             logger.error("During setup, retrieving target's resultsets into memory failed.");
@@ -90,6 +128,22 @@ public class ExistenceComparisonService implements ComparisonService {
         comparisonStrategy(sRowList, tRowList, orderedPkMetadata);
         long end = System.nanoTime();
         logger.info("start - end /100000 = " + ((end - start) / 1000000));
+    }
+
+    private CombinedMetadata[] mergeMetadata(Metadata[] sMetadata, Metadata[] tMetadata) throws ComparisonException {
+        if (sMetadata.length != tMetadata.length) {
+            throw new ComparisonException("Metadata is not same length");
+        }
+
+        Arrays.sort(sMetadata);
+        Arrays.sort(tMetadata);
+        BiFunction<Comparable, Comparable, Integer> comparer = Comparable::compareTo;
+        IntStream.range(0, sMetadata.length)
+                .boxed()
+                .filter(i -> sMetadata[i].equals(tMetadata[i]))
+                .map(i -> combineMetadata(sMetadata[i], comparer, tMetadata[i]))
+                .collect(Collectors.toList());
+        return new CombinedMetadata[0];
     }
 
     /**
@@ -107,27 +161,24 @@ public class ExistenceComparisonService implements ComparisonService {
         List<Comparable[]> tRowList;
         Metadata[] tMetadata;
         try {
-            sMetadata = columnNamesFromResultSet(sData);
-            List<String> columnNames = Stream.of(sMetadata)
-                    .map(Metadata::getColumn)
-                    .collect(Collectors.toList());
-            sRowList = rowsToList(sData, columnNames, Comparable.class);
+            sMetadata = columnLabelsFromResultSet(sData, METADATA_COL_HEADERS);
+            sRowList = rowsToLists(sData, sMetadata);
         } catch (SQLException e) {
             e.printStackTrace();
             logger.error("During setup, retrieving source's resultsets into memory failed.");
             throw new ComparisonException("During setup, retrieving source's resultsets into memory failed.");
         }
         try {
-            tMetadata = columnNamesFromResultSet(tData);
-            List<String> columnNames = Stream.of(tMetadata)
-                    .map(Metadata::getColumn)
-                    .collect(Collectors.toList());
-            tRowList = rowsToList(tData, columnNames, Comparable.class);
+            tMetadata = columnLabelsFromResultSet(tData, METADATA_COL_HEADERS);
+            tRowList = rowsToLists(tData, tMetadata);
         } catch (SQLException e) {
             e.printStackTrace();
             logger.error("During setup, retrieving target's resultsets into memory failed.");
             throw new ComparisonException("During setup, retrieving target's resultsets into memory failed.");
         }
+
+//        existenceCompare(sData, tData, columnNames, columnNames, );
+
         comparisonStrategy(sRowList, tRowList, sMetadata, tMetadata);
         long end = System.nanoTime();
         logger.info("start - end /100000 = " + ((end - start) / 1000000));
@@ -224,7 +275,7 @@ public class ExistenceComparisonService implements ComparisonService {
         }
     }
 
-    private Metadata[] createMetadataForPrimaryKeys(List<String> sPks, ResultSet sMd, List<String> tPks, ResultSet tMd) throws ComparisonException {
+    private CombinedMetadata[] createMetadataForPrimaryKeys(List<String> sPks, Metadata[] sMd, List<String> tPks, Metadata[] tMd) throws ComparisonException {
         boolean allSrcPkExistInTar = sPks.stream()
                 .allMatch(sPk -> tPks.stream()
                                 .anyMatch(tPk -> tPk.equalsIgnoreCase(sPk))
@@ -244,16 +295,16 @@ public class ExistenceComparisonService implements ComparisonService {
         List<String> sortedPks = sPks.stream()
                 .sorted(String::compareToIgnoreCase)
                 .collect(Collectors.toList());
-        List<Comparable[]> srcMetadataAsArrays;
-        List<Comparable[]> tarMetadataAsArrays;
-        try {
-            srcMetadataAsArrays = rowsToList(sMd, METADATA_COL_HEADERS, Comparable.class);
-            tarMetadataAsArrays = rowsToList(tMd, METADATA_COL_HEADERS, Comparable.class);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            logger.error("Could not get metadata for the primary key columns.");
-            throw new ComparisonException("Could not get metadata for the primary key columns.");
-        }
+        List<Comparable[]> srcMetadataAsArrays = new ArrayList<>();
+        List<Comparable[]> tarMetadataAsArrays = new ArrayList<>();
+//        try {
+////            srcMetadataAsArrays = rowsToLists(sMd, METADATA_COL_HEADERS);
+////            tarMetadataAsArrays = rowsToLists(tMd, METADATA_COL_HEADERS);
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            logger.error("Could not get metadata for the primary key columns.");
+//            throw new ComparisonException("Could not get metadata for the primary key columns.");
+//        }
         List<Metadata> srcMetadata = srcMetadataAsArrays.stream()
                 .map(md -> new Metadata((String) md[0],
                         sortedPks.stream().anyMatch(pk -> pk.equalsIgnoreCase((String) md[0])),
@@ -289,17 +340,23 @@ public class ExistenceComparisonService implements ComparisonService {
             throw new ComparisonException(String.format("Mismatched result set size after filtering by primary keys. Found %d columns in common. Found %d columns: %s in source. Found %d columns: %s in target.",
                     intersect.size(), srcMetadata.size(), sColsOnly, tarMetadata.size(), tColsOnly));
         }
-        return intersect.stream().toArray(Metadata[]::new);
+//        return intersect.stream().toArray(Metadata[]::new);
+        return new CombinedMetadata[3];
     }
 
-    private Metadata[] columnNamesFromResultSet(ResultSet data) throws SQLException {
+    public Metadata[] columnLabelsFromResultSet(ResultSet data, List<String> pks) throws SQLException {
         ResultSetMetaData metaData = data.getMetaData();
         return IntStream.range(1, metaData.getColumnCount() + 1).boxed()
                 .map(i -> {
                     try {
-                        return new Metadata(metaData.getColumnName(i),
-                                true,
-                                toClass(metaData.getColumnType(i)));
+                        String columnLabel = metaData.getColumnLabel(i);
+                        if (pks.stream().anyMatch(pk -> pk.equalsIgnoreCase(columnLabel))) {
+                            return new Metadata(columnLabel,
+                                    true,
+                                    toClass(metaData.getColumnType(i)));
+                        } else {
+                            return null;
+                        }
                     } catch (SQLException e) {
                         e.printStackTrace();
                         return null;
@@ -309,26 +366,48 @@ public class ExistenceComparisonService implements ComparisonService {
                 .toArray(Metadata[]::new);
     }
 
-    @SuppressWarnings("unchecked")
-    private <T extends Comparable> List<T[]> rowsToList(ResultSet resultSet, List<String> columnNames, Class<T> type) throws SQLException {
-        List<T[]> listOfRows = new ArrayList<>();
+    public List<Object[]> rowsToList(ResultSet resultSet, List<String> columnNames) throws SQLException {
+        List<Object[]> listOfRows = new ArrayList<>();
         while (resultSet.next()) {
-            T[] tmp = columnNames.stream()
-                    .map(valueOfColumn(resultSet, type))
-                    .toArray(size -> (T[]) new Comparable[size]);
+            Object[] tmp = columnNames.stream()
+                    .map(valueOfColumn(resultSet))
+                    .toArray(Object[]::new);
             listOfRows.add(tmp);
         }
-        BiFunction<Metadata, Metadata, Integer> metadataObjectIntegerBiFunction = Metadata::compareTo;
-        Comparator<String> stringComparator = String::compareTo;
-        BiFunction<String, String, Integer> stringStringIntegerBiFunction = stringComparator::compare;
-        stringStringIntegerBiFunction.apply("", "");
+
         return listOfRows;
     }
 
-    private <T> Function<String, T> valueOfColumn(ResultSet rs, Class<T> type) {
+    private Function<String, Object> valueOfColumn(ResultSet rs) {
         return (columnName) -> {
             try {
-                return rs.getObject(columnName, type);
+                Object object = rs.getObject(columnName);
+                return object;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                return null;
+            }
+        };
+    }
+
+    public List<Comparable[]> rowsToLists(ResultSet resultSet, Metadata[] columns) throws SQLException {
+        List<Comparable[]> listOfRows = new ArrayList<>();
+        while (resultSet.next()) {
+            Comparable[] tmp = Arrays.stream(columns)
+                    .map(columnValue(resultSet))
+                    .toArray(Comparable[]::new);
+            listOfRows.add(tmp);
+        }
+//        Comparator<String> stringComparator = String::compareTo;
+//        BiFunction<String, String, Integer> stringStringIntegerBiFunction = stringComparator::compare;
+//        stringStringIntegerBiFunction.apply("", "");
+        return listOfRows;
+    }
+
+    private Function<Metadata, Comparable> columnValue(ResultSet rs) {
+        return (columnName) -> {
+            try {
+                return columnName.getType().cast(rs.getObject(columnName.getColumn(), columnName.getType()));
             } catch (SQLException e) {
                 e.printStackTrace();
                 return null;

@@ -44,7 +44,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
         return getData(query);
     }
 
-    private ResultSets getData(String query) throws DataProviderException {
+    public ResultSets getData(String query) throws DataProviderException {
         if (connections == null) {
             logger.error("You need to openConnections() before calling this getData() method.");
             throw new DataProviderException("You need to openConnections() before calling this getData() method.");

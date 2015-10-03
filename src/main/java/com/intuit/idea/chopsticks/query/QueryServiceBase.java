@@ -47,8 +47,8 @@ public abstract class QueryServiceBase implements QueryService {
         this.schema = schema;
         this.includedColumns = new ArrayList<>(includedColumns);
         this.excludedColumns = new ArrayList<>(excludedColumns);
-        sort(metadatas);
-        this.metadatas = metadatas;
+        this.metadatas = metadatas == null ? new ArrayList<>() : metadatas;
+        sort(this.metadatas);
         this.fetchAmount = fetchAmount;
         this.testType = testType;
         this.whereClauses = new ArrayList<>(whereClauses);

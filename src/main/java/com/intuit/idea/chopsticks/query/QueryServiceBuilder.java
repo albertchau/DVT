@@ -62,6 +62,10 @@ public class QueryServiceBuilder {
         return this;
     }
 
+    public QueryService build(String tableName, VendorType vendor, TestType testType) {
+        return build(tableName, vendor, null, testType);
+    }
+
     public QueryService build(String tableName, VendorType vendor, List<Metadata> metadatas, TestType testType) {
         switch (testType) {
             case FULL:
@@ -85,33 +89,33 @@ public class QueryServiceBuilder {
                 }
                 break;
         }
-        if (fetchAmount > 0 && !metadatas.stream().anyMatch(Metadata::isPk)) {
-            return null; //todo throw error
-        }
-        long problemWhereClauses = whereClauses.stream()
-                .filter(wc -> metadatas.stream()
-                        .noneMatch(md -> md.getColumn().equalsIgnoreCase(wc.getColumn())))
-                .peek(wc -> logger.error("Could not register the WhereClause: " + wc.toString()))
-                .count();
-        if (problemWhereClauses > 0) {
-            return null; //todo throw error
-        }
+//        if (fetchAmount > 0 && !metadatas.stream().anyMatch(Metadata::isPk)) {
+//            return null; //todo throw error
+//        }
+//        long problemWhereClauses = whereClauses.stream()
+//                .filter(wc -> metadatas.stream()
+//                        .noneMatch(md -> md.getColumn().equalsIgnoreCase(wc.getColumn())))
+//                .peek(wc -> logger.error("Could not register the WhereClause: " + wc.toString()))
+//                .count();
+//        if (problemWhereClauses > 0) {
+//            return null; //todo throw error
+//        }
+        List<Metadata> mds = metadatas == null ? new ArrayList<>() : metadatas;
         switch (vendor) {
             case HIVE_2:
             case HIVE_1:
-                return new HiveQueryService(tableName, schema, includedColumns, excludedColumns, metadatas, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new HiveQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case MYSQL:
-                return new MySqlQueryService(tableName, schema, includedColumns, excludedColumns, metadatas, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new MySqlQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case SQL_SERVER:
-                return new SqlServerQueryService(tableName, schema, includedColumns, excludedColumns, metadatas, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new SqlServerQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case ORACLE:
-                return new OracleQueryService(tableName, schema, includedColumns, excludedColumns, metadatas, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new OracleQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case VERTICA:
-                return new VerticaQueryService(tableName, schema, includedColumns, excludedColumns, metadatas, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new VerticaQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case NETEZZA:
-                return new NetezzaQueryService(tableName, schema, includedColumns, excludedColumns, metadatas, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new NetezzaQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
         }
         return null;
     }
-
 }

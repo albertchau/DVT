@@ -6,8 +6,10 @@ import com.intuit.idea.chopsticks.providers.VendorType;
 import com.intuit.idea.chopsticks.query.QueryService;
 import com.intuit.idea.chopsticks.query.QueryServiceBuilder;
 import com.intuit.idea.chopsticks.query.TestType;
+import com.intuit.idea.chopsticks.results.ResultSets;
 import com.intuit.idea.chopsticks.services.ComparisonService;
 import com.intuit.idea.chopsticks.services.DataComparisonService;
+import com.intuit.idea.chopsticks.services.ExistenceComparisonService;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -38,7 +40,7 @@ public class DataParityControllerTest {
     @Test
     public void mainTest() throws SQLException, DataProviderException {
         //use injectors here...
-        QueryService sqf = new QueryServiceBuilder().build("", VendorType.MYSQL, null, TestType.FULL);
+        QueryService sqf = new QueryServiceBuilder().build("", VendorType.MYSQL, TestType.FULL);
         DataProvider source = new StructuredJdbcDataProvider(
                 VendorType.MYSQL,
                 "host",
@@ -52,7 +54,7 @@ public class DataParityControllerTest {
                 null,
                 sqf
         );
-        QueryService tqf = new QueryServiceBuilder().build("", VendorType.MYSQL, null, TestType.FULL);
+        QueryService tqf = new QueryServiceBuilder().build("", VendorType.MYSQL, TestType.FULL);
         DataProvider target = new StructuredJdbcDataProvider(
                 VendorType.MYSQL,
                 "host",
@@ -73,6 +75,49 @@ public class DataParityControllerTest {
         source.getDataProviderType();
         dpc.registerComparisonService(dataComparisonService);
         dpc.run();
+    }
+
+    @Test
+    public void testMySqlEtE() throws Exception {
+        QueryService sqf = new QueryServiceBuilder().build("employees", VendorType.MYSQL, TestType.FULL);
+        StructuredJdbcDataProvider source = new StructuredJdbcDataProvider(
+                VendorType.MYSQL,
+                "host",
+                "port",
+                "jdbc:mysql://localhost:3306/test",
+                "root",
+                "admin",
+                "",
+                "",
+                "employees",
+                null,
+                sqf
+        );
+
+        QueryService tqf = new QueryServiceBuilder().build("employees", VendorType.MYSQL, TestType.FULL);
+        StructuredJdbcDataProvider target = new StructuredJdbcDataProvider(
+                VendorType.MYSQL,
+                "host",
+                "port",
+                "jdbc:mysql://localhost:3306/test",
+                "root",
+                "admin",
+                "",
+                "",
+                "employees",
+                null,
+                tqf
+        );
+        ExistenceComparisonService existenceComparisonService = new ExistenceComparisonService(null);
+
+        target.openConnections();
+        ResultSets sData = target.getData("Select * from test.employees where EmployeeID = 1001");
+        ResultSets tData = target.getData("Select * from test.employees where EmployeeID = 1002");
+
+        existenceComparisonService.existenceCompare(sData, tData);
+
+        target.closeConnections();
+
     }
 
     @Test

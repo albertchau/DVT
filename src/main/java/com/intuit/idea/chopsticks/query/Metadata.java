@@ -63,4 +63,13 @@ public class Metadata implements Comparable {
         result = 31 * result + getType().hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Metadata{" +
+                "column='" + column + '\'' +
+                ", pk=" + pk +
+                ", type=" + type +
+                '}';
+    }
 }

@@ -57,7 +57,7 @@ public class ExistenceComparisonServiceTest {
     public void testCompareWithMetadata() throws Exception {
         logger.info("testCompareWithMetadata");
         ExistenceComparisonService existenceComparisonService = new ExistenceComparisonService(null);
-        existenceComparisonService.existenceCompare(srcRs, tarRs, sPk, tPk, sMd, tMd);
+//        existenceComparisonService.existenceCompare(srcRs, tarRs, sPk, tPk, sMd, tMd);
     }
 
     @Test
