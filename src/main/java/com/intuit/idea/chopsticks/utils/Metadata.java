@@ -1,4 +1,4 @@
-package com.intuit.idea.chopsticks.query;
+package com.intuit.idea.chopsticks.utils;
 
 /**
  * ************************************
@@ -6,15 +6,20 @@ package com.intuit.idea.chopsticks.query;
  * Created On: 9/18/15
  * ************************************
  */
-public class Metadata implements Comparable {
+public final class Metadata implements Comparable {
     private final String column;
     private final boolean pk;
     private final Class<? extends Comparable> type;
+
 
     public Metadata(String column, boolean pk, Class<? extends Comparable> type) {
         this.column = column;
         this.pk = pk;
         this.type = type;
+    }
+
+    public static Metadata createWithType(String column, boolean pk, Class<? extends Comparable> type) {
+        return new Metadata(column, pk, type);
     }
 
     public String getColumn() {
@@ -28,6 +33,7 @@ public class Metadata implements Comparable {
     public Class<? extends Comparable> getType() {
         return type;
     }
+
 
     @Override
     public int compareTo(Object that) {
@@ -52,7 +58,7 @@ public class Metadata implements Comparable {
             return false;
         }
         Metadata metadata = (Metadata) o;
-        return isPk() == metadata.isPk() && getColumn().equalsIgnoreCase(metadata.getColumn()) && getType().equals(metadata.getType());
+        return isPk() == metadata.isPk() && getColumn().equalsIgnoreCase(metadata.getColumn());
 
     }
 

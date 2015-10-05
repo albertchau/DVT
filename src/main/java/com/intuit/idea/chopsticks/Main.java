@@ -1,61 +1,43 @@
 package com.intuit.idea.chopsticks;
 
-import java.util.Arrays;
-import java.util.List;
+import com.google.common.base.Supplier;
+import com.intuit.idea.chopsticks.utils.Pair;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-
-enum EE {
-    A(String.class, String.class, (String p, String q) -> q.compareTo(q));
-//    S ((String p, String q) -> 1);
-//    M ((p) -> (double) p.s*p.t),
-//    D ((p) -> (double) p.s/p.t);
-//
-//    A ((p) -> (double) p.s+p.t),
-//    S ((p) -> (double) p.s-p.t),
-//    M ((p) -> (double) p.s*p.t),
-//    D ((p) -> (double) p.s/p.t);
-
-
-    private final BiFunction<? extends Comparable, ? extends Comparable, Integer> f;
-
-    <T extends Comparable, U extends Comparable> EE(Class<T> s, Class<U> t, BiFunction<T, U, Integer> f) {
-        this.f = f;
-    }
-
-    public BiFunction<? extends Comparable, ? extends Comparable, Integer> getF() {
-        // for lookup... try a pair<t,u> with bifunction<t,u,integer>?
-//        String.class > Integer.class ? 2 : 3; //http://stackoverflow.com/questions/29590333/store-a-list-of-unordered-pairs-in-java
-        return f.andThen(i -> i + 2);
-    }
-}
+import java.util.function.DoubleSupplier;
+import java.util.stream.IntStream;
 
 /**
  * Copyright 2015
- *
+ * @link http://onoffswitch.net/simplifying-class-matching-java-8/
  * @author albert
  */
 public class Main {
 
+    static Map<Pair<Class<?>, Class<?>>, BiFunction> comp;
+
+    static {
+        comp = new HashMap<>();
+        comp.put(new Pair<>(String.class, Integer.class), (a, b) -> a.equals(((Integer) (((Integer) b) + 4)).toString()));
+    }
+
     public static void main(String[] args) {
-        List<String> sPks = Arrays.asList("A", "B", "C", "D");
-        List<String> tPks = Arrays.asList("a", "b", "c");
-        boolean ignoreCaseOut = sPks.stream().allMatch(sPk -> tPks.stream().anyMatch(tPk -> tPk.equalsIgnoreCase(sPk)));
-        System.out.println("ignoreCaseOut = " + ignoreCaseOut);
-        boolean caseSensitveOut = sPks.stream().allMatch(sPk -> tPks.stream().anyMatch(tPk -> tPk.equals(sPk)));
-        System.out.println("caseSensitveOut = " + caseSensitveOut);
-    }
-}
+        BiConsumer<String, String> xx = (a, b) -> System.out.println("a = " + a);
+        BiConsumer<String, String> xxy = xx.andThen((a, b) -> System.out.println("b = " + b));
 
-class T2 {
-    public Integer s;
-    public Integer t;
+        BiFunction<String, String, Object> stringStringObjectBiFunction = (String a, String b) -> a == b;
 
-    public T2(Integer s, Integer t) {
-        this.s = s;
-        this.t = t;
+        DoubleSupplier doubleSupplier = () -> 10;
+
+        IntStream.range(1, 10).boxed().forEach(x -> print(() -> x));
+
     }
 
-    public static T2 t2(Integer s, Integer t) {
-        return new T2(s, t);
+    private static void print(Supplier name) {
+        name.get();
     }
+
 }
