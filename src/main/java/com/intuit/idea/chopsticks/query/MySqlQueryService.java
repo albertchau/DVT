@@ -1,11 +1,13 @@
 package com.intuit.idea.chopsticks.query;
 
+import com.intuit.idea.chopsticks.utils.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -17,14 +19,13 @@ import java.util.stream.Collectors;
  * Created On: 9/20/15
  * ************************************
  */
-public class MySqlQueryService extends QueryServiceBase {
+public final class MySqlQueryService extends QueryServiceBase {
     private static final Logger logger = LoggerFactory.getLogger(MySqlQueryService.class);
 
     public MySqlQueryService(String tableName,
                              String schema,
                              List<String> includedColumns,
                              List<String> excludedColumns,
-                             List<Metadata> metadatas,
                              Integer fetchAmount,
                              TestType testType,
                              List<WhereClause> whereClauses,
@@ -34,7 +35,6 @@ public class MySqlQueryService extends QueryServiceBase {
                 schema,
                 includedColumns,
                 excludedColumns,
-                metadatas,
                 fetchAmount,
                 testType,
                 whereClauses,
@@ -43,9 +43,10 @@ public class MySqlQueryService extends QueryServiceBase {
     }
 
     @Override
-    public String createDataQuery() throws QueryCreationError {
+    public String createDataQuery(List<Metadata> metadatas) throws QueryCreationError {
+        Collections.sort(metadatas);
         StringBuilder query = new StringBuilder("SELECT ");
-        query.append(generateSelectStatement());
+        query.append(generateSelectStatement(metadatas));
         query.append(" FROM ");
         query.append(getFrom());
         if (whereClauses != null) {
@@ -58,7 +59,7 @@ public class MySqlQueryService extends QueryServiceBase {
             }
         }
         if (orderDirection != null && fetchAmount > 0) {
-            query.append(" ORDER BY ").append(getOrderBy());
+            query.append(" ORDER BY ").append(getOrderBy(metadatas));
         }
         if (fetchAmount > 0) {
             query.append(" LIMIT ").append(fetchAmount);
@@ -67,7 +68,7 @@ public class MySqlQueryService extends QueryServiceBase {
     }
 
     @Override
-    public String createExistenceQuery() throws QueryCreationError {
+    public String createExistenceQuery(List<Metadata> metadatas) throws QueryCreationError {
         StringBuilder query = new StringBuilder("SELECT ");
         query.append(metadatas.stream()
                 .filter(Metadata::isPk)
@@ -77,11 +78,8 @@ public class MySqlQueryService extends QueryServiceBase {
             String whereClauseColumns = whereClauses.stream()
                     .map(WhereClause::getColumn)
                     .filter(Objects::nonNull)
-                    .filter(s -> !metadatas.stream()
-                            .filter(md -> md.getColumn().equals(s))
-                            .map(Metadata::isPk)
-                            .findAny()
-                            .orElse(true))
+                    .filter(wc -> metadatas.stream()
+                            .anyMatch(md -> md.getColumn().equalsIgnoreCase(wc) && md.isPk()))
                     .collect(Collectors.joining(","));
             if (!whereClauseColumns.isEmpty()) {
                 query.append(",").append(whereClauseColumns);
@@ -99,7 +97,7 @@ public class MySqlQueryService extends QueryServiceBase {
             }
         }
         if (orderDirection != null) {
-            query.append(" ORDER BY ").append(getOrderBy());
+            query.append(" ORDER BY ").append(getOrderBy(metadatas));
         }
         if (fetchAmount > 0) {
             query.append(" LIMIT ").append(fetchAmount);
@@ -126,15 +124,15 @@ public class MySqlQueryService extends QueryServiceBase {
     }
 
     @Override
-    public String createDataQuery(Map<String, List<String>> pksWithHeaders) throws QueryCreationError {
-        addSampledWhereClauses(pksWithHeaders);
-        return createDataQuery();
+    public String createDataQueryWithInputSamples(List<Metadata> metadatas, Map<String, List<String>> pksWithHeaders) throws QueryCreationError {
+        addSampledWhereClauses(metadatas, pksWithHeaders);
+        return createDataQuery(metadatas);
     }
 
     @Override
-    public String createExistenceQuery(Map<String, List<String>> pksWithHeaders) throws QueryCreationError {
-        addSampledWhereClauses(pksWithHeaders);
-        return createExistenceQuery();
+    public String createExistenceQueryWithInputSamples(List<Metadata> metadatas, Map<String, List<String>> pksWithHeaders) throws QueryCreationError {
+        addSampledWhereClauses(metadatas, pksWithHeaders);
+        return createExistenceQuery(metadatas);
     }
 
     @Override
@@ -162,7 +160,7 @@ public class MySqlQueryService extends QueryServiceBase {
                 , endStr);
     }
 
-    private String getOrderBy() {
+    private String getOrderBy(List<Metadata> metadatas) {
         String ordering = "ASC";
         switch (orderDirection) {
             case ASCENDING:
@@ -179,7 +177,8 @@ public class MySqlQueryService extends QueryServiceBase {
         final String finalOrdering = ordering;
         return metadatas.stream()
                 .filter(Metadata::isPk)
-                .map(m -> m.getColumn() + " " + finalOrdering)
+                .map(Metadata::getColumn)
+                .map(column -> column + " " + finalOrdering)
                 .collect(Collectors.joining(", "));
     }
 
@@ -191,7 +190,7 @@ public class MySqlQueryService extends QueryServiceBase {
         }
     }
 
-    private String generateSelectStatement() throws QueryCreationError {
+    private String generateSelectStatement(List<Metadata> metadatas) throws QueryCreationError {
         String collect;
         if (includedColumns.isEmpty() && excludedColumns.isEmpty()) {
             collect = metadatas.stream()

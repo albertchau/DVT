@@ -8,8 +8,6 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * ************************************
@@ -24,10 +22,6 @@ public class ResultSets implements ResultSet {
     public ResultSets(List<ResultSet> resultSets) {
         this.resultSets = resultSets;
         current = resultSets.remove(0);
-    }
-
-    public ResultSets(Stream<ResultSet> resultSets) {
-        this(resultSets.collect(Collectors.toList()));
     }
 
     @Override

@@ -6,7 +6,7 @@ package com.intuit.idea.chopsticks.utils;
  * Created On: 9/18/15
  * ************************************
  */
-public final class Metadata implements Comparable {
+public final class Metadata implements Comparable<Metadata> {
     private final String column;
     private final boolean pk;
     private final Class<? extends Comparable> type;
@@ -36,17 +36,14 @@ public final class Metadata implements Comparable {
 
 
     @Override
-    public int compareTo(Object that) {
-        if (!(that instanceof Metadata)) {
-            throw new ClassCastException("Cannot compare Metadata.class to " + that.getClass() + ". Please only compare with Metadata classes");
-        }
-        if (this.isPk() && !((Metadata) that).isPk()) {
-            return 1;
-        }
-        if (!this.isPk() && ((Metadata) that).isPk()) {
+    public int compareTo(Metadata that) {
+        if (this.isPk() && !that.isPk()) {
             return -1;
         }
-        return column.compareToIgnoreCase(((Metadata) that).getColumn());
+        if (!this.isPk() && that.isPk()) {
+            return 1;
+        }
+        return column.compareToIgnoreCase(that.getColumn());
     }
 
     @Override
@@ -78,4 +75,5 @@ public final class Metadata implements Comparable {
                 ", type=" + type +
                 '}';
     }
+
 }

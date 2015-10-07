@@ -1,19 +1,20 @@
 package com.intuit.idea.chopsticks;
 
-import com.google.common.base.Supplier;
 import com.intuit.idea.chopsticks.utils.Pair;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.Random;
+import java.util.StringJoiner;
 import java.util.function.BiFunction;
-import java.util.function.DoubleSupplier;
+import java.util.stream.Collector;
 import java.util.stream.IntStream;
 
 /**
  * Copyright 2015
- * @link http://onoffswitch.net/simplifying-class-matching-java-8/
+ *
  * @author albert
+ * @link http://onoffswitch.net/simplifying-class-matching-java-8/
  */
 public class Main {
 
@@ -25,19 +26,36 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        BiConsumer<String, String> xx = (a, b) -> System.out.println("a = " + a);
-        BiConsumer<String, String> xxy = xx.andThen((a, b) -> System.out.println("b = " + b));
 
-        BiFunction<String, String, Object> stringStringObjectBiFunction = (String a, String b) -> a == b;
+        Random rand = new Random();
 
-        DoubleSupplier doubleSupplier = () -> 10;
+        int bound = 10;
+        String collect = IntStream.range(0, bound)/*.map(i -> rand.nextInt(bound * 10))*/
+                .boxed()
+                .collect(
+                        StringBuilder::new,
+                        StringBuilder::append,
+                        StringBuilder::append
+                ).toString();
+        Collector<Integer, StringBuilder, String> b = Collector.of(
+                () -> new StringBuilder(""),
+                (s, t) -> s.append(t.toString()),
+                StringBuilder::append,
+                StringBuilder::toString);
 
-        IntStream.range(1, 10).boxed().forEach(x -> print(() -> x));
-
+        Collector<Integer, StringJoiner, String> a = Collector.of(
+                () -> new StringJoiner(" | "),
+                (s, t) -> s.add(t.toString()),
+                StringJoiner::merge,
+                StringJoiner::toString);
+        String collect1 = IntStream.range(0, bound).map(i -> rand.nextInt(bound * 10))
+                .boxed()
+                .collect(a);
+        System.out.println("collect1 = " + collect1);
+        collect1 = IntStream.range(0, bound).map(i -> rand.nextInt(bound * 10))
+                .boxed()
+                .collect(b);
+        System.out.println("collect1 = " + collect1);
+        System.out.println(collect);
     }
-
-    private static void print(Supplier name) {
-        name.get();
-    }
-
 }

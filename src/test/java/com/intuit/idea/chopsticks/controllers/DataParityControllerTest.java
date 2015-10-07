@@ -6,7 +6,6 @@ import com.intuit.idea.chopsticks.providers.VendorType;
 import com.intuit.idea.chopsticks.query.QueryService;
 import com.intuit.idea.chopsticks.query.QueryServiceBuilder;
 import com.intuit.idea.chopsticks.query.TestType;
-import com.intuit.idea.chopsticks.results.ResultSets;
 import com.intuit.idea.chopsticks.services.ComparisonService;
 import com.intuit.idea.chopsticks.services.DataComparisonService;
 import com.intuit.idea.chopsticks.services.ExistenceComparisonService;
@@ -15,6 +14,7 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
@@ -111,10 +111,10 @@ public class DataParityControllerTest {
         ExistenceComparisonService existenceComparisonService = new ExistenceComparisonService(null);
 
         target.openConnections();
-        ResultSets sData = target.getData("Select * from test.employees where EmployeeID = 1001");
-        ResultSets tData = target.getData("Select * from test.employees where EmployeeID = 1002");
+        ResultSet sData = target.getData("Select * from test.employees where EmployeeID = 1001");
+        ResultSet tData = target.getData("Select * from test.employees where EmployeeID = 1002");
 
-        existenceComparisonService.existenceCompare(sData, tData);
+//        existenceComparisonService.startComparison(sData, tData);
 
         target.closeConnections();
 

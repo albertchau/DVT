@@ -1,5 +1,6 @@
 package com.intuit.idea.chopsticks.query;
 
+import com.intuit.idea.chopsticks.utils.Metadata;
 import com.intuit.idea.chopsticks.utils.Pair;
 import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.joda.time.format.DateTimeFormatter;
@@ -11,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.util.Collections.sort;
 
 /**
  * ************************************
@@ -26,7 +25,7 @@ public abstract class QueryServiceBase implements QueryService {
     protected final String schema;
     protected final List<String> includedColumns;
     protected final List<String> excludedColumns;
-    protected final List<Metadata> metadatas;
+    //    protected final List<Metadata> metadatas;
     protected final Integer fetchAmount;
     protected final TestType testType;
     protected final List<WhereClause> whereClauses;
@@ -37,7 +36,7 @@ public abstract class QueryServiceBase implements QueryService {
                                String schema,
                                List<String> includedColumns,
                                List<String> excludedColumns,
-                               List<Metadata> metadatas,
+//                               List<Metadata> metadatas,
                                Integer fetchAmount,
                                TestType testType,
                                List<WhereClause> whereClauses,
@@ -47,8 +46,8 @@ public abstract class QueryServiceBase implements QueryService {
         this.schema = schema;
         this.includedColumns = new ArrayList<>(includedColumns);
         this.excludedColumns = new ArrayList<>(excludedColumns);
-        this.metadatas = metadatas == null ? new ArrayList<>() : metadatas;
-        sort(this.metadatas);
+//        this.metadatas = metadatas == null ? new ArrayList<>() : metadatas;
+//        sort(this.metadatas);
         this.fetchAmount = fetchAmount;
         this.testType = testType;
         this.whereClauses = new ArrayList<>(whereClauses);
@@ -56,7 +55,7 @@ public abstract class QueryServiceBase implements QueryService {
         this.dateTimeFormat = dateTimeFormat;
     }
 
-    protected void addSampledWhereClauses(Map<String, List<String>> pksWithHeaders) throws QueryCreationError {
+    protected void addSampledWhereClauses(List<Metadata> metadatas, Map<String, List<String>> pksWithHeaders) throws QueryCreationError {
         if (pksWithHeaders == null || pksWithHeaders.isEmpty()) {
             logger.error("Did not pass in any primary keys or values into sampling.");
             throw new QueryCreationError("Did not pass in any primary keys or values into sampling.");

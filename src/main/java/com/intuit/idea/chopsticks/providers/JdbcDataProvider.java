@@ -1,15 +1,16 @@
 package com.intuit.idea.chopsticks.providers;
 
+import com.intuit.idea.chopsticks.results.ResultSets;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Copyright 2015
@@ -45,7 +46,7 @@ abstract public class JdbcDataProvider implements DataProvider {
     }
 
     @Override
-    public void openConnections() throws DataProviderException {
+    public final void openConnections() throws DataProviderException {
         if (connections == null) {
             connections = new ArrayList<>();
         }
@@ -78,7 +79,7 @@ abstract public class JdbcDataProvider implements DataProvider {
     }
 
     @Override
-    public void closeConnections() {
+    public final void closeConnections() {
         if (connections != null) {
             connections.stream()
                     .filter(Objects::nonNull)
@@ -93,15 +94,48 @@ abstract public class JdbcDataProvider implements DataProvider {
         connections = null;
     }
 
-    public List<Connection> getConnections() throws DataProviderException {
+    public final List<Connection> getConnections() throws DataProviderException {
         if (connections == null) {
             throw new DataProviderException("Have not opened up connections yet.");
         }
         return connections;
     }
 
+
+    public final ResultSet getData(String query) throws DataProviderException {
+        if (connections == null) { //todo probably can call it for them though...
+            logger.error("You need to openConnections() before calling this getData() method.");
+            throw new DataProviderException("You need to openConnections() before calling this getData() method.");
+        }
+        if (connections.size() < 1) {
+            logger.error("There are no active connections open.");
+            throw new DataProviderException("There are no active connections open.");
+        }
+        List<ResultSet> resultSetList = connections.stream()
+                .map(c -> {
+                    Statement stmt = null;
+                    ResultSet rs = null;
+                    try {
+                        stmt = c.createStatement();
+                        rs = stmt.executeQuery(query);
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                        logger.error("SQLException: " + ex.getMessage());
+                    }
+                    return rs;
+                })
+                .filter(Objects::nonNull)
+                .collect(toList());
+        if (resultSetList.size() < 1) {
+            logger.error("Could not get any resultSets. they were all null");
+            throw new DataProviderException("Could not get any resultSets. they were all null");
+        }
+        return new ResultSets(resultSetList);
+    }
+
+
     @Override
-    public void close() {
+    public final void close() {
         logger.info("Closing Connections.");
         closeConnections();
     }

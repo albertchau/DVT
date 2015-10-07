@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks.results;
 
-import com.intuit.idea.chopsticks.query.Metadata;
+import com.intuit.idea.chopsticks.services.CombinedMetadata;
 
 /**
  * TODO - make this a message class. subclass the messages for data/exist...meta...
@@ -26,12 +26,16 @@ public class ColumnComparisonResult {
         this.isPk = isPk;
     }
 
+    public static ColumnComparisonResult createMates(Boolean outcome, CombinedMetadata metadata, Object sVal, Object tVal, boolean isPk) {
+        return new ColumnComparisonResult(outcome, metadata.getSrcColumn(), metadata.getTarColumn(), sVal, tVal, isPk);
+    }
+
     public static ColumnComparisonResult createMates(Boolean outcome, String sField, String tField, Object sVal, Object tVal, boolean isPk) {
         return new ColumnComparisonResult(outcome, sField, tField, sVal, tVal, isPk);
     }
 
-    public static ColumnComparisonResult createMatesFromMeta(Boolean outcome, Metadata metadata, Object sVal, Object tVal) {
-        return new ColumnComparisonResult(outcome, metadata.getColumn(), metadata.getColumn(), sVal, tVal, metadata.isPk());
+    public static ColumnComparisonResult createMatesFromMeta(Boolean outcome, CombinedMetadata metadata, Object sVal, Object tVal) {
+        return new ColumnComparisonResult(outcome, metadata.getSrcColumn(), metadata.getTarColumn(), sVal, tVal, metadata.isPk());
     }
 
     public static ColumnComparisonResult createOnlySource(String sField, Object sVal, boolean isPk) {
@@ -42,12 +46,12 @@ public class ColumnComparisonResult {
         return new ColumnComparisonResult(false, null, tField, null, tVal, isPk);
     }
 
-    public static ColumnComparisonResult createOnlySource(Metadata source, Object sVal) {
-        return new ColumnComparisonResult(false, source.getColumn(), null, sVal, null, source.isPk());
+    public static ColumnComparisonResult createOnlySource(CombinedMetadata metadata, Object sVal) {
+        return new ColumnComparisonResult(false, metadata.getSrcColumn(), null, sVal, null, metadata.isPk());
     }
 
-    public static ColumnComparisonResult createOnlyTarget(Metadata target, Object tVal) {
-        return new ColumnComparisonResult(false, null, target.getColumn(), null, tVal, target.isPk());
+    public static ColumnComparisonResult createOnlyTarget(CombinedMetadata metadata, Object tVal) {
+        return new ColumnComparisonResult(false, null, metadata.getTarColumn(), null, tVal, metadata.isPk());
     }
 
     public static ColumnComparisonResult createOnlySourceField(String sField, boolean isPk) {

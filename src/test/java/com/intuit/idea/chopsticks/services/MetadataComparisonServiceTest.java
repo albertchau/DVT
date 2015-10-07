@@ -43,7 +43,7 @@ public class MetadataComparisonServiceTest {
     public void testCheckPrimaryKeys() throws Exception {
         List<String> sPks = Arrays.asList("employeeId", "firstName");
         List<String> tPks = Arrays.asList("employeeId", "firstName");
-        metadataComparisonService.checkPrimaryKeys(sPks, tPks);
+        metadataComparisonService.primaryKeyCheck(sPks, tPks);
     }
 
     @Test

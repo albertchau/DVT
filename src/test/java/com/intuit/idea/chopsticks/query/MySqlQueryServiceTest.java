@@ -1,14 +1,12 @@
 package com.intuit.idea.chopsticks.query;
 
 import com.intuit.idea.chopsticks.providers.VendorType;
+import com.intuit.idea.chopsticks.utils.Metadata;
 import org.joda.time.DateTime;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MySqlQueryServiceTest extends QueryServiceBaseTest {
@@ -19,7 +17,7 @@ public class MySqlQueryServiceTest extends QueryServiceBaseTest {
         List<Metadata> metadatas = COMPOSITE_PK_METADATA;
         List<Object[]> collected = TEST_TYPES.stream()
                 .flatMap(testType -> {
-                    List<QueryService> qss = getQueryServices(metadatas, testType, VENDOR_TYPE);
+                    List<QueryService> qss = getQueryServices(null, testType, VENDOR_TYPE);
                     return qss.stream()
                             .filter(Objects::nonNull);
                 })
@@ -38,7 +36,7 @@ public class MySqlQueryServiceTest extends QueryServiceBaseTest {
             QueryService singleIntPkQs = queryServiceBuilder
                     .setSchema("test")
                     .setFetchAmount(10)
-                    .setWhereClauses(Arrays.asList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
+                    .setWhereClauses(Collections.singletonList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
                     .setOrderDirection(OrderDirection.DESCENDING)
                     .build("employees", VendorType.MYSQL, SINGLE_INT_PK_METADATA, testType);
             qss.add(singleIntPkQs);
@@ -57,7 +55,7 @@ public class MySqlQueryServiceTest extends QueryServiceBaseTest {
             QueryService singleStrPkQs = queryServiceBuilder
                     .setSchema("test")
                     .setFetchAmount(10)
-                    .setWhereClauses(Arrays.asList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
+                    .setWhereClauses(Collections.singletonList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
                     .setOrderDirection(OrderDirection.DESCENDING)
                     .build("employees", VendorType.MYSQL, SINGLE_STR_PK_METADATA, testType);
             qss.add(singleStrPkQs);
@@ -69,14 +67,14 @@ public class MySqlQueryServiceTest extends QueryServiceBaseTest {
 
     @Test(dataProvider = "happyCompositeQueryServices")
     public void testHappyCompositeCreateDataQuery(QueryService mqs) throws Exception {
-        logger.info(mqs.createDataQuery());
-        logger.info(mqs.createDataQuery(SAMPLED_MAP_COMPOSITE));
+        logger.info(mqs.createDataQuery(null));
+        logger.info(mqs.createDataQueryWithInputSamples(null, SAMPLED_MAP_COMPOSITE));
     }
 
     @Test(dataProvider = "happyCompositeQueryServices")
     public void testHappyCompositeCreateExistenceQuery(QueryService mqs) throws Exception {
-        logger.info(mqs.createExistenceQuery());
-        logger.info(mqs.createExistenceQuery(SAMPLED_MAP_COMPOSITE));
+        logger.info(mqs.createExistenceQuery(null));
+        logger.info(mqs.createExistenceQueryWithInputSamples(null, SAMPLED_MAP_COMPOSITE));
     }
 
     @Test(dataProvider = "happyCompositeQueryServices")
@@ -86,14 +84,14 @@ public class MySqlQueryServiceTest extends QueryServiceBaseTest {
 
     @Test(dataProvider = "happySingleIntQueryServices")
     public void testHappySingleCreateDataQuery(QueryService mqs) throws Exception {
-        logger.info(mqs.createDataQuery());
-        logger.info(mqs.createDataQuery(SAMPLED_MAP_SINGLE_INT));
+        logger.info(mqs.createDataQuery(null));
+        logger.info(mqs.createDataQueryWithInputSamples(null, SAMPLED_MAP_SINGLE_INT));
     }
 
     @Test(dataProvider = "happySingleIntQueryServices")
     public void testHappySingleCreateExistenceQuery(QueryService mqs) throws Exception {
-        logger.info(mqs.createExistenceQuery());
-        logger.info(mqs.createExistenceQuery(SAMPLED_MAP_SINGLE_INT));
+        logger.info(mqs.createExistenceQuery(null));
+        logger.info(mqs.createExistenceQueryWithInputSamples(null, SAMPLED_MAP_SINGLE_INT));
     }
 
     @Test(dataProvider = "happySingleIntQueryServices")
@@ -103,14 +101,14 @@ public class MySqlQueryServiceTest extends QueryServiceBaseTest {
 
     @Test(dataProvider = "happySingleStrQueryServices")
     public void testHappySingleStrCreateDataQuery(QueryService mqs) throws Exception {
-        logger.info(mqs.createDataQuery());
-        logger.info(mqs.createDataQuery(SAMPLED_MAP_SINGLE_STR));
+        logger.info(mqs.createDataQuery(null));
+        logger.info(mqs.createDataQueryWithInputSamples(null, SAMPLED_MAP_SINGLE_STR));
     }
 
     @Test(dataProvider = "happySingleStrQueryServices")
     public void testHappySingleStrCreateExistenceQuery(QueryService mqs) throws Exception {
-        logger.info(mqs.createExistenceQuery());
-        logger.info(mqs.createExistenceQuery(SAMPLED_MAP_SINGLE_STR));
+        logger.info(mqs.createExistenceQuery(null));
+        logger.info(mqs.createExistenceQueryWithInputSamples(null, SAMPLED_MAP_SINGLE_STR));
     }
 
     @Test(dataProvider = "happySingleStrQueryServices")

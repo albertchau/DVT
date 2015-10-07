@@ -1,7 +1,6 @@
 package com.intuit.idea.chopsticks.services;
 
 import com.intuit.idea.chopsticks.providers.DataProvider;
-import com.intuit.idea.chopsticks.results.ResultSets;
 import com.intuit.idea.chopsticks.results.ResultStore;
 import com.intuit.idea.chopsticks.utils.exceptions.ComparisonException;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
@@ -39,10 +38,25 @@ public class CountComparisonService implements ComparisonService {
         this.resultStores = resultStores == null ? new HashSet<>() : resultStores;
     }
 
-
-    @Override
-    public void init() {
-
+    public static List<Integer> resultSetToList(ResultSet resultSet) throws ComparisonException, SQLException {
+        List<Integer> listOfRows = new ArrayList<>();
+        int columnCount = resultSet.getMetaData().getColumnCount();
+        if (columnCount != 1) {
+            logger.error("Incorrect resultSet format. Only one column representing the count can be present. Found " + columnCount + " columns instead of one.");
+            throw new ComparisonException("Incorrect resultSet format. Only one column representing the count can be present. Found " + columnCount + " columns instead of one.");
+        }
+        while (resultSet.next()) {
+            String strToBeParsed = resultSet.getString(1);
+            try {
+                listOfRows.add(Integer.valueOf(strToBeParsed));
+            } catch (NumberFormatException e) {
+                logger.error("NumberFormatException occured when trying to parse: " + (strToBeParsed)
+                        + " into an Integer. Please check to make sure query is returning back some number.");
+                throw new ComparisonException("NumberFormatException occured when trying to parse: " + (strToBeParsed)
+                        + " into an Integer. Please check to make sure query is returning back some number.");
+            }
+        }
+        return listOfRows;
     }
 
     @Override
@@ -59,8 +73,8 @@ public class CountComparisonService implements ComparisonService {
             e.printStackTrace();
             throw new ComparisonException("Could not open connections to target.");
         }
-        try (ResultSets sData = source.getData(this);
-             ResultSets tData = target.getData(this)) {
+        try (ResultSet sData = source.getData(this);
+             ResultSet tData = target.getData(this)) {
             countCompare(sData, tData);
         } catch (DataProviderException | SQLException e) {
             e.printStackTrace();
@@ -149,32 +163,6 @@ public class CountComparisonService implements ComparisonService {
                                         false)
                         )
                 ));
-    }
-
-    @Override
-    public void finish() {
-
-    }
-
-    private List<Integer> resultSetToList(ResultSet resultSet) throws ComparisonException, SQLException {
-        List<Integer> listOfRows = new ArrayList<>();
-        int columnCount = resultSet.getMetaData().getColumnCount();
-        if (columnCount != 1) {
-            logger.error("Incorrect resultSet format. Only one column representing the count can be present. Found " + columnCount + " columns instead of one.");
-            throw new ComparisonException("Incorrect resultSet format. Only one column representing the count can be present. Found " + columnCount + " columns instead of one.");
-        }
-        while (resultSet.next()) {
-            String strToBeParsed = resultSet.getString(1);
-            try {
-                listOfRows.add(Integer.valueOf(strToBeParsed));
-            } catch (NumberFormatException e) {
-                logger.error("NumberFormatException occured when trying to parse: " + (strToBeParsed)
-                        + " into an Integer. Please check to make sure query is returning back some number.");
-                throw new ComparisonException("NumberFormatException occured when trying to parse: " + (strToBeParsed)
-                        + " into an Integer. Please check to make sure query is returning back some number.");
-            }
-        }
-        return listOfRows;
     }
 
 }

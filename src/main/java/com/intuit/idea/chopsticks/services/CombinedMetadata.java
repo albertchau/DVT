@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks.services;
 
-import com.intuit.idea.chopsticks.query.Metadata;
+import com.intuit.idea.chopsticks.utils.Metadata;
 
 import java.util.function.BiFunction;
 
@@ -9,23 +9,37 @@ import java.util.function.BiFunction;
  *
  * @author albert
  */
-public class CombinedMetadata {
+public class CombinedMetadata implements Comparable<CombinedMetadata> {
     private final String srcColumn;
     private final Class<? extends Comparable> srcType;
-    private final String targetColumn;
+    private final String tarColumn;
     private final Class<? extends Comparable> tarType;
     private final BiFunction<Comparable, Comparable, Integer> comparer;
+    private final boolean pk;
+    private final Metadata tar;
+    private final Metadata src;
 
-    public CombinedMetadata(String srcColumn, Class<? extends Comparable> srcType, String targetColumn, Class<? extends Comparable> tarType, BiFunction<Comparable, Comparable, Integer> comparer) {
-        this.srcColumn = srcColumn;
-        this.srcType = srcType;
-        this.targetColumn = targetColumn;
-        this.tarType = tarType;
+    public CombinedMetadata(Metadata source, Metadata target, BiFunction<Comparable, Comparable, Integer> comparer) {
+        this.src = source;
+        this.tar = target;
+        this.srcColumn = source.getColumn();
+        this.srcType = source.getType();
+        this.tarColumn = target.getColumn();
+        this.tarType = target.getType();
         this.comparer = comparer;
+        this.pk = source.isPk() && target.isPk();
     }
 
     public static CombinedMetadata combineMetadata(Metadata source, BiFunction<Comparable, Comparable, Integer> comparer, Metadata target) {
-        return new CombinedMetadata(source.getColumn(), source.getType(), target.getColumn(), target.getType(), comparer);
+        return new CombinedMetadata(source, target, comparer);
+    }
+
+    public Metadata getTar() {
+        return tar;
+    }
+
+    public Metadata getSrc() {
+        return src;
     }
 
     public String getSrcColumn() {
@@ -36,8 +50,8 @@ public class CombinedMetadata {
         return srcType;
     }
 
-    public String getTargetColumn() {
-        return targetColumn;
+    public String getTarColumn() {
+        return tarColumn;
     }
 
     public Class<? extends Comparable> getTarType() {
@@ -46,5 +60,20 @@ public class CombinedMetadata {
 
     public BiFunction<Comparable, Comparable, Integer> getComparer() {
         return comparer;
+    }
+
+    public boolean isPk() {
+        return pk;
+    }
+
+    @Override
+    public int compareTo(CombinedMetadata that) {
+        if (this.isPk() && !that.isPk()) {
+            return -1;
+        }
+        if (!this.isPk() && that.isPk()) {
+            return 1;
+        }
+        return srcColumn.compareToIgnoreCase(that.getSrcColumn());
     }
 }

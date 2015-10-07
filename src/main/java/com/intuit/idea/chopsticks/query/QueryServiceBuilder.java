@@ -1,6 +1,7 @@
 package com.intuit.idea.chopsticks.query;
 
 import com.intuit.idea.chopsticks.providers.VendorType;
+import com.intuit.idea.chopsticks.utils.Metadata;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -104,17 +105,17 @@ public class QueryServiceBuilder {
         switch (vendor) {
             case HIVE_2:
             case HIVE_1:
-                return new HiveQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+//                return new HiveQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case MYSQL:
-                return new MySqlQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new MySqlQueryService(tableName, schema, includedColumns, excludedColumns, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case SQL_SERVER:
-                return new SqlServerQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+//                return new SqlServerQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case ORACLE:
-                return new OracleQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+//                return new OracleQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case VERTICA:
-                return new VerticaQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+//                return new VerticaQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case NETEZZA:
-                return new NetezzaQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+//                return new NetezzaQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
         }
         return null;
     }

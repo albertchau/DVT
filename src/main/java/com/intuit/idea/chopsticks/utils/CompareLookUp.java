@@ -7,10 +7,12 @@ import java.util.function.BiFunction;
 /**
  * Copyright 2015
  * Java to Java types
+ *
  * @author albert
  */
 public class CompareLookUp {
     static private Map<Pair<Class<?>, Class<?>>, BiFunction<Comparable, Comparable, Integer>> comp;
+
     static {
         comp = new HashMap<>();
         comp.put(new Pair<>(String.class, Integer.class), (a, b) -> ((String) a).compareTo(b.toString()));
