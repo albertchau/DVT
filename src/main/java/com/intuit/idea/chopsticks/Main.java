@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks;
 
-import com.intuit.idea.chopsticks.utils.functional.Pair;
+import org.jooq.lambda.tuple.Tuple2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,11 +18,11 @@ import java.util.stream.IntStream;
  */
 public class Main {
 
-    static Map<Pair<Class<?>, Class<?>>, BiFunction> comp;
+    static Map<Tuple2<Class<?>, Class<?>>, BiFunction> comp;
 
     static {
         comp = new HashMap<>();
-        comp.put(new Pair<>(String.class, Integer.class), (a, b) -> a.equals(((Integer) (((Integer) b) + 4)).toString()));
+        comp.put(new Tuple2<>(String.class, Integer.class), (a, b) -> a.equals(((Integer) (((Integer) b) + 4)).toString()));
     }
 
     public static void main(String[] args) {

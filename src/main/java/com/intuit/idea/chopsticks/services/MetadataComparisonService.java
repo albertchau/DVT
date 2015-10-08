@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -17,9 +18,6 @@ import static com.intuit.idea.chopsticks.results.ColumnComparisonResult.createOn
 import static com.intuit.idea.chopsticks.results.ColumnComparisonResult.createOnlyTargetField;
 import static com.intuit.idea.chopsticks.services.ComparisonUtils.findLeftNotInRight;
 import static com.intuit.idea.chopsticks.utils.CollectionUtils.isNullOrEmpty;
-import static com.intuit.idea.chopsticks.utils.SQLTypeMap.toClass;
-import static com.intuit.idea.chopsticks.utils.adapters.ResultSetsAdapter.convert;
-import static com.intuit.idea.chopsticks.utils.containers.Metadata.createWithNoAliasing;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
@@ -118,12 +116,13 @@ public class MetadataComparisonService extends ComparisonServiceBase {
     }
 
     private List<Metadata> metadataFromResults(ResultSet data, List<String> pks) {
-        return convert(data)
-                .map(s -> createWithNoAliasing(s.asString("COLUMN_NAME"),
-                        pks.stream().anyMatch(pk -> pk.equalsIgnoreCase(s.asString("COLUMN_NAME"))),
-                        toClass(s.asInt("DATA_TYPE"))))
-                .sorted()
-                .collect(toList());
+        return new ArrayList<>();
+//        return convert(data)
+//                .map(s -> createWithNoAliasing(s.asString("COLUMN_NAME"),
+//                        pks.stream().anyMatch(pk -> pk.equalsIgnoreCase(s.asString("COLUMN_NAME"))),
+//                        toClass(s.asInt("DATA_TYPE"))))
+//                .sorted()
+//                .collect(toList());
     }
 
     public void comparePrimaryKeys(List<Metadata> srcMetadata, List<Metadata> tarMetadata) {

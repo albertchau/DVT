@@ -2,8 +2,8 @@ package com.intuit.idea.chopsticks.query;
 
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
-import com.intuit.idea.chopsticks.utils.functional.Pair;
 import org.joda.time.format.DateTimeFormatter;
+import org.jooq.lambda.tuple.Tuple2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,14 +60,14 @@ public abstract class QueryServiceBase implements QueryService {
             logger.error("Did not pass in any primary keys or values into sampling.");
             throw new QueryCreationError("Did not pass in any primary keys or values into sampling.");
         }
-        List<Pair<Metadata, List<String>>> pkPairedList = metadatas.stream()
+        List<Tuple2<Metadata, List<String>>> pkTuple2edList = metadatas.stream()
                 .filter(Metadata::isPk)
-                .map(md -> new Pair<>(md, pksWithHeaders.get(md.getColumnLabel())))
-                .filter(pkPair -> pkPair.getCar() != null && pkPair.getCdr() != null)
+                .map(md -> new Tuple2<>(md, pksWithHeaders.get(md.getColumnLabel())))
+                .filter(pkTuple2 -> pkTuple2.v1 != null && pkTuple2.v2 != null)
                 .collect(Collectors.toList());
-        int numOfInputPks = pkPairedList.size();
-        int numOfRows = pkPairedList.stream()
-                .map(pkPair -> pkPair.getCdr().size())
+        int numOfInputPks = pkTuple2edList.size();
+        int numOfRows = pkTuple2edList.stream()
+                .map(pkTuple2 -> pkTuple2.v2.size())
                 .min(Integer::compareTo)
                 .orElse(0);
         if (numOfRows < 1) {
@@ -82,10 +82,10 @@ public abstract class QueryServiceBase implements QueryService {
             Metadata pkMetadata = metadatas.stream().filter(Metadata::isPk).collect(Collectors.toList()).get(0);
             Class<?> type = pkMetadata.getType();
             if (type.equals(String.class)) {
-                List<String> inBounds = pkPairedList.get(0).getCdr();
+                List<String> inBounds = pkTuple2edList.get(0).v2;
                 whereClauses.add(WhereClause.createInSet(inBounds, pkMetadata.getColumnLabel()));
             } else if (type.equals(Long.class) || type.equals(Integer.class)) {
-                List<Integer> inBounds = pkPairedList.get(0).getCdr().stream()
+                List<Integer> inBounds = pkTuple2edList.get(0).v2.stream()
                         .map(stringInt -> (Integer.parseInt(stringInt)))
                         .collect(Collectors.toList());
                 whereClauses.add(WhereClause.createInSet(inBounds, pkMetadata.getColumnLabel()));
@@ -93,13 +93,13 @@ public abstract class QueryServiceBase implements QueryService {
         } else {
             String outJoined = IntStream.range(0, numOfRows).boxed()
                     .map(i -> {
-                        String inJoined = pkPairedList.stream()
+                        String inJoined = pkTuple2edList.stream()
                                 .map(p -> {
-                                    Class<?> type = p.getCar().getType();
+                                    Class<?> type = p.v1.getType();
                                     if (type.equals(Long.class) || type.equals(Integer.class)) {
-                                        return p.getCar().getColumnLabel() + " = " + p.getCdr().get(i);
+                                        return p.v1.getColumnLabel() + " = " + p.v2.get(i);
                                     } else {
-                                        return p.getCar().getColumnLabel() + " = '" + p.getCdr().get(i) + "'";
+                                        return p.v1.getColumnLabel() + " = '" + p.v2.get(i) + "'";
                                     }
                                 })
                                 .collect(Collectors.joining(" AND "));

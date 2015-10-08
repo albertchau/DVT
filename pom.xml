@@ -95,7 +95,11 @@
             <optional>true</optional>
         </dependency>
         <!-- dagger -->
-
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>jool</artifactId>
+            <version>0.9.7</version>
+        </dependency>
     </dependencies>
 
     <build>
