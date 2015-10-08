@@ -1,5 +1,6 @@
 package com.intuit.idea.chopsticks.utils;
 
+import com.intuit.idea.chopsticks.utils.functional.Transformations;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;

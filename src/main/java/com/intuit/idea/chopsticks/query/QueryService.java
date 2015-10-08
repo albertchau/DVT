@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks.query;
 
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.joda.time.DateTime;
 

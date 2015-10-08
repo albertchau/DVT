@@ -1,5 +1,7 @@
 package com.intuit.idea.chopsticks.utils;
 
+import com.intuit.idea.chopsticks.utils.functional.Pair;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;

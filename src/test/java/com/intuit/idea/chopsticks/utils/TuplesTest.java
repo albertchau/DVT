@@ -1,6 +1,7 @@
 package com.intuit.idea.chopsticks.utils;
 
 
+import com.intuit.idea.chopsticks.utils.functional.Tuple;
 import org.testng.annotations.Test;
 
 import java.sql.Connection;
@@ -8,8 +9,8 @@ import java.sql.DriverManager;
 import java.util.List;
 import java.util.Map;
 
-import static com.intuit.idea.chopsticks.utils.SQL.stream;
-import static com.intuit.idea.chopsticks.utils.Tuples.groupBy;
+import static com.intuit.idea.chopsticks.utils.functional.SQL.stream;
+import static com.intuit.idea.chopsticks.utils.functional.Tuples.groupBy;
 import static java.util.stream.Collectors.toList;
 import static org.testng.AssertJUnit.assertTrue;
 

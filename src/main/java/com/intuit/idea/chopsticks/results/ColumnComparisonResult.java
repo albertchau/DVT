@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks.results;
 
-import com.intuit.idea.chopsticks.services.CombinedMetadata;
+import com.intuit.idea.chopsticks.utils.containers.CombinedMetadata;
 
 /**
  * TODO - make this a message class. subclass the messages for data/exist...meta...
@@ -27,7 +27,7 @@ public class ColumnComparisonResult {
     }
 
     public static ColumnComparisonResult createMates(Boolean outcome, CombinedMetadata metadata, Object sVal, Object tVal, boolean isPk) {
-        return new ColumnComparisonResult(outcome, metadata.getSrcColumn(), metadata.getTarColumn(), sVal, tVal, isPk);
+        return new ColumnComparisonResult(outcome, metadata.getSrcColumnLabel(), metadata.getTarColumnLabel(), sVal, tVal, isPk);
     }
 
     public static ColumnComparisonResult createMates(Boolean outcome, String sField, String tField, Object sVal, Object tVal, boolean isPk) {
@@ -35,7 +35,7 @@ public class ColumnComparisonResult {
     }
 
     public static ColumnComparisonResult createMatesFromMeta(Boolean outcome, CombinedMetadata metadata, Object sVal, Object tVal) {
-        return new ColumnComparisonResult(outcome, metadata.getSrcColumn(), metadata.getTarColumn(), sVal, tVal, metadata.isPk());
+        return new ColumnComparisonResult(outcome, metadata.getSrcColumnLabel(), metadata.getTarColumnLabel(), sVal, tVal, metadata.isPk());
     }
 
     public static ColumnComparisonResult createOnlySource(String sField, Object sVal, boolean isPk) {
@@ -47,11 +47,11 @@ public class ColumnComparisonResult {
     }
 
     public static ColumnComparisonResult createOnlySource(CombinedMetadata metadata, Object sVal) {
-        return new ColumnComparisonResult(false, metadata.getSrcColumn(), null, sVal, null, metadata.isPk());
+        return new ColumnComparisonResult(false, metadata.getSrcColumnLabel(), null, sVal, null, metadata.isPk());
     }
 
     public static ColumnComparisonResult createOnlyTarget(CombinedMetadata metadata, Object tVal) {
-        return new ColumnComparisonResult(false, null, metadata.getTarColumn(), null, tVal, metadata.isPk());
+        return new ColumnComparisonResult(false, null, metadata.getTarColumnLabel(), null, tVal, metadata.isPk());
     }
 
     public static ColumnComparisonResult createOnlySourceField(String sField, boolean isPk) {

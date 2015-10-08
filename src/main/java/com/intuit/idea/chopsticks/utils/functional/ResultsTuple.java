@@ -1,11 +1,11 @@
-package com.intuit.idea.chopsticks.utils;
+package com.intuit.idea.chopsticks.utils.functional;
 
 import com.intuit.idea.chopsticks.utils.exceptions.DataAccessException;
 
 import java.util.*;
 
-import static com.intuit.idea.chopsticks.utils.Pair.cons;
-import static com.intuit.idea.chopsticks.utils.TransformerService.convert;
+import static com.intuit.idea.chopsticks.utils.functional.Pair.cons;
+import static com.intuit.idea.chopsticks.utils.functional.TransformerService.convert;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 

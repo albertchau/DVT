@@ -1,4 +1,4 @@
-package com.intuit.idea.chopsticks.utils;
+package com.intuit.idea.chopsticks.utils.containers;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

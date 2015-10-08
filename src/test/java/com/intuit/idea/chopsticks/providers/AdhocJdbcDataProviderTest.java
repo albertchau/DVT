@@ -1,10 +1,10 @@
 package com.intuit.idea.chopsticks.providers;
 
-import com.intuit.idea.chopsticks.services.CombinedMetadata;
 import com.intuit.idea.chopsticks.services.ComparisonService;
 import com.intuit.idea.chopsticks.services.CountComparisonService;
 import com.intuit.idea.chopsticks.services.ExistenceComparisonService;
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.CombinedMetadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterMethod;

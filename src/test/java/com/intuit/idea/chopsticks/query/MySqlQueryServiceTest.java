@@ -1,7 +1,7 @@
 package com.intuit.idea.chopsticks.query;
 
 import com.intuit.idea.chopsticks.providers.VendorType;
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import org.joda.time.DateTime;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

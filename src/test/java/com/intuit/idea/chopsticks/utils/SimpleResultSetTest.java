@@ -1,6 +1,7 @@
 package com.intuit.idea.chopsticks.utils;
 
 import com.intuit.idea.chopsticks.services.CountComparisonService;
+import com.intuit.idea.chopsticks.utils.containers.SimpleResultSet;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;

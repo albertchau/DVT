@@ -2,7 +2,7 @@ package com.intuit.idea.chopsticks.services;
 
 import com.intuit.idea.chopsticks.providers.DataProvider;
 import com.intuit.idea.chopsticks.results.ResultStore;
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.ComparisonException;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks.query;
 
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -72,14 +72,14 @@ public final class MySqlQueryService extends QueryServiceBase {
         StringBuilder query = new StringBuilder("SELECT ");
         query.append(metadatas.stream()
                 .filter(Metadata::isPk)
-                .map(Metadata::getColumn)
+                .map(Metadata::getColumnLabel)
                 .collect(Collectors.joining(",")));
         if (!testType.equals(TestType.FULL)) {
             String whereClauseColumns = whereClauses.stream()
                     .map(WhereClause::getColumn)
                     .filter(Objects::nonNull)
                     .filter(wc -> metadatas.stream()
-                            .anyMatch(md -> md.getColumn().equalsIgnoreCase(wc) && md.isPk()))
+                            .anyMatch(md -> md.getColumnLabel().equalsIgnoreCase(wc) && md.isPk()))
                     .collect(Collectors.joining(","));
             if (!whereClauseColumns.isEmpty()) {
                 query.append(",").append(whereClauseColumns);
@@ -177,7 +177,7 @@ public final class MySqlQueryService extends QueryServiceBase {
         final String finalOrdering = ordering;
         return metadatas.stream()
                 .filter(Metadata::isPk)
-                .map(Metadata::getColumn)
+                .map(Metadata::getColumnLabel)
                 .map(column -> column + " " + finalOrdering)
                 .collect(Collectors.joining(", "));
     }
@@ -194,20 +194,20 @@ public final class MySqlQueryService extends QueryServiceBase {
         String collect;
         if (includedColumns.isEmpty() && excludedColumns.isEmpty()) {
             collect = metadatas.stream()
-                    .map(Metadata::getColumn)
+                    .map(Metadata::getColumnLabel)
                     .collect(Collectors.joining(","));
         } else if (!includedColumns.isEmpty()) {
             collect = metadatas.stream()
                     .filter(md -> {
-                        String column = md.getColumn();
+                        String column = md.getColumnLabel();
                         return (includedColumns.contains(column) && !excludedColumns.contains(column)) || md.isPk();
                     })
-                    .map(Metadata::getColumn)
+                    .map(Metadata::getColumnLabel)
                     .collect(Collectors.joining(","));
         } else {
             collect = metadatas.stream()
-                    .filter(md -> !excludedColumns.contains(md.getColumn()) || md.isPk())
-                    .map(Metadata::getColumn)
+                    .filter(md -> !excludedColumns.contains(md.getColumnLabel()) || md.isPk())
+                    .map(Metadata::getColumnLabel)
                     .collect(Collectors.joining(","));
         }
         if (collect.isEmpty()) {

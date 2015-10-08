@@ -1,8 +1,8 @@
 package com.intuit.idea.chopsticks.query;
 
-import com.intuit.idea.chopsticks.utils.Metadata;
-import com.intuit.idea.chopsticks.utils.Pair;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
+import com.intuit.idea.chopsticks.utils.functional.Pair;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,7 @@ public abstract class QueryServiceBase implements QueryService {
         }
         List<Pair<Metadata, List<String>>> pkPairedList = metadatas.stream()
                 .filter(Metadata::isPk)
-                .map(md -> new Pair<>(md, pksWithHeaders.get(md.getColumn())))
+                .map(md -> new Pair<>(md, pksWithHeaders.get(md.getColumnLabel())))
                 .filter(pkPair -> pkPair.getCar() != null && pkPair.getCdr() != null)
                 .collect(Collectors.toList());
         int numOfInputPks = pkPairedList.size();
@@ -83,12 +83,12 @@ public abstract class QueryServiceBase implements QueryService {
             Class<?> type = pkMetadata.getType();
             if (type.equals(String.class)) {
                 List<String> inBounds = pkPairedList.get(0).getCdr();
-                whereClauses.add(WhereClause.createInSet(inBounds, pkMetadata.getColumn()));
+                whereClauses.add(WhereClause.createInSet(inBounds, pkMetadata.getColumnLabel()));
             } else if (type.equals(Long.class) || type.equals(Integer.class)) {
                 List<Integer> inBounds = pkPairedList.get(0).getCdr().stream()
                         .map(stringInt -> (Integer.parseInt(stringInt)))
                         .collect(Collectors.toList());
-                whereClauses.add(WhereClause.createInSet(inBounds, pkMetadata.getColumn()));
+                whereClauses.add(WhereClause.createInSet(inBounds, pkMetadata.getColumnLabel()));
             }
         } else {
             String outJoined = IntStream.range(0, numOfRows).boxed()
@@ -97,9 +97,9 @@ public abstract class QueryServiceBase implements QueryService {
                                 .map(p -> {
                                     Class<?> type = p.getCar().getType();
                                     if (type.equals(Long.class) || type.equals(Integer.class)) {
-                                        return p.getCar().getColumn() + " = " + p.getCdr().get(i);
+                                        return p.getCar().getColumnLabel() + " = " + p.getCdr().get(i);
                                     } else {
-                                        return p.getCar().getColumn() + " = '" + p.getCdr().get(i) + "'";
+                                        return p.getCar().getColumnLabel() + " = '" + p.getCdr().get(i) + "'";
                                     }
                                 })
                                 .collect(Collectors.joining(" AND "));

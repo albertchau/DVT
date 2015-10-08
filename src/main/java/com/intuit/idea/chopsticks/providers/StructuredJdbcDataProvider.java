@@ -5,7 +5,7 @@ import com.intuit.idea.chopsticks.services.ComparisonService;
 import com.intuit.idea.chopsticks.services.CountComparisonService;
 import com.intuit.idea.chopsticks.services.DataComparisonService;
 import com.intuit.idea.chopsticks.services.ExistenceComparisonService;
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,7 +118,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
                 Class<? extends Comparable> javaType = toClass(sqlTypeInt);
                 Boolean isPk = primaryKeys.stream()
                         .anyMatch(pk -> pk.equalsIgnoreCase(columnName));
-                metadatas.add(Metadata.createWithType(columnName, isPk, javaType));
+                metadatas.add(Metadata.createWithNoAliasing(columnName, isPk, javaType));
             }
             return metadatas;
         } catch (DataProviderException | SQLException e) {

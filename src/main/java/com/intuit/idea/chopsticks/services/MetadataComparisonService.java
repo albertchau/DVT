@@ -3,7 +3,7 @@ package com.intuit.idea.chopsticks.services;
 import com.intuit.idea.chopsticks.providers.DataProvider;
 import com.intuit.idea.chopsticks.results.ColumnComparisonResult;
 import com.intuit.idea.chopsticks.results.ResultStore;
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.ComparisonException;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;
@@ -19,6 +19,7 @@ import static com.intuit.idea.chopsticks.services.ComparisonUtils.findLeftNotInR
 import static com.intuit.idea.chopsticks.utils.CollectionUtils.isNullOrEmpty;
 import static com.intuit.idea.chopsticks.utils.SQLTypeMap.toClass;
 import static com.intuit.idea.chopsticks.utils.adapters.ResultSetsAdapter.convert;
+import static com.intuit.idea.chopsticks.utils.containers.Metadata.createWithNoAliasing;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
@@ -63,21 +64,21 @@ public class MetadataComparisonService extends ComparisonServiceBase {
         List<Metadata> srcMetadataOnly = findLeftNotInRight(srcMetadata, tarMetadata, Metadata::equals);
         if (!tarMetadataOnly.isEmpty()) {
             String tColOnlyString = tarMetadataOnly.stream()
-                    .map(col -> col.getColumn() + ":"/* + col.getSqlTypeName()*/)
+                    .map(col -> col.getColumnLabel() + ":"/* + col.getSqlTypeName()*/)
                     .collect(joining(", "));
             logger.error("Target contains columns [ " + tColOnlyString + "] which source does not.");
             List<ColumnComparisonResult> columnResults = tarMetadataOnly.stream()
-                    .map(col -> createOnlyTargetField(col.getColumn(), col.isPk()))
+                    .map(col -> createOnlyTargetField(col.getColumnLabel(), col.isPk()))
                     .collect(toList());
             resultStores.forEach(rs -> rs.storeRowResults(this, columnResults));
         }
         if (!srcMetadataOnly.isEmpty()) {
             String sColOnlyString = srcMetadataOnly.stream()
-                    .map(col -> col.getColumn() + ":"/* + col.getSqlTypeName()*/)
+                    .map(col -> col.getColumnLabel() + ":"/* + col.getSqlTypeName()*/)
                     .collect(joining(", "));
             logger.error("Source contains columns [ " + sColOnlyString + "] which target does not.");
             List<ColumnComparisonResult> columnResults = srcMetadataOnly.stream()
-                    .map(col -> createOnlySourceField(col.getColumn(), col.isPk()))
+                    .map(col -> createOnlySourceField(col.getColumnLabel(), col.isPk()))
                     .collect(toList());
             resultStores.forEach(rs -> rs.storeRowResults(this, columnResults));
         }
@@ -96,21 +97,21 @@ public class MetadataComparisonService extends ComparisonServiceBase {
         List<Metadata> srcMetadataOnly = findLeftNotInRight(srcMetadata, tarMetadata, Metadata::equals);
         if (!tarMetadataOnly.isEmpty()) {
             String tColOnlyString = tarMetadataOnly.stream()
-                    .map(col -> col.getColumn() + ":"/* + col.getSqlTypeName()*/)
+                    .map(col -> col.getColumnLabel() + ":"/* + col.getSqlTypeName()*/)
                     .collect(joining(", "));
             logger.error("Target contains columns [ " + tColOnlyString + "] which source does not.");
             List<ColumnComparisonResult> columnResults = tarMetadataOnly.stream()
-                    .map(col -> createOnlyTargetField(col.getColumn(), col.isPk()))
+                    .map(col -> createOnlyTargetField(col.getColumnLabel(), col.isPk()))
                     .collect(toList());
             resultStores.forEach(rs -> rs.storeRowResults(this, columnResults));
         }
         if (!srcMetadataOnly.isEmpty()) {
             String sColOnlyString = srcMetadataOnly.stream()
-                    .map(col -> col.getColumn() + ":"/* + col.getSqlTypeName()*/)
+                    .map(col -> col.getColumnLabel() + ":"/* + col.getSqlTypeName()*/)
                     .collect(joining(", "));
             logger.error("Source contains columns [ " + sColOnlyString + "] which target does not.");
             List<ColumnComparisonResult> columnResults = srcMetadataOnly.stream()
-                    .map(col -> createOnlySourceField(col.getColumn(), col.isPk()))
+                    .map(col -> createOnlySourceField(col.getColumnLabel(), col.isPk()))
                     .collect(toList());
             resultStores.forEach(rs -> rs.storeRowResults(this, columnResults));
         }
@@ -118,7 +119,7 @@ public class MetadataComparisonService extends ComparisonServiceBase {
 
     private List<Metadata> metadataFromResults(ResultSet data, List<String> pks) {
         return convert(data)
-                .map(s -> new Metadata(s.asString("COLUMN_NAME"),
+                .map(s -> createWithNoAliasing(s.asString("COLUMN_NAME"),
                         pks.stream().anyMatch(pk -> pk.equalsIgnoreCase(s.asString("COLUMN_NAME"))),
                         toClass(s.asInt("DATA_TYPE"))))
                 .sorted()
@@ -136,22 +137,22 @@ public class MetadataComparisonService extends ComparisonServiceBase {
         List<Metadata> srcPksOnly = findLeftNotInRight(srcPrimaryKeyMetadata, tarPrimaryKeyMetadata, Metadata::equals);
         if (!isNullOrEmpty(srcPksOnly)) {
             String srcPksOnlyStr = srcPksOnly.stream()
-                    .map(Metadata::getColumn)
+                    .map(Metadata::getColumnLabel)
                     .collect(joining(", "));
             logger.error("Source contains primary keys [" + (srcPksOnlyStr) + "] which target does not");
             List<ColumnComparisonResult> columnResults = srcPksOnly.stream()
-                    .map(Metadata::getColumn)
+                    .map(Metadata::getColumnLabel)
                     .map(pk -> createOnlySourceField(pk, true))
                     .collect(toList());
             resultStores.forEach(rs -> rs.storeRowResults(this, columnResults));
         }
         if (!isNullOrEmpty(tarPksOnly)) {
             String tarPksOnlyStr = tarPksOnly.stream()
-                    .map(Metadata::getColumn)
+                    .map(Metadata::getColumnLabel)
                     .collect(joining(", "));
             logger.error("Target contains primary keys [" + (tarPksOnlyStr) + "] which source does not");
             List<ColumnComparisonResult> columnResults = tarPksOnly.stream()
-                    .map(Metadata::getColumn)
+                    .map(Metadata::getColumnLabel)
                     .map(pk -> createOnlyTargetField(pk, true))
                     .collect(toList());
             resultStores.forEach(rs -> rs.storeRowResults(this, columnResults));

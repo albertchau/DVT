@@ -1,4 +1,4 @@
-package com.intuit.idea.chopsticks.utils;
+package com.intuit.idea.chopsticks.utils.functional;
 
 import com.intuit.idea.chopsticks.utils.exceptions.DataAccessException;
 
@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class Transformations {
 
-    static boolean toBoolean(Optional<Object> val) {
+    public static boolean toBoolean(Optional<Object> val) {
         return (boolean) val.map(o -> {
             if ((o instanceof Boolean) || (o.getClass().isAssignableFrom(Boolean.TYPE))) {
                 return o;

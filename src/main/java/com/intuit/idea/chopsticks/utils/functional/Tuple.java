@@ -1,11 +1,11 @@
-package com.intuit.idea.chopsticks.utils;
+package com.intuit.idea.chopsticks.utils.functional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
-import static com.intuit.idea.chopsticks.utils.TransformerService.convert;
+import static com.intuit.idea.chopsticks.utils.functional.TransformerService.convert;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
 

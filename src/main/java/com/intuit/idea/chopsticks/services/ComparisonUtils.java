@@ -1,6 +1,7 @@
 package com.intuit.idea.chopsticks.services;
 
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.CombinedMetadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.ComparisonException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +19,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.intuit.idea.chopsticks.services.CombinedMetadata.combineMetadata;
 import static com.intuit.idea.chopsticks.utils.SQLTypeMap.toClass;
+import static com.intuit.idea.chopsticks.utils.containers.CombinedMetadata.combineMetadata;
+import static com.intuit.idea.chopsticks.utils.containers.Metadata.createWithNoAliasing;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 
@@ -57,7 +59,7 @@ public class ComparisonUtils {
     public static Function<Metadata, Comparable> getColumnValue(ResultSet rs) {
         return (md) -> {
             try {
-                return md.getType().cast(rs.getObject(md.getColumn(), md.getType()));
+                return md.getType().cast(rs.getObject(md.getColumnLabel(), md.getType()));
             } catch (ClassCastException | SQLException e) {
                 e.printStackTrace();
                 return null;
@@ -130,7 +132,7 @@ public class ComparisonUtils {
                                 colsToBeExtracted.isEmpty() ||
                                 colsToBeExtracted.stream()
                                         .anyMatch(col -> col.equalsIgnoreCase(columnLabel));
-                        return isToBeExtracted ? new Metadata(columnLabel, isPrimaryKey, type) : null;
+                        return isToBeExtracted ? createWithNoAliasing(columnLabel, isPrimaryKey, type) : null;
                     } catch (SQLException e) {
                         e.printStackTrace();
                         return null;

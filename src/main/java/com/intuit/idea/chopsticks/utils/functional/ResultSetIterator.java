@@ -1,4 +1,4 @@
-package com.intuit.idea.chopsticks.utils;
+package com.intuit.idea.chopsticks.utils.functional;
 
 import com.intuit.idea.chopsticks.utils.exceptions.DataAccessException;
 import org.slf4j.Logger;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.intuit.idea.chopsticks.utils.Pair.cons;
+import static com.intuit.idea.chopsticks.utils.functional.Pair.cons;
 
 /**
  * An implementation of an iterator which wraps a row in a result set as a Tuple

@@ -1,7 +1,7 @@
 package com.intuit.idea.chopsticks.query;
 
 import com.intuit.idea.chopsticks.providers.VendorType;
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -95,7 +95,7 @@ public class QueryServiceBuilder {
 //        }
 //        long problemWhereClauses = whereClauses.stream()
 //                .filter(wc -> metadatas.stream()
-//                        .noneMatch(md -> md.getColumn().equalsIgnoreCase(wc.getColumn())))
+//                        .noneMatch(md -> md.getColumnLabel().equalsIgnoreCase(wc.getColumnLabel())))
 //                .peek(wc -> logger.error("Could not register the WhereClause: " + wc.toString()))
 //                .count();
 //        if (problemWhereClauses > 0) {

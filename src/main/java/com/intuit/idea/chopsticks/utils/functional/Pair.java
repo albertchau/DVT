@@ -1,4 +1,4 @@
-package com.intuit.idea.chopsticks.utils;
+package com.intuit.idea.chopsticks.utils.functional;
 
 /**
  * Pair tuple utility getType

@@ -1,5 +1,6 @@
 package com.intuit.idea.chopsticks.utils;
 
+import com.intuit.idea.chopsticks.utils.functional.Tuple;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -10,7 +11,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.intuit.idea.chopsticks.utils.SQL.stream;
+import static com.intuit.idea.chopsticks.utils.functional.SQL.stream;
 
 /**
  * ************************************

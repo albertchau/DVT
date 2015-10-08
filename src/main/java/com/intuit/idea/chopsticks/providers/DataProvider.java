@@ -1,7 +1,7 @@
 package com.intuit.idea.chopsticks.providers;
 
 import com.intuit.idea.chopsticks.services.ComparisonService;
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 
 import java.sql.ResultSet;

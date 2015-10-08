@@ -1,4 +1,4 @@
-package com.intuit.idea.chopsticks.utils;
+package com.intuit.idea.chopsticks.utils.functional;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +17,5 @@ public class Tuples {
 
     public static <T> Map<T, List<Tuple>> groupBy(Collection<Tuple> tupleStream, String column) {
         return groupBy(tupleStream.stream(), column);
-
     }
 }

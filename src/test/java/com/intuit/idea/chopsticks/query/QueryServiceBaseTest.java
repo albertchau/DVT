@@ -1,7 +1,7 @@
 package com.intuit.idea.chopsticks.query;
 
 import com.intuit.idea.chopsticks.providers.VendorType;
-import com.intuit.idea.chopsticks.utils.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -11,6 +11,8 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.util.*;
+
+import static com.intuit.idea.chopsticks.utils.containers.Metadata.createWithNoAliasing;
 
 /*
 count, existence, data
@@ -28,28 +30,28 @@ data with schema, boundDate, where, orderDirections, includedColumns, excludedCo
  */
 public class QueryServiceBaseTest {
     public static final List<Metadata> SINGLE_INT_PK_METADATA = Arrays.asList(
-            new Metadata("employeeId", true, Integer.class),
-            new Metadata("companyId", false, Integer.class),
-            new Metadata("firstName", false, String.class),
-            new Metadata("lastName", false, String.class),
-            new Metadata("createDate", false, DateTime.class),
-            new Metadata("lastModifiedDate", false, DateTime.class)
+            createWithNoAliasing("employeeId", true, Integer.class),
+            createWithNoAliasing("companyId", false, Integer.class),
+            createWithNoAliasing("firstName", false, String.class),
+            createWithNoAliasing("lastName", false, String.class),
+            createWithNoAliasing("createDate", false, DateTime.class),
+            createWithNoAliasing("lastModifiedDate", false, DateTime.class)
     );
     public static final List<Metadata> SINGLE_STR_PK_METADATA = Arrays.asList(
-            new Metadata("employeeId", false, Integer.class),
-            new Metadata("companyId", false, Integer.class),
-            new Metadata("firstName", true, String.class),
-            new Metadata("lastName", false, String.class),
-            new Metadata("createDate", false, DateTime.class),
-            new Metadata("lastModifiedDate", false, DateTime.class)
+            createWithNoAliasing("employeeId", false, Integer.class),
+            createWithNoAliasing("companyId", false, Integer.class),
+            createWithNoAliasing("firstName", true, String.class),
+            createWithNoAliasing("lastName", false, String.class),
+            createWithNoAliasing("createDate", false, DateTime.class),
+            createWithNoAliasing("lastModifiedDate", false, DateTime.class)
     );
     public static final List<Metadata> COMPOSITE_PK_METADATA = Arrays.asList(
-            new Metadata("employeeId", true, Integer.class),
-            new Metadata("companyId", false, Integer.class),
-            new Metadata("firstName", true, String.class),
-            new Metadata("lastName", false, String.class),
-            new Metadata("createDate", false, DateTime.class),
-            new Metadata("lastModifiedDate", false, DateTime.class)
+            createWithNoAliasing("employeeId", true, Integer.class),
+            createWithNoAliasing("companyId", false, Integer.class),
+            createWithNoAliasing("firstName", true, String.class),
+            createWithNoAliasing("lastName", false, String.class),
+            createWithNoAliasing("createDate", false, DateTime.class),
+            createWithNoAliasing("lastModifiedDate", false, DateTime.class)
     );
     public static final Map<String, List<String>> SAMPLED_MAP_SINGLE_INT = new HashMap<String, List<String>>() {{
         put("employeeId", Arrays.asList("2", "3"));

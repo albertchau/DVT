@@ -24,7 +24,6 @@ public class SQLTypeMap {
      */
     public static Class<? extends Comparable> toClass(int type) {
         Class<? extends Comparable> result = String.class;
-
         switch (type) {
             case Types.CHAR:
             case Types.VARCHAR:
@@ -96,7 +95,6 @@ public class SQLTypeMap {
                 result = String.class;
                 break;
         }
-
         return result;
     }
 }

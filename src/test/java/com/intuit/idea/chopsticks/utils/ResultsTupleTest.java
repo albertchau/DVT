@@ -4,13 +4,15 @@ package com.intuit.idea.chopsticks.utils;
  * Default Tuple test case
  */
 
+import com.intuit.idea.chopsticks.utils.functional.ResultsTuple;
+import com.intuit.idea.chopsticks.utils.functional.Tuple;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static com.intuit.idea.chopsticks.utils.ResultsTuple.tCons;
-import static com.intuit.idea.chopsticks.utils.ResultsTuple.tuple;
+import static com.intuit.idea.chopsticks.utils.functional.ResultsTuple.tCons;
+import static com.intuit.idea.chopsticks.utils.functional.ResultsTuple.tuple;
 import static org.testng.Assert.*;
 
 public class ResultsTupleTest {

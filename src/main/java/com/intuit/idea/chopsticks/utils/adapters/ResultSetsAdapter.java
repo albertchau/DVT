@@ -1,7 +1,7 @@
 package com.intuit.idea.chopsticks.utils.adapters;
 
-import com.intuit.idea.chopsticks.utils.ResultSetIterator;
-import com.intuit.idea.chopsticks.utils.Tuple;
+import com.intuit.idea.chopsticks.utils.functional.ResultSetIterator;
+import com.intuit.idea.chopsticks.utils.functional.Tuple;
 
 import java.sql.ResultSet;
 import java.util.stream.Stream;

@@ -1,5 +1,6 @@
 package com.intuit.idea.chopsticks.utils;
 
+import com.intuit.idea.chopsticks.utils.functional.TransformerService;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;

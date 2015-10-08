@@ -1,6 +1,6 @@
 //package com.intuit.idea.chopsticks.query;
 //
-//import com.intuit.idea.chopsticks.utils.Metadata;
+//import com.intuit.idea.chopsticks.utils.containers.Metadata;
 //import org.joda.time.DateTime;
 //import org.joda.time.format.DateTimeFormatter;
 //
@@ -66,14 +66,14 @@
 //        StringBuilder query = new StringBuilder("SELECT ");
 //        query.append(metadatas.stream()
 //                .filter(Metadata::isPk)
-//                .map(Metadata::getColumn)
+//                .map(Metadata::getColumnLabel)
 //                .collect(Collectors.joining(",")));
 //        if (!testType.equals(TestType.FULL)) {
 //            String whereClauseColumns = whereClauses.stream()
-//                    .map(WhereClause::getColumn)
+//                    .map(WhereClause::getColumnLabel)
 //                    .filter(Objects::nonNull)
 //                    .filter(s -> !metadatas.stream()
-//                            .filter(md -> md.getColumn().equals(s))
+//                            .filter(md -> md.getColumnLabel().equals(s))
 //                            .map(Metadata::isPk)
 //                            .findAny()
 //                            .orElse(true))
@@ -177,7 +177,7 @@
 //        final String finalOrdering = ordering;
 //        return metadatas.stream()
 //                .filter(Metadata::isPk)
-//                .map(m -> m.getColumn() + " " + finalOrdering)
+//                .map(m -> m.getColumnLabel() + " " + finalOrdering)
 //                .collect(Collectors.joining(", "));
 //    }
 //
@@ -192,21 +192,21 @@
 //    private String selectClause() {
 //        if (includedColumns.isEmpty() && excludedColumns.isEmpty()) {
 //            return metadatas.stream()
-//                    .map(Metadata::getColumn)
+//                    .map(Metadata::getColumnLabel)
 //                    .collect(Collectors.joining(","));
 //        }
 //        if (!includedColumns.isEmpty()) {
 //            return metadatas.stream()
 //                    .filter(md -> {
-//                        String column = md.getColumn();
+//                        String column = md.getColumnLabel();
 //                        return (includedColumns.contains(column) && !excludedColumns.contains(column)) || md.isPk();
 //                    })
-//                    .map(Metadata::getColumn)
+//                    .map(Metadata::getColumnLabel)
 //                    .collect(Collectors.joining(","));
 //        } else {
 //            return metadatas.stream()
-//                    .filter(md -> !excludedColumns.contains(md.getColumn()) || md.isPk())
-//                    .map(Metadata::getColumn)
+//                    .filter(md -> !excludedColumns.contains(md.getColumnLabel()) || md.isPk())
+//                    .map(Metadata::getColumnLabel)
 //                    .collect(Collectors.joining(","));
 //
 //        }

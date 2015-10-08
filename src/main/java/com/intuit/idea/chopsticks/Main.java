@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks;
 
-import com.intuit.idea.chopsticks.utils.Pair;
+import com.intuit.idea.chopsticks.utils.functional.Pair;
 
 import java.util.HashMap;
 import java.util.Map;

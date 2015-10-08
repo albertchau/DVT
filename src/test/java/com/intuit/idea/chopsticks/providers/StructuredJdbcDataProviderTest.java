@@ -45,7 +45,7 @@ public class StructuredJdbcDataProviderTest {
 
 //        Metadata[] metadatas = existenceComparisonService.metadataFromResultSet(data);
 //        List<String> columnNames = Stream.of(metadatas)
-//                .map(Metadata::getColumn)
+//                .map(Metadata::getColumnLabel)
 //                .collect(Collectors.toList());
 //        List<Object[]> comparables = existenceComparisonService.rowsToList(data, columnNames);
 //

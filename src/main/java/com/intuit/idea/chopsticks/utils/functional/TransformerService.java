@@ -1,10 +1,10 @@
-package com.intuit.idea.chopsticks.utils;
+package com.intuit.idea.chopsticks.utils.functional;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.intuit.idea.chopsticks.utils.Pair.cons;
+import static com.intuit.idea.chopsticks.utils.functional.Pair.cons;
 
 
 /**

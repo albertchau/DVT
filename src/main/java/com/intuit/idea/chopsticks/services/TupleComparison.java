@@ -1,7 +1,7 @@
 package com.intuit.idea.chopsticks.services;
 
 import com.intuit.idea.chopsticks.results.ResultSets;
-import com.intuit.idea.chopsticks.utils.Tuple;
+import com.intuit.idea.chopsticks.utils.functional.Tuple;
 
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
