@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
  *
  * @author albert
  */
+@Test(groups = "comparison")
 public class CountComparisonServiceTest {
 
     @Test

@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -20,6 +21,7 @@ import java.util.stream.IntStream;
 import static com.intuit.idea.chopsticks.services.CombinedMetadata.combineMetadata;
 import static com.intuit.idea.chopsticks.utils.SQLTypeMap.toClass;
 import static java.util.Objects.isNull;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Copyright 2015
@@ -136,6 +138,13 @@ public class ComparisonUtils {
                 })
                 .filter(Objects::nonNull)
                 .toArray(Metadata[]::new);
+    }
+
+    public static <T> List<T> findLeftNotInRight(List<T> left, List<T> right, BiPredicate<T, T> equalTo) {
+        return left.stream()
+                .filter(l -> right.stream()
+                        .noneMatch(r -> equalTo.test(r, l)))
+                .collect(toList());
     }
 
     /*

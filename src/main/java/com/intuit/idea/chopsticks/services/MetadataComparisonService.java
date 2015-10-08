@@ -10,13 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiPredicate;
 
 import static com.intuit.idea.chopsticks.results.ColumnComparisonResult.createOnlySourceField;
 import static com.intuit.idea.chopsticks.results.ColumnComparisonResult.createOnlyTargetField;
+import static com.intuit.idea.chopsticks.services.ComparisonUtils.findLeftNotInRight;
+import static com.intuit.idea.chopsticks.utils.CollectionUtils.isNullOrEmpty;
 import static com.intuit.idea.chopsticks.utils.SQLTypeMap.toClass;
 import static com.intuit.idea.chopsticks.utils.adapters.ResultSetsAdapter.convert;
 import static java.util.stream.Collectors.joining;
@@ -27,61 +27,38 @@ import static java.util.stream.Collectors.toList;
  *
  * @author albert
  */
-public class MetadataComparisonService implements ComparisonService {
+public class MetadataComparisonService extends ComparisonServiceBase {
     private static final Logger logger = LoggerFactory.getLogger(MetadataComparisonService.class);
-    private Set<ResultStore> resultStores;
 
     public MetadataComparisonService(Set<ResultStore> resultStores) {
-        this.resultStores = resultStores == null ? new HashSet<>() : resultStores;
-    }
-
-    /*
-    todo move to a util class
-     */
-    public static <T> List<T> findLeftNotInRight(List<T> left, List<T> right, BiPredicate<T, T> equalTo) {
-        return left.stream()
-                .filter(l -> right.stream()
-                        .noneMatch(r -> equalTo.test(r, l)))
-                .collect(toList());
+        super(resultStores);
     }
 
     @Override
     public void compare(DataProvider source, DataProvider target) throws ComparisonException {
+        initializeConnections(source, target);
         try {
-            source.openConnections();
-        } catch (DataProviderException e) {
-            e.printStackTrace();
-            throw new ComparisonException("Could not startComparison connections to source.");
-        }
-        try {
-            target.openConnections();
-        } catch (DataProviderException e) {
-            e.printStackTrace();
-            throw new ComparisonException("Could not startComparison connections to target.");
-        }
-        try { //todo deal with random sampling
             List<Metadata> srcMetadata = source.getMetadata();
             List<Metadata> tarMetadata = target.getMetadata();
+            if (isNullOrEmpty(srcMetadata)) {
+                logger.error("Could not find source metadata.;");
+                throw new ComparisonException("Could not find source metadata.");
+            }
+            if (isNullOrEmpty(tarMetadata)) {
+                logger.error("Could not find source metadata.;");
+                throw new ComparisonException("Could not find source metadata.");
+            }
             metadataCompare(srcMetadata, tarMetadata);
         } catch (DataProviderException e) {
             e.printStackTrace();
             logger.error("Could not get data for comparison.");
             throw new ComparisonException("Could not get data for comparison.");
         }
-        source.closeConnections();
-        target.closeConnections();
+        closeConnections(source, target);
     }
 
     private void metadataCompare(List<Metadata> srcMetadata, List<Metadata> tarMetadata) throws ComparisonException {
-        List<String> srcPrimaryKeys = srcMetadata.stream()
-                .filter(Metadata::isPk)
-                .map(Metadata::getColumn)
-                .collect(toList());
-        List<String> tarPrimaryKeys = tarMetadata.stream()
-                .filter(Metadata::isPk)
-                .map(Metadata::getColumn)
-                .collect(toList());
-        primaryKeyCheck(srcPrimaryKeys, tarPrimaryKeys);
+        comparePrimaryKeys(srcMetadata, tarMetadata);
         List<Metadata> tarMetadataOnly = findLeftNotInRight(tarMetadata, srcMetadata, Metadata::equals);
         List<Metadata> srcMetadataOnly = findLeftNotInRight(srcMetadata, tarMetadata, Metadata::equals);
         if (!tarMetadataOnly.isEmpty()) {
@@ -111,7 +88,7 @@ public class MetadataComparisonService implements ComparisonService {
      */
     public void metadataCompare(ResultSet sData, ResultSet tData, List<String> sPks, List<String> tPks) throws ComparisonException {
         // check all source primary keys live in target primary keys
-        primaryKeyCheck(sPks, tPks);
+//        comparePrimaryKeys(sPks, tPks);
         // make metadata with fields
         List<Metadata> srcMetadata = metadataFromResults(sData, sPks);
         List<Metadata> tarMetadata = metadataFromResults(tData, tPks);
@@ -148,23 +125,33 @@ public class MetadataComparisonService implements ComparisonService {
                 .collect(toList());
     }
 
-    public void primaryKeyCheck(List<String> srcPks, List<String> tarPks) {
-        List<String> tarPksOnly = findLeftNotInRight(tarPks, srcPks, String::equalsIgnoreCase);
-        List<String> srcPksOnly = findLeftNotInRight(srcPks, tarPks, String::equalsIgnoreCase);
-        if (!srcPksOnly.isEmpty()) {
+    public void comparePrimaryKeys(List<Metadata> srcMetadata, List<Metadata> tarMetadata) {
+        List<Metadata> srcPrimaryKeyMetadata = srcMetadata.stream()
+                .filter(Metadata::isPk)
+                .collect(toList());
+        List<Metadata> tarPrimaryKeyMetadata = tarMetadata.stream()
+                .filter(Metadata::isPk)
+                .collect(toList());
+        List<Metadata> tarPksOnly = findLeftNotInRight(tarPrimaryKeyMetadata, srcPrimaryKeyMetadata, Metadata::equals);
+        List<Metadata> srcPksOnly = findLeftNotInRight(srcPrimaryKeyMetadata, tarPrimaryKeyMetadata, Metadata::equals);
+        if (!isNullOrEmpty(srcPksOnly)) {
             String srcPksOnlyStr = srcPksOnly.stream()
+                    .map(Metadata::getColumn)
                     .collect(joining(", "));
             logger.error("Source contains primary keys [" + (srcPksOnlyStr) + "] which target does not");
             List<ColumnComparisonResult> columnResults = srcPksOnly.stream()
+                    .map(Metadata::getColumn)
                     .map(pk -> createOnlySourceField(pk, true))
                     .collect(toList());
             resultStores.forEach(rs -> rs.storeRowResults(this, columnResults));
         }
-        if (!tarPksOnly.isEmpty()) {
+        if (!isNullOrEmpty(tarPksOnly)) {
             String tarPksOnlyStr = tarPksOnly.stream()
+                    .map(Metadata::getColumn)
                     .collect(joining(", "));
             logger.error("Target contains primary keys [" + (tarPksOnlyStr) + "] which source does not");
             List<ColumnComparisonResult> columnResults = tarPksOnly.stream()
+                    .map(Metadata::getColumn)
                     .map(pk -> createOnlyTargetField(pk, true))
                     .collect(toList());
             resultStores.forEach(rs -> rs.storeRowResults(this, columnResults));

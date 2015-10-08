@@ -17,6 +17,7 @@ import java.util.List;
  *
  * @author albert
  */
+@Test(groups = "comparison")
 public class ExistenceComparisonServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(ExistenceComparisonServiceTest.class);
     private List<String> tPk;

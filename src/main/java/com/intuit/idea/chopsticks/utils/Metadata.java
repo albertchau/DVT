@@ -55,8 +55,8 @@ public final class Metadata implements Comparable<Metadata> {
             return false;
         }
         Metadata metadata = (Metadata) o;
-        return isPk() == metadata.isPk() && getColumn().equalsIgnoreCase(metadata.getColumn());
-
+        return isPk() == metadata.isPk() &&
+                getColumn().equalsIgnoreCase(metadata.getColumn());
     }
 
     @Override

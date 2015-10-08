@@ -11,8 +11,8 @@ import java.sql.Date;
 import java.util.Arrays;
 import java.util.List;
 
+@Test(groups = "comparison")
 public class DataComparisonServiceTest {
-
     private List<String> tPk;
     private List<String> sPk;
     private MockResultSetMetaData tarMd;

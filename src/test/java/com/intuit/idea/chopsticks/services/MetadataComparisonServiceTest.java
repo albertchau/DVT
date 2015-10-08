@@ -11,12 +11,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.intuit.idea.chopsticks.services.ComparisonUtils.findLeftNotInRight;
+
 /**
  * ************************************
  * Author: achau1
  * Created On: 10/1/15
  * ************************************
  */
+@Test(groups = "comparison")
 public class MetadataComparisonServiceTest {
     private static final Logger logger = LoggerFactory.getLogger(MetadataComparisonServiceTest.class);
     private MetadataComparisonService metadataComparisonService;
@@ -43,15 +46,15 @@ public class MetadataComparisonServiceTest {
     public void testCheckPrimaryKeys() throws Exception {
         List<String> sPks = Arrays.asList("employeeId", "firstName");
         List<String> tPks = Arrays.asList("employeeId", "firstName");
-        metadataComparisonService.primaryKeyCheck(sPks, tPks);
+//        metadataComparisonService.comparePrimaryKeys(sPks, tPks);
     }
 
     @Test
     public void testFindLeftNotInRight() throws Exception {
         List<Integer> left = IntStream.range(1, 20).boxed().collect(Collectors.toList());
         List<Integer> right = IntStream.range(10, 30).boxed().collect(Collectors.toList());
-        List<Integer> leftNotInRight = MetadataComparisonService.findLeftNotInRight(left, right, Integer::equals);
-        List<Integer> rightNotInLeft = MetadataComparisonService.findLeftNotInRight(right, left, Integer::equals);
+        List<Integer> leftNotInRight = findLeftNotInRight(left, right, Integer::equals);
+        List<Integer> rightNotInLeft = findLeftNotInRight(right, left, Integer::equals);
         logger.info("[" + leftNotInRight.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]");
         logger.info("[" + rightNotInLeft.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]");
 
