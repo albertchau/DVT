@@ -1,7 +1,5 @@
 package com.intuit.idea.chopsticks.results;
 
-import com.intuit.idea.chopsticks.services.ComparisonService;
-
 import java.util.List;
 
 /**
@@ -15,6 +13,6 @@ public interface ResultStore {
 
     void stop();
 
-    void storeRowResults(ComparisonService comparisonService, List<ColumnComparisonResult> columnResults);
+    void storeRowResults(List<ColumnComparisonResult> columnResults);
 
 }

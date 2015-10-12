@@ -1,17 +1,16 @@
 package com.intuit.idea.chopsticks.services;
 
-import com.mockrunner.mock.jdbc.MockResultSet;
+import com.intuit.idea.chopsticks.services.transforms.Loaded;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.intuit.idea.chopsticks.services.ComparisonUtils.findLeftNotInRight;
+import static com.intuit.idea.chopsticks.utils.ComparisonUtils.findLeftNotInRight;
 
 /**
  * ************************************
@@ -20,33 +19,20 @@ import static com.intuit.idea.chopsticks.services.ComparisonUtils.findLeftNotInR
  * ************************************
  */
 @Test(groups = "comparison")
-public class MetadataComparisonServiceTest {
+public class MetadataComparisonServiceTest extends ComparisonTestBase {
     private static final Logger logger = LoggerFactory.getLogger(MetadataComparisonServiceTest.class);
-    private MetadataComparisonService metadataComparisonService;
 
     @BeforeMethod
+    @Override
     public void setup() {
-        metadataComparisonService = new MetadataComparisonService(null);
+        super.setup();
+        comparisonService = ComparisonService.createForMetadata(null);
     }
 
     @Test
     public void testMetadataCompare() throws Exception {
-        List<String> sPks = Arrays.asList("employeeId", "firstName");
-        List<String> tPks = Arrays.asList("employeeId", "firstName");
-        MockResultSet sMd = new MockResultSet("sourceMetadataResultSetMock");
-        sMd.addColumn("COLUMN_NAME", new String[]{"employeeId", "companyId", "firstName", "lsdName", "lastName", "createDate"});
-        sMd.addColumn("DATA_TYPE", new Integer[]{4, 4, 12, 12, 12, 91});
-        MockResultSet tMd = new MockResultSet("targetMetadataResultSetMock");
-        tMd.addColumn("COLUMN_NAME", new String[]{"employeeId", "companyId", "firstName", "lsdName", "lastName", "createDate"});
-        tMd.addColumn("DATA_TYPE", new Integer[]{4, 4, 12, 12, 12, 91});
-        metadataComparisonService.metadataCompare(sMd, tMd, sPks, tPks);
-    }
-
-    @Test
-    public void testCheckPrimaryKeys() throws Exception {
-        List<String> sPks = Arrays.asList("employeeId", "firstName");
-        List<String> tPks = Arrays.asList("employeeId", "firstName");
-//        metadataComparisonService.comparePrimaryKeys(sPks, tPks);
+        Loaded loaded = new Loaded(srcData, srcMetadata, tarData, tarMetadata);
+        comparisonService.startComparison(loaded);
     }
 
     @Test

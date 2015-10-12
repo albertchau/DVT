@@ -1,6 +1,5 @@
 package com.intuit.idea.chopsticks.results;
 
-import com.intuit.idea.chopsticks.services.ComparisonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,7 @@ public class InMemoryResultStore implements ResultStore, Reportable {
     }
 
     @Override
-    public void storeRowResults(ComparisonService comparisonService, List<ColumnComparisonResult> columnResults) {
+    public void storeRowResults(List<ColumnComparisonResult> columnResults) {
         results.add(columnResults);
     }
 

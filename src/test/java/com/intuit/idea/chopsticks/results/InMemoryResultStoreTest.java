@@ -26,7 +26,7 @@ public class InMemoryResultStoreTest {
                 .map(i -> colHeaders.stream()
                         .map(header -> ColumnComparisonResult.createMates(roolean(), header, header, header, header, false))
                         .collect(Collectors.toList()))
-                .forEach((columnResults) -> inMemoryResultStore.storeRowResults(null, columnResults));
+                .forEach(inMemoryResultStore::storeRowResults);
         inMemoryResultStore.report();
     }
 

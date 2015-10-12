@@ -1,8 +1,7 @@
 package com.intuit.idea.chopsticks.providers;
 
 import com.intuit.idea.chopsticks.results.ResultSets;
-import com.intuit.idea.chopsticks.services.ComparisonService;
-import com.intuit.idea.chopsticks.services.CountComparisonService;
+import com.intuit.idea.chopsticks.services.ComparisonServices;
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.containers.SimpleResultSet;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
@@ -16,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static com.intuit.idea.chopsticks.services.ComparisonUtils.extractSpecifiedMetadata;
+import static com.intuit.idea.chopsticks.utils.ComparisonUtils.extractSpecifiedMetadata;
 import static java.util.Collections.EMPTY_LIST;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
@@ -42,11 +41,11 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public ResultSet getData(ComparisonService cs) throws DataProviderException {
+    public ResultSet getData(ComparisonServices cs) throws DataProviderException {
         if (isNull(data)) {
             data = getData(query);
         }
-        if (cs != null && cs instanceof CountComparisonService) {
+        if (cs == ComparisonServices.COUNT) {
             try {
                 List<List<Object>> rows = new ArrayList<>();
                 while (data.next()) {
@@ -67,13 +66,13 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public ResultSets getData(ComparisonService cs, Map<String, List<String>> pksWithHeaders) {
+    public ResultSets getData(ComparisonServices cs, Map<String, List<String>> pksWithHeaders) {
         logger.error("Adhoc query does not support systematic sampling by specifying primary keys.");
         throw new UnsupportedOperationException("Adhoc query does not support systematic sampling by specifying primary keys.");
     }
 
     @Override
-    public String getQuery(ComparisonService cs) {
+    public String getQuery(ComparisonServices cs) {
         return query;
     }
 

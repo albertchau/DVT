@@ -3,7 +3,6 @@ package com.intuit.idea.chopsticks.providers;
 import com.intuit.idea.chopsticks.query.QueryService;
 import com.intuit.idea.chopsticks.query.QueryServiceBuilder;
 import com.intuit.idea.chopsticks.query.TestType;
-import com.intuit.idea.chopsticks.services.ExistenceComparisonService;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.testng.annotations.Test;
 
@@ -34,7 +33,7 @@ public class StructuredJdbcDataProviderTest {
                 null,
                 tqf
         );
-        ExistenceComparisonService existenceComparisonService = new ExistenceComparisonService(null);
+//        ExistenceComparisonService existenceComparisonService = new ExistenceComparisonService(null,null,null,null);
 
         target.openConnections();
         ResultSet data = target.getData("Select * from test.employees");

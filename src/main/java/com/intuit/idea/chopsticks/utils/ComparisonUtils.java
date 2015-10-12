@@ -1,4 +1,4 @@
-package com.intuit.idea.chopsticks.services;
+package com.intuit.idea.chopsticks.utils;
 
 import com.intuit.idea.chopsticks.utils.containers.CombinedMetadata;
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
@@ -80,13 +80,14 @@ public class ComparisonUtils {
         return 0;
     }
 
-    /*todo
-    Takes two metadata lists and finds the intersection
-    1) Checks metadata length
-    2) Sorts both metadata
-    3) Makes a list of like metadata
-    4) Throws an error if there are differing metadatas
-    5) returns metadata
+    /**
+     * Takes two metadata lists and finds the intersection
+     * 1) Checks metadata length
+     * 2) Sorts both metadata
+     * 3) Makes a list of like metadata
+     * 4) Throws an error if there are differing metadatas
+     * 5) returns metadata
+     *
      */
     public static CombinedMetadata[] mergeMetadata(Metadata[] sMetadata, Metadata[] tMetadata) throws ComparisonException {
         if (sMetadata.length != tMetadata.length) {
@@ -108,7 +109,6 @@ public class ComparisonUtils {
     }
 
     /*
-    todo move to another util class because Data Provider uses this method too?
     From the result set (which contains data) find the metadata for them by using PK's as a guide.
     Important note: We get the column label not column name. Reason for this is that they are almost always the same,
     only differing when select column uses aliasing like "Select column_a AS col_a..." this will be useful for mappings...

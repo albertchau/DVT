@@ -26,12 +26,12 @@ public class ColumnComparisonResult {
         this.isPk = isPk;
     }
 
-    public static ColumnComparisonResult createMates(Boolean outcome, CombinedMetadata metadata, Object sVal, Object tVal, boolean isPk) {
-        return new ColumnComparisonResult(outcome, metadata.getSrcColumnLabel(), metadata.getTarColumnLabel(), sVal, tVal, isPk);
-    }
-
     public static ColumnComparisonResult createMates(Boolean outcome, String sField, String tField, Object sVal, Object tVal, boolean isPk) {
         return new ColumnComparisonResult(outcome, sField, tField, sVal, tVal, isPk);
+    }
+
+    public static ColumnComparisonResult createFailure() {
+        return new ColumnComparisonResult(null, null, null, null, null, false);
     }
 
     public static ColumnComparisonResult createMatesFromMeta(Boolean outcome, CombinedMetadata metadata, Object sVal, Object tVal) {
