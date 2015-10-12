@@ -72,7 +72,7 @@ public final class MySqlQueryService extends QueryServiceBase {
         StringBuilder query = new StringBuilder("SELECT ");
         query.append(metadatas.stream()
                 .filter(Metadata::isPk)
-                .map(Metadata::getColumnLabel)
+                .map(Metadata::getColumnSelectStr)
                 .collect(Collectors.joining(",")));
         if (!testType.equals(TestType.FULL)) {
             String whereClauseColumns = whereClauses.stream()
