@@ -1,7 +1,7 @@
 package com.intuit.idea.chopsticks.providers;
 
 import com.intuit.idea.chopsticks.query.QueryService;
-import com.intuit.idea.chopsticks.services.*;
+import com.intuit.idea.chopsticks.services.ComparisonServices;
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
 
     @Override
     public ResultSet getData(ComparisonServices cs) throws DataProviderException {
-        String query = getQuery(cs);
+        String query = getQuery(cs); // select A0 as students from A whereasdf kasjdf
         return getData(query);
     }
 
