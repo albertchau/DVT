@@ -1,7 +1,7 @@
 package com.intuit.idea.chopsticks.providers;
 
 import com.intuit.idea.chopsticks.query.QueryService;
-import com.intuit.idea.chopsticks.services.*;
+import com.intuit.idea.chopsticks.services.ComparisonType;
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;
@@ -35,18 +35,18 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public ResultSet getData(ComparisonServices cs) throws DataProviderException {
+    public ResultSet getData(ComparisonType cs) throws DataProviderException {
         String query = getQuery(cs);
         return getData(query);
     }
 
     @Override
-    public ResultSet getData(ComparisonServices cs, Map<String, List<String>> pksWithHeaders) throws DataProviderException {
+    public ResultSet getData(ComparisonType cs, Map<String, List<String>> pksWithHeaders) throws DataProviderException {
         return getData(getQuery(cs, pksWithHeaders));
     }
 
     @Override
-    public String getQuery(ComparisonServices cs) throws DataProviderException {
+    public String getQuery(ComparisonType cs) throws DataProviderException {
         switch (cs) {
             case DATA:
                 return queryService.createDataQuery(getMetadata());
@@ -54,9 +54,13 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
                 return queryService.createExistenceQuery(getMetadata());
             case COUNT:
                 return queryService.createCountQuery();
+            case METADATA:
+                logger.error("Cannot create query for metadata comparison type.");
+                throw new UnsupportedOperationException("Cannot create query for metadata comparison type.");
+            default:
+                logger.error("Unknown Comparison Service");
+                throw new UnsupportedOperationException("Unknown Comparison Service");
         }
-        logger.info("Unknown Comparison Service");
-        throw new UnsupportedOperationException("Unknown Comparison Service");
     }
 
     @Override
@@ -90,7 +94,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
         return DataProviderType.JDBC;
     }
 
-    private String getQuery(ComparisonServices cs, Map<String, List<String>> pksWithHeaders) throws DataProviderException {
+    private String getQuery(ComparisonType cs, Map<String, List<String>> pksWithHeaders) throws DataProviderException {
         switch (cs) {
             case DATA:
                 return queryService.createDataQueryWithInputSamples(getMetadata(), pksWithHeaders);
@@ -99,9 +103,13 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             case COUNT:
                 logger.info("Cannot use sampling for Count Comparison Service.");
                 throw new UnsupportedOperationException("Cannot use sampling for Count Comparison Service.");
+            case METADATA:
+                logger.error("Cannot use sampling for Metadata Comparison Service.");
+                throw new UnsupportedOperationException("Cannot use sampling for Metadata Comparison Service.");
+            default:
+                logger.info("Unknown/Unsupported Comparison Service for sampling");
+                throw new UnsupportedOperationException("Unknown/Unsupported Comparison Service for sampling");
         }
-        logger.info("Unknown/Unsupported Comparison Service for sampling");
-        throw new UnsupportedOperationException("Unknown/Unsupported Comparison Service for sampling");
     }
 
     private List<Metadata> metadataFromDatabase(Connection c) {

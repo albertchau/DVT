@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks.providers;
 
-import com.intuit.idea.chopsticks.services.ComparisonServices;
+import com.intuit.idea.chopsticks.services.ComparisonType;
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 
@@ -20,11 +20,11 @@ public interface DataProvider extends AutoCloseable {
 
     void closeConnections();
 
-    ResultSet getData(ComparisonServices cs) throws DataProviderException;
+    ResultSet getData(ComparisonType cs) throws DataProviderException;
 
-    ResultSet getData(ComparisonServices cs, Map<String, List<String>> pksWithHeaders) throws DataProviderException;
+    ResultSet getData(ComparisonType cs, Map<String, List<String>> pksWithHeaders) throws DataProviderException;
 
-    String getQuery(ComparisonServices cs) throws DataProviderException;
+    String getQuery(ComparisonType cs) throws DataProviderException;
 
     List<Metadata> getMetadata() throws DataProviderException;
 

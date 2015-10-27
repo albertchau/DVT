@@ -1,0 +1,13 @@
+package com.intuit.idea.chopsticks.services;
+
+/**
+ * Types of comparison services we offer. Metadata is not listed here.
+ *
+ * @author albert
+ */
+public enum ComparisonType {
+    DATA,
+    EXISTENCE,
+    COUNT,
+    METADATA
+}

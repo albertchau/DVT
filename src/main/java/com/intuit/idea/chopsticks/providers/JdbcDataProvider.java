@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks.providers;
 
-import com.intuit.idea.chopsticks.results.ResultSets;
+import com.intuit.idea.chopsticks.utils.containers.ResultSets;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +9,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -66,15 +69,51 @@ abstract public class JdbcDataProvider implements DataProvider {
                     .forEach(connections::add);
         } else {
             Connection connection;
+            String connectionUrl = getConnectionUrl();
             try {
-                connection = DriverManager.getConnection(url, user, password);
-                logger.info("Connected to " + url);
+                if (isNull(user) || isNull(password)) {
+                    logger.info("Trying to connect using passwordless(username and/or password not set) login to database with connection url = [" + connectionUrl + "].");
+                    connection = DriverManager.getConnection(connectionUrl);
+                } else {
+                    logger.info("Trying to connect using username/password to login to database with connection url = [" + connectionUrl + "].");
+                    connection = DriverManager.getConnection(connectionUrl, user, password);
+                }
+                logger.info("Successfully connected to [" + connectionUrl + "].");
             } catch (SQLException e) {
                 e.printStackTrace();
-                logger.error("SqlException. Could not connect to " + url + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
-                throw new DataProviderException("SqlException. Could not connect to " + url + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
+                logger.error("Failed to connect to " + connectionUrl + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
+                throw new DataProviderException("Failed to connect to " + connectionUrl + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
             }
             connections.add(connection);
+        }
+    }
+
+    public String getConnectionUrl() throws DataProviderException {
+        if (nonNull(url)) {
+            return url;
+        } else {
+            if (Stream.of(host, port, database).anyMatch(Objects::isNull)) {
+                logger.error("URL is null and Host/Port/Database are null - Cannot construct url connection.");
+                throw new DataProviderException("URL is null and Host/Port/Database are null - Cannot construct url connection.");
+            }
+            String rtn = "";
+            switch (vendor) {
+                case HIVE_2:
+                    return String.format("%s%s:%s/%s", "jdbc:hive2://", host, port, database);
+                case HIVE_1:
+                    return String.format("%s%s:%s/%s", "jdbc:hive://", host, port, database);
+                case MYSQL:
+                    return String.format("%s%s:%s/%s", "jdbc:mysql://", host, port, database);
+                case SQL_SERVER:
+                    return String.format("%s%s:%s/%s", "jdbc:sqlserver://", host, port, database);
+                case ORACLE:
+                    return String.format("%s%s:%s/%s", "jdbc:oracle:thin:@//", host, port, database);
+                case VERTICA:
+                    return String.format("%s%s:%s/%s", "jdbc:vertica://", host, port, database);
+                case NETEZZA:
+                    return String.format("%s%s:%s/%s", "jdbc:netezza://", host, port, database);
+            }
+            return rtn;
         }
     }
 

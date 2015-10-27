@@ -24,16 +24,6 @@ public class InMemoryResultStore implements ResultStore, Reportable {
     }
 
     @Override
-    public void init() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
-
-    @Override
     public void storeRowResults(List<ColumnComparisonResult> columnResults) {
         results.add(columnResults);
     }

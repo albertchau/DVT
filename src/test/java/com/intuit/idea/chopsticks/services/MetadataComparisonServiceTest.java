@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks.services;
 
-import com.intuit.idea.chopsticks.services.transforms.Loaded;
+import com.intuit.idea.chopsticks.utils.containers.Loaded;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;

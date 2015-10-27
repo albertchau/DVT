@@ -69,53 +69,53 @@ public class QueryServiceBaseTest {
     QueryService compositeIntStrPkQs;
     QueryService singleStrPkQs;
 
-    protected List<QueryService> getQueryServices(List<Metadata> metadatas, TestType testType, VendorType vendorType) {
+    protected List<QueryService> getQueryServices(TestType testType, VendorType vendorType) {
         List<QueryService> qss = new ArrayList<>();
         QueryServiceBuilder queryServiceBuilder = new QueryServiceBuilder();
         QueryService base = queryServiceBuilder
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withSchema = queryServiceBuilder
                 .setSchema("test")
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withExcludedColumns = queryServiceBuilder
                 .setExcludedColumns(Arrays.asList("companyId", "createDate"))
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withIncludedColumns = queryServiceBuilder
                 .setExcludedColumns(new ArrayList<>())
                 .setIncludedColumns(Arrays.asList("employeeId", "firstName"))
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withExcludedIncludedColumns = queryServiceBuilder
                 .setExcludedColumns(Arrays.asList("companyId", "createDate"))
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withFetchAmount = queryServiceBuilder
                 .setFetchAmount(10)
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withDateBound = queryServiceBuilder
                 .setWhereClauses(Arrays.asList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withDateLowerBound = queryServiceBuilder
                 .setWhereClauses(Arrays.asList(WhereClause.createLowerBounded(DateTime.now(), "createDate")))
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withDateUpperBound = queryServiceBuilder
                 .setWhereClauses(Arrays.asList(WhereClause.createUpperBounded(DateTime.now(), "createDate")))
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withAnotherBound = queryServiceBuilder
                 .setWhereClauses(Arrays.asList(
                         WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate"),
                         WhereClause.createBounded(10, 20, "employeeId")))
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withSpecifiedDatePattern = queryServiceBuilder
                 .setDateTimeFormatter(DateTimeFormat.forPattern("MM, yyyy, dd"))
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withResevoirRandom = queryServiceBuilder
                 .setOrderDirection(OrderDirection.RESERVOIR_RANDOM)
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withSQLRandom = queryServiceBuilder
                 .setOrderDirection(OrderDirection.SQL_RANDOM)
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         QueryService withDescendingOrder = queryServiceBuilder
                 .setOrderDirection(OrderDirection.DESCENDING)
-                .build("employees", vendorType, metadatas, testType);
+                .build("employees", vendorType, testType);
         qss.add(base);
         qss.add(withSchema);
         qss.add(withIncludedColumns);
@@ -140,21 +140,21 @@ public class QueryServiceBaseTest {
                 .setFetchAmount(10)
                 .setWhereClauses(Arrays.asList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
                 .setOrderDirection(OrderDirection.DESCENDING)
-                .build("employees", VendorType.MYSQL, SINGLE_INT_PK_METADATA, TestType.FULL);
+                .build("employees", VendorType.MYSQL, TestType.FULL);
 
         compositeIntStrPkQs = new QueryServiceBuilder()
                 .setSchema("test")
                 .setFetchAmount(10)
                 .setWhereClauses(Arrays.asList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
                 .setOrderDirection(OrderDirection.DESCENDING)
-                .build("employees", VendorType.MYSQL, COMPOSITE_PK_METADATA, TestType.FULL);
+                .build("employees", VendorType.MYSQL, TestType.FULL);
 
         singleStrPkQs = new QueryServiceBuilder()
                 .setSchema("test")
                 .setFetchAmount(10)
                 .setWhereClauses(Arrays.asList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
                 .setOrderDirection(OrderDirection.DESCENDING)
-                .build("employees", VendorType.MYSQL, SINGLE_STR_PK_METADATA, TestType.FULL);
+                .build("employees", VendorType.MYSQL, TestType.FULL);
 
     }
 

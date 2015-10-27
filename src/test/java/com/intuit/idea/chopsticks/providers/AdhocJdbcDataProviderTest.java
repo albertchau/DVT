@@ -44,7 +44,7 @@ public class AdhocJdbcDataProviderTest {
 //    @SuppressWarnings("unchecked")
 //    public void testGetExistenceData() throws Exception {
 //        comparisonService = new ExistenceComparisonService(null,null,null,null);
-//        ResultSet data = provider.getData(ComparisonServices.EXISTENCE);
+//        ResultSet data = provider.getData(ComparisonType.EXISTENCE);
 //        Metadata[] metadatas = extractAllMetadata(data);
 //        CombinedMetadata[] combinedMetadatas = Arrays.stream(metadatas).map(m -> new CombinedMetadata(m, m, Comparable::compareTo)).toArray(CombinedMetadata[]::new);
 //        List<Comparable[]> comparables = resultSetToSortedList(data, combinedMetadatas, CombinedMetadata::getSrc);
@@ -62,7 +62,7 @@ public class AdhocJdbcDataProviderTest {
 //    @SuppressWarnings("unchecked")
 //    public void testGetCountData() throws Exception {
 //        comparisonService = new CountComparisonService(null, null,null,null);
-//        ResultSet data = provider.getData(ComparisonServices.COUNT);
+//        ResultSet data = provider.getData(ComparisonType.COUNT);
 //        Metadata[] metadatas = extractAllMetadata(data);
 //        CombinedMetadata[] combinedMetadatas = Arrays.stream(metadatas).map(m -> new CombinedMetadata(m, m, Comparable::compareTo)).toArray(CombinedMetadata[]::new);
 //        List<Comparable[]> comparables = resultSetToSortedList(data, combinedMetadatas, CombinedMetadata::getSrc);
@@ -80,7 +80,7 @@ public class AdhocJdbcDataProviderTest {
 //    @SuppressWarnings("unchecked")
 //    public void testGetData() throws Exception {
 //        comparisonService = new ExistenceComparisonService(null,null,null,null);
-//        ResultSet data = provider.getData(ComparisonServices.DATA);
+//        ResultSet data = provider.getData(ComparisonType.DATA);
 //        Metadata[] metadatas = extractAllMetadata(data);
 //        CombinedMetadata[] combinedMetadatas = Arrays.stream(metadatas).map(m -> new CombinedMetadata(m, m, Comparable::compareTo)).toArray(CombinedMetadata[]::new);
 //        List<Comparable[]> comparables = resultSetToSortedList(data, combinedMetadatas, CombinedMetadata::getSrc);

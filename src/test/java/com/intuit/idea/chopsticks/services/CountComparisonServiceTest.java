@@ -1,6 +1,6 @@
 package com.intuit.idea.chopsticks.services;
 
-import com.intuit.idea.chopsticks.services.transforms.Loaded;
+import com.intuit.idea.chopsticks.utils.containers.Loaded;
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.ComparisonException;
 import com.mockrunner.mock.jdbc.MockResultSet;
