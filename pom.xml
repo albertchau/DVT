@@ -103,7 +103,7 @@
     </dependencies>
 
     <scm>
-        <developerConnection>scm:git:git://github.intuit.com/idea/chopsticks</developerConnection>
+        <url>scm:git:git://github.intuit.com/idea/chopsticks</url>
     </scm>
 
     <build>
