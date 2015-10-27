@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
@@ -19,7 +20,7 @@
 
     <groupId>com.intuit.idea</groupId>
     <artifactId>chopsticks</artifactId>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
@@ -101,14 +102,24 @@
     </dependencies>
 
     <scm>
-        <url>scm:git:git://github.intuit.com/idea/chopsticks</url>
-        <developerConnection>scm:git:git://github.intuit.com/idea/chopsticks</developerConnection>
-        <tag>chopsticks-1.0</tag>
+        <url>https://github.intuit.com/idea/chopsticks</url>
+        <connection>scm:git:git://github.intuit.com/idea/chopsticks.git</connection>
+        <developerConnection>scm:git:achau1@github.intuit.com:idea/chopsticks.git</developerConnection>
     </scm>
 
     <build>
         <!-- To use the plugin goals in your POM or parent POM -->
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-plugin</artifactId>
+                <version>1.9.4</version>
+                <configuration>
+                    <providerImplementations>
+                        <git>git</git>
+                    </providerImplementations>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -144,7 +155,8 @@
                                 </filter>
                             </filters>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>Main</Main-Class>
                                     </manifestEntries>
