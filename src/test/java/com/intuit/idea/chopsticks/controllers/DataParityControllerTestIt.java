@@ -1,11 +1,5 @@
 package com.intuit.idea.chopsticks.controllers;
 
-import com.intuit.idea.chopsticks.providers.StructuredJdbcDataProvider;
-import com.intuit.idea.chopsticks.providers.VendorType;
-import com.intuit.idea.chopsticks.query.QueryService;
-import com.intuit.idea.chopsticks.query.QueryServiceBuilder;
-import com.intuit.idea.chopsticks.query.TestType;
-import com.intuit.idea.chopsticks.services.ComparisonService;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -14,12 +8,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.*;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * TODO - move to Integration Test
@@ -44,80 +36,80 @@ public class DataParityControllerTestIt {
 
     @BeforeTest
     public void setup() throws SQLException, IOException {
-        createAndPopulateTable("students_a_insert.sql", "students_a");
-        createAndPopulateTable("students_b_insert.sql", "students_b");
-        start = System.nanoTime();
+//        createAndPopulateTable("students_a_insert.sql", "students_a");
+//        createAndPopulateTable("students_b_insert.sql", "students_b");
+//        start = System.nanoTime();
     }
 
     @Test
     public void testDbLoad() throws Exception {
-        String tableName = "students_a";
-        conn = DriverManager.getConnection(DB_URL, USER, PASS);
-        stmt = conn.createStatement();
-        ResultSet resultSet = stmt.executeQuery("SELECT * FROM " + tableName + " LIMIT 10");
-        int columnCount = resultSet.getMetaData().getColumnCount();
-        while (resultSet.next()) {
-            Function<Integer, String> getColumn = i -> {
-                try {
-                    return resultSet.getString(i);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            };
-            String row = IntStream.range(1, columnCount + 1)
-                    .boxed()
-                    .map(getColumn)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.joining(", "));
-            System.out.println("row = " + row);
-        }
-        stmt.close();
-        conn.close();
+//        String tableName = "students_a";
+//        conn = DriverManager.getConnection(DB_URL, USER, PASS);
+//        stmt = conn.createStatement();
+//        ResultSet resultSet = stmt.executeQuery("SELECT * FROM " + tableName + " LIMIT 10");
+//        int columnCount = resultSet.getMetaData().getColumnCount();
+//        while (resultSet.next()) {
+//            Function<Integer, String> getColumn = i -> {
+//                try {
+//                    return resultSet.getString(i);
+//                } catch (SQLException e) {
+//                    e.printStackTrace();
+//                    return null;
+//                }
+//            };
+//            String row = IntStream.range(1, columnCount + 1)
+//                    .boxed()
+//                    .map(getColumn)
+//                    .filter(Objects::nonNull)
+//                    .collect(Collectors.joining(", "));
+//            System.out.println("row = " + row);
+//        }
+//        stmt.close();
+//        conn.close();
     }
 
     @Test
     public void testMySqlEtE() throws Exception {
-        QueryService sourceQueryService = new QueryServiceBuilder().build("students_a", VendorType.MYSQL, TestType.FULL);
-        StructuredJdbcDataProvider source = new StructuredJdbcDataProvider(
-                VendorType.MYSQL,
-                "host",
-                "port",
-                "jdbc:mysql://localhost:3306/test",
-                "root",
-                "admin",
-                "test",
-                "hivePrincipal",
-                "students_a",
-                null,
-                sourceQueryService
-        );
-        QueryService targetQueryService = new QueryServiceBuilder().build("students_b", VendorType.MYSQL, TestType.FULL);
-        StructuredJdbcDataProvider target = new StructuredJdbcDataProvider(
-                VendorType.MYSQL,
-                "host",
-                "port",
-                "jdbc:mysql://localhost:3306/test",
-                "root",
-                "admin",
-                "test",
-                "hivePrincipal",
-                "students_b",
-                null,
-                targetQueryService
-        );
-        List<ComparisonService> allComparisons = ComparisonService.createAllComparisons(null);
-        DataParityController dataParityController =
-                new DataParityController(source, target, allComparisons);
-        dataParityController.run();
+//        QueryService sourceQueryService = new QueryServiceBuilder().build("students_a", VendorType.MYSQL, TestType.FULL);
+//        StructuredJdbcDataProvider source = new StructuredJdbcDataProvider(
+//                VendorType.MYSQL,
+//                "host",
+//                "port",
+//                "jdbc:mysql://localhost:3306/test",
+//                "root",
+//                "admin",
+//                "test",
+//                "hivePrincipal",
+//                "students_a",
+//                null,
+//                sourceQueryService
+//        );
+//        QueryService targetQueryService = new QueryServiceBuilder().build("students_b", VendorType.MYSQL, TestType.FULL);
+//        StructuredJdbcDataProvider target = new StructuredJdbcDataProvider(
+//                VendorType.MYSQL,
+//                "host",
+//                "port",
+//                "jdbc:mysql://localhost:3306/test",
+//                "root",
+//                "admin",
+//                "test",
+//                "hivePrincipal",
+//                "students_b",
+//                null,
+//                targetQueryService
+//        );
+//        List<ComparisonService> allComparisons = ComparisonService.createAllComparisons(null);
+//        DataParityController dataParityController =
+//                new DataParityController(source, target, allComparisons);
+//        dataParityController.run();
     }
 
     @AfterTest
     public void after() throws SQLException {
-        long end = System.nanoTime();
-        destroyTable("students_a");
-        destroyTable("students_b");
-        System.out.println("start - end /100000 = " + ((end - start) / 1000000));
+//        long end = System.nanoTime();
+//        destroyTable("students_a");
+//        destroyTable("students_b");
+//        System.out.println("start - end /100000 = " + ((end - start) / 1000000));
     }
 
     public void createAndPopulateTable(String resourceFile, String tableName) throws SQLException, IOException {
