@@ -104,7 +104,7 @@
     <scm>
         <url>https://github.intuit.com/idea/chopsticks</url>
         <connection>scm:git:git://github.intuit.com/idea/chopsticks.git</connection>
-        <developerConnection>scm:git:achau1@github.intuit.com:idea/chopsticks.git</developerConnection>
+        <developerConnection>scm:git:git@github.intuit.com:idea/chopsticks.git</developerConnection>
       <tag>chopsticks-1.0</tag>
   </scm>
 
