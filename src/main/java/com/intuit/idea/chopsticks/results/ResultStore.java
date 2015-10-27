@@ -9,10 +9,6 @@ import java.util.List;
  */
 public interface ResultStore {
 
-    void init();
-
-    void stop();
-
     void storeRowResults(List<ColumnComparisonResult> columnResults);
 
 }

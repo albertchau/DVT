@@ -2,7 +2,7 @@ package com.intuit.idea.chopsticks.controllers;
 
 import com.intuit.idea.chopsticks.providers.DataProvider;
 import com.intuit.idea.chopsticks.services.ComparisonService;
-import com.intuit.idea.chopsticks.utils.exceptions.ComparisonException;
+import com.intuit.idea.chopsticks.services.ComparisonType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,9 @@ public final class DataParityController {
         comparisonServices.forEach(comparisonService -> {
             try {
                 comparisonService.compare(source, target);
-            } catch (ComparisonException e) {
+            } catch (Exception e) {
+                ComparisonType ToCS = comparisonService.getType();
+                logger.error(ToCS + " failed!!!");
                 e.printStackTrace();
             }
         });

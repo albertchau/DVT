@@ -17,7 +17,7 @@ public class MySqlQueryServiceTest extends QueryServiceBaseTest {
         List<Metadata> metadatas = COMPOSITE_PK_METADATA;
         List<Object[]> collected = TEST_TYPES.stream()
                 .flatMap(testType -> {
-                    List<QueryService> qss = getQueryServices(null, testType, VENDOR_TYPE);
+                    List<QueryService> qss = getQueryServices(testType, VENDOR_TYPE);
                     return qss.stream()
                             .filter(Objects::nonNull);
                 })
@@ -38,7 +38,7 @@ public class MySqlQueryServiceTest extends QueryServiceBaseTest {
                     .setFetchAmount(10)
                     .setWhereClauses(Collections.singletonList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
                     .setOrderDirection(OrderDirection.DESCENDING)
-                    .build("employees", VendorType.MYSQL, SINGLE_INT_PK_METADATA, testType);
+                    .build("employees", VendorType.MYSQL, testType);
             qss.add(singleIntPkQs);
             return qss.stream().filter(Objects::nonNull);
         }).map(qs -> new Object[]{qs})
@@ -57,7 +57,7 @@ public class MySqlQueryServiceTest extends QueryServiceBaseTest {
                     .setFetchAmount(10)
                     .setWhereClauses(Collections.singletonList(WhereClause.createBounded(DateTime.now(), DateTime.now(), "createDate")))
                     .setOrderDirection(OrderDirection.DESCENDING)
-                    .build("employees", VendorType.MYSQL, SINGLE_STR_PK_METADATA, testType);
+                    .build("employees", VendorType.MYSQL, testType);
             qss.add(singleStrPkQs);
             return qss.stream().filter(Objects::nonNull);
         }).map(qs -> new Object[]{qs})

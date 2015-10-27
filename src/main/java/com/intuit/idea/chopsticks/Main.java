@@ -4,10 +4,7 @@ import org.jooq.lambda.tuple.Tuple2;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
-import java.util.StringJoiner;
 import java.util.function.BiFunction;
-import java.util.stream.Collector;
 import java.util.stream.IntStream;
 
 /**
@@ -27,35 +24,14 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Random rand = new Random();
+        IntStream.range(1, 10)
+                .boxed()
+                .map(i -> i.toString())
+                .forEach(System.out::println);
 
-        int bound = 10;
-        String collect = IntStream.range(0, bound)/*.map(i -> rand.nextInt(bound * 10))*/
-                .boxed()
-                .collect(
-                        StringBuilder::new,
-                        StringBuilder::append,
-                        StringBuilder::append
-                ).toString();
-        Collector<Integer, StringBuilder, String> b = Collector.of(
-                () -> new StringBuilder(""),
-                (s, t) -> s.append(t.toString()),
-                StringBuilder::append,
-                StringBuilder::toString);
+        for (int i = 0; i < 10; i++) {
+            System.out.println(i);
+        }
 
-        Collector<Integer, StringJoiner, String> a = Collector.of(
-                () -> new StringJoiner(" | "),
-                (s, t) -> s.add(t.toString()),
-                StringJoiner::merge,
-                StringJoiner::toString);
-        String collect1 = IntStream.range(0, bound).map(i -> rand.nextInt(bound * 10))
-                .boxed()
-                .collect(a);
-        System.out.println("collect1 = " + collect1);
-        collect1 = IntStream.range(0, bound).map(i -> rand.nextInt(bound * 10))
-                .boxed()
-                .collect(b);
-        System.out.println("collect1 = " + collect1);
-        System.out.println(collect);
     }
 }

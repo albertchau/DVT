@@ -1,7 +1,7 @@
 package com.intuit.idea.chopsticks.query;
 
 import com.intuit.idea.chopsticks.providers.VendorType;
-import com.intuit.idea.chopsticks.utils.containers.Metadata;
+import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -18,7 +18,6 @@ import java.util.List;
  * ************************************
  */
 public class QueryServiceBuilder {
-
     private static Logger logger = LoggerFactory.getLogger(QueryServiceBuilder.class);
     private String schema = null;
     private List<String> includedColumns = new ArrayList<>();
@@ -26,7 +25,7 @@ public class QueryServiceBuilder {
     private List<WhereClause> whereClauses = new ArrayList<>();
     private Integer fetchAmount = 0;
     private OrderDirection orderDirection = OrderDirection.ASCENDING;
-    private DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd hh:mm:ss");
+    private DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
 
     public QueryServiceBuilder setSchema(String schema) {
         this.schema = schema;
@@ -64,10 +63,6 @@ public class QueryServiceBuilder {
     }
 
     public QueryService build(String tableName, VendorType vendor, TestType testType) {
-        return build(tableName, vendor, null, testType);
-    }
-
-    public QueryService build(String tableName, VendorType vendor, List<Metadata> metadatas, TestType testType) {
         switch (testType) {
             case FULL:
                 break;
@@ -77,7 +72,8 @@ public class QueryServiceBuilder {
                         .filter(wc -> wc.getLowerBound() != null || wc.getUpperBound() != null)
                         .count();
                 if (count < 1) {
-                    return null; //todo throw error
+                    logger.error("Historic test case specified, however there is no where clause that specifies a matching date column.");
+                    throw new QueryCreationError("Historic test case specified, however there is no where clause that specifies a matching date column.");
                 }
                 break;
             case INCREMENTAL:
@@ -86,36 +82,25 @@ public class QueryServiceBuilder {
                         .filter(wc -> wc.getLowerBound() != null)
                         .count();
                 if (count < 1) {
-                    return null; //todo throw error
+                    logger.error("Incremental test case specified, however there is no where clause that specifies a matching date column.");
+                    throw new QueryCreationError("Incremental test case specified, however there is no where clause that specifies a matching date column.");
                 }
                 break;
         }
-//        if (fetchAmount > 0 && !metadatas.stream().anyMatch(Metadata::isPk)) {
-//            return null; //todo throw error
-//        }
-//        long problemWhereClauses = whereClauses.stream()
-//                .filter(wc -> metadatas.stream()
-//                        .noneMatch(md -> md.getColumnLabel().equalsIgnoreCase(wc.getColumnLabel())))
-//                .peek(wc -> logger.error("Could not register the WhereClause: " + wc.toString()))
-//                .count();
-//        if (problemWhereClauses > 0) {
-//            return null; //todo throw error
-//        }
-        List<Metadata> mds = metadatas == null ? new ArrayList<>() : metadatas;
         switch (vendor) {
             case HIVE_2:
             case HIVE_1:
-//                return new HiveQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new HiveQueryService(tableName, schema, includedColumns, excludedColumns, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case MYSQL:
                 return new MySqlQueryService(tableName, schema, includedColumns, excludedColumns, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case SQL_SERVER:
-//                return new SqlServerQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new SqlServerQueryService(tableName, schema, includedColumns, excludedColumns, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case ORACLE:
-//                return new OracleQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new OracleQueryService(tableName, schema, includedColumns, excludedColumns, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case VERTICA:
-//                return new VerticaQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new VerticaQueryService(tableName, schema, includedColumns, excludedColumns, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
             case NETEZZA:
-//                return new NetezzaQueryService(tableName, schema, includedColumns, excludedColumns, mds, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
+                return new NetezzaQueryService(tableName, schema, includedColumns, excludedColumns, fetchAmount, testType, whereClauses, orderDirection, dateTimeFormatter);
         }
         return null;
     }

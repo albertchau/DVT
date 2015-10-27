@@ -13,18 +13,18 @@ import java.util.List;
  * Created On: 9/20/15
  * ************************************
  */
-public final class MySqlQueryService extends QueryServiceBase {
-    private static final Logger logger = LoggerFactory.getLogger(MySqlQueryService.class);
+public final class NetezzaQueryService extends QueryServiceBase {
+    private static final Logger logger = LoggerFactory.getLogger(NetezzaQueryService.class);
 
-    public MySqlQueryService(String tableName,
-                             String schema,
-                             List<String> includedColumns,
-                             List<String> excludedColumns,
-                             Integer fetchAmount,
-                             TestType testType,
-                             List<WhereClause> whereClauses,
-                             OrderDirection orderDirection,
-                             DateTimeFormatter dateTimeFormat) {
+    public NetezzaQueryService(String tableName,
+                               String schema,
+                               List<String> includedColumns,
+                               List<String> excludedColumns,
+                               Integer fetchAmount,
+                               TestType testType,
+                               List<WhereClause> whereClauses,
+                               OrderDirection orderDirection,
+                               DateTimeFormatter dateTimeFormat) {
         super(tableName,
                 schema,
                 includedColumns,
@@ -39,23 +39,23 @@ public final class MySqlQueryService extends QueryServiceBase {
     @Override
     public String getDateRange(String dateColumn, DateTime startDate, DateTime endDate) {
         if (testType.equals(TestType.FULL)) {
-            return null; // is handled when filtering whereclauses by nulls
+            return null;
         }
         if (endDate == null) {
             String startStr = dateTimeFormat.print(startDate);
-            return String.format("%s >= \"%s\""
+            return String.format("%s >= to_char(DATE '%s','MM-DD-YYYY HH24:MI:SS')"
                     , dateColumn
                     , startStr);
         }
         if (startDate == null) {
             String endStr = dateTimeFormat.print(endDate);
-            return String.format("%s <= \"%s\""
+            return String.format("%s <= to_char(DATE '%s','MM-DD-YYYY HH24:MI:SS')"
                     , dateColumn
                     , endStr);
         }
         String startStr = dateTimeFormat.print(startDate);
         String endStr = dateTimeFormat.print(endDate);
-        return String.format("%s between \"%s\" and \"%s\""
+        return String.format("%s between to_char(DATE '%s','MM-DD-YYYY HH24:MI:SS') and to_char(DATE '%s','MM-DD-YYYY HH24:MI:SS')"
                 , dateColumn
                 , startStr
                 , endStr);

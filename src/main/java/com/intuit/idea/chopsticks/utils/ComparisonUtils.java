@@ -9,14 +9,10 @@ import org.slf4j.LoggerFactory;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.intuit.idea.chopsticks.utils.SQLTypeMap.toClass;
@@ -25,36 +21,50 @@ import static com.intuit.idea.chopsticks.utils.containers.Metadata.createWithNoA
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 
-/**
- * Copyright 2015
- *
- * @author albert
- */
+
 public class ComparisonUtils {
     public static final Logger logger = LoggerFactory.getLogger(ComparisonUtils.class);
 
+    /**
+     * The default comparer that handles comparing nulls.
+     */
     @SuppressWarnings("unchecked")
-    public static final BiFunction<Comparable, Comparable, Integer> comparer = Comparable::compareTo;
+    public static final BiFunction<Comparable, Comparable, Integer> nullSafeComparer = (a, b) -> {
+        if (a == null ^ b == null) {
+            return (a == null) ? -1 : 1;
+        }
+        if (a == null) {
+            return 0;
+        }
+        return a.compareTo(b);
+    };
 
-    /*
-    Syntactic sugar for a functional lambda call to sort the list of comparable[]. Also a wrapper for overloaded compareColumns()
+    /**
+     * Syntactic sugar for a functional lambda call to sort the list of comparable[] that uses every column in it's comparison. Also a wrapper for overloaded compareColumns().
+     * @param source a comparable array
+     * @param target a comparable array
+     * @return 0 if equal, 1 if source is greater -1 if target is greater
      */
     public static Integer compareColumns(Comparable[] source, Comparable[] target) {
         return compareColumns(source, target, filledBiFunctionArray(source.length), 0, source.length);
     }
 
-    /*
-    Just fills an array of Comparable.compareTo() BiFunctions to the size specified
+    /**
+     * Just fills an array of Comparable.compareTo() BiFunctions to the size specified.
+     * @param size Specifies how big the array will be.
+     * @return Array of nullSafeComparers
      */
     @SuppressWarnings("unchecked")
     public static BiFunction<Comparable, Comparable, Integer>[] filledBiFunctionArray(int size) {
         BiFunction<Comparable, Comparable, Integer>[] comparers = new BiFunction[size];
-        Arrays.fill(comparers, comparer);
+        Arrays.fill(comparers, nullSafeComparer);
         return comparers;
     }
 
-    /*
-    Syntactic sugar for functional lambda that retrieves a column value and casts the value to the type specified in the metadata
+    /**
+     * Syntactic sugar for functional lambda that retrieves a column value and casts the value to the type specified in the metadata.
+     * @param rs Result Set to get column value from.
+     * @return a Function that takes in Metadata and returns a comparable value.
      */
     public static Function<Metadata, Comparable> getColumnValue(ResultSet rs) {
         return (md) -> {
@@ -67,8 +77,14 @@ public class ComparisonUtils {
         };
     }
 
-    /*
-    Compares the range of rows in array (specified by inclusive start and exclusive end
+    /**
+     * Compares the range of rows in array (specified by inclusive start and exclusive end.
+     * @param sRow Array of comparables.
+     * @param tRow Array of comparables.
+     * @param comparers Array of functions that compare the respective sRow[start...end] to tRow[start...end].
+     * @param start Inclusive where to start comparing the columns of the rows.
+     * @param end Exclusive of where to stop comparing the columns of the rows.
+     * @return 0 if equal, 1 if source is greater -1 if target is greater
      */
     public static Integer compareColumns(Comparable[] sRow, Comparable[] tRow, BiFunction<Comparable, Comparable, Integer>[] comparers, int start, int end) {
         for (int i = start; i < end; i++) {
@@ -87,37 +103,44 @@ public class ComparisonUtils {
      * 3) Makes a list of like metadata
      * 4) Throws an error if there are differing metadatas
      * 5) returns metadata
-     *
+     * @param sMetadata List of metadata
+     * @param tMetadata List of metadata
+     * @return an Array of combined metadata
+     * @throws ComparisonException
      */
-    public static CombinedMetadata[] mergeMetadata(Metadata[] sMetadata, Metadata[] tMetadata) throws ComparisonException {
-        if (sMetadata.length != tMetadata.length) {
+    public static CombinedMetadata[] mergeMetadata(List<Metadata> sMetadata, List<Metadata> tMetadata) throws ComparisonException {
+        if (sMetadata.size() != tMetadata.size()) {
             throw new ComparisonException("Metadata is not same length");
         }
-        Arrays.sort(sMetadata);
-        Arrays.sort(tMetadata);
-        CombinedMetadata[] combinedMetadatas = IntStream.range(0, sMetadata.length)
+        Collections.sort(sMetadata);
+        Collections.sort(tMetadata);
+        CombinedMetadata[] combinedMetadatas = IntStream.range(0, sMetadata.size())
                 .boxed()
-                .filter(i -> tMetadata[i].equals(sMetadata[i]))
-                .map(i -> combineMetadata(sMetadata[i], ComparisonUtils.comparer, tMetadata[i]))
+                .filter(i -> tMetadata.get(i).equals(sMetadata.get(i)))
+                .map(i -> combineMetadata(sMetadata.get(i), ComparisonUtils.nullSafeComparer, tMetadata.get(i)))
                 .sorted()
                 .toArray(CombinedMetadata[]::new);
-        if (combinedMetadatas.length != sMetadata.length) {
+        if (combinedMetadatas.length != sMetadata.size()) {
             logger.error("Metadatas do not contain same content!");
-//            throw new ComparisonException("Metadatas do not contain same content!");
         }
         return combinedMetadatas;
     }
 
-    /*
-    From the result set (which contains data) find the metadata for them by using PK's as a guide.
-    Important note: We get the column label not column name. Reason for this is that they are almost always the same,
-    only differing when select column uses aliasing like "Select column_a AS col_a..." this will be useful for mappings...
-    1) get the metadata for result set
-    2) for each column, get the column label
-    3) check to make sure column label is a Pk
-    4) add all pk'd columns and return as Array
+    /**
+     * From the result set (which contains data) find the metadata for them by using PK's as a guide.
+     * Important note: We get the column label not column name. Reason for this is that they are almost always the same,
+     * only differing when select column uses aliasing like "Select column_a AS col_a..." this will be useful for mappings...
+     * 1) get the metadata for result set
+     * 2) for each column, get the column label
+     * 3) check to make sure column label is a Pk
+     * 4) add all pk'd columns and return as Array
+     * @param data Result Set of data.
+     * @param colsToBeExtracted List of Strings specifying which strings to be extracted.
+     * @param pks List of strings specifying which primary keys to be extracted.
+     * @return List of metadata.
+     * @throws SQLException
      */
-    public static Metadata[] extractSpecifiedMetadata(ResultSet data, List<String> colsToBeExtracted, List<String> pks) throws SQLException {
+    public static List<Metadata> extractSpecifiedMetadata(ResultSet data, List<String> colsToBeExtracted, List<String> pks) throws SQLException {
         ResultSetMetaData metaData = data.getMetaData();
         return IntStream.range(1, metaData.getColumnCount() + 1).boxed()
                 .map(i -> {
@@ -139,9 +162,18 @@ public class ComparisonUtils {
                     }
                 })
                 .filter(Objects::nonNull)
-                .toArray(Metadata[]::new);
+                .collect(toList());
     }
 
+    /**
+     * Find the data that exists in left but not in right... SQL is Select * from `left` Left Outer Join `right` on `left`._ = `right`._ where `right`._ = null.
+     *
+     * @param left    List of data of type T.
+     * @param right   List of data of type T.
+     * @param equalTo A BiPredicate function to compare types of Left and types of Right.
+     * @param <T>     Any Type
+     * @return List of data of Type T.
+     */
     public static <T> List<T> findLeftNotInRight(List<T> left, List<T> right, BiPredicate<T, T> equalTo) {
         return left.stream()
                 .filter(l -> right.stream()
@@ -149,10 +181,13 @@ public class ComparisonUtils {
                 .collect(toList());
     }
 
-    /*
-    Wrapper for extractMetadata for times when PK is not specified in configuration
+    /**
+     * Wrapper for extractMetadata for times when PK is not specified in configuration.
+     * @param data A Result Set.
+     * @return List of Metadata
+     * @throws SQLException
      */
-    public static Metadata[] extractAllMetadata(ResultSet data) throws SQLException {
+    public static List<Metadata> extractAllMetadata(ResultSet data) throws SQLException {
         return extractSpecifiedMetadata(data, null, null);
     }
 
@@ -175,7 +210,7 @@ public class ComparisonUtils {
         }
         return listOfRows.stream()
                 .sorted(ComparisonUtils::compareColumns)
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
 }

@@ -1,8 +1,8 @@
 package com.intuit.idea.chopsticks.providers;
 
-import com.intuit.idea.chopsticks.results.ResultSets;
-import com.intuit.idea.chopsticks.services.ComparisonServices;
+import com.intuit.idea.chopsticks.services.ComparisonType;
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
+import com.intuit.idea.chopsticks.utils.containers.ResultSets;
 import com.intuit.idea.chopsticks.utils.containers.SimpleResultSet;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
 import org.slf4j.Logger;
@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +18,6 @@ import static com.intuit.idea.chopsticks.utils.ComparisonUtils.extractSpecifiedM
 import static java.util.Collections.EMPTY_LIST;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.toList;
 
 /**
  * ************************************
@@ -41,11 +39,11 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public ResultSet getData(ComparisonServices cs) throws DataProviderException {
+    public ResultSet getData(ComparisonType cs) throws DataProviderException {
         if (isNull(data)) {
             data = getData(query);
         }
-        if (cs == ComparisonServices.COUNT) {
+        if (cs == ComparisonType.COUNT) {
             try {
                 List<List<Object>> rows = new ArrayList<>();
                 while (data.next()) {
@@ -66,13 +64,13 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
     }
 
     @Override
-    public ResultSets getData(ComparisonServices cs, Map<String, List<String>> pksWithHeaders) {
+    public ResultSets getData(ComparisonType cs, Map<String, List<String>> pksWithHeaders) {
         logger.error("Adhoc query does not support systematic sampling by specifying primary keys.");
         throw new UnsupportedOperationException("Adhoc query does not support systematic sampling by specifying primary keys.");
     }
 
     @Override
-    public String getQuery(ComparisonServices cs) {
+    public String getQuery(ComparisonType cs) {
         return query;
     }
 
@@ -83,8 +81,7 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
             data = getData(query);
         }
         try {
-            return Arrays.stream(extractSpecifiedMetadata(data, null, primaryKeys))
-                    .collect(toList());
+            return extractSpecifiedMetadata(data, null, primaryKeys);
         } catch (SQLException e) {
             throw new DataProviderException("Could not extract metadata from adhoc query.", e);
         }
