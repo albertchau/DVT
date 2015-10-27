@@ -104,6 +104,7 @@
 
     <scm>
         <url>scm:git:git://github.intuit.com/idea/chopsticks</url>
+        <developerConnection>scm:git:git://github.intuit.com/idea/chopsticks</developerConnection>
     </scm>
 
     <build>
