@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
@@ -104,8 +105,8 @@
         <url>https://github.intuit.com/idea/chopsticks</url>
         <connection>scm:git:git://github.intuit.com/idea/chopsticks.git</connection>
         <developerConnection>scm:git:git@github.intuit.com:idea/chopsticks.git</developerConnection>
-      <tag>chopsticks-1.1</tag>
-  </scm>
+        <tag>chopsticks-1.1</tag>
+    </scm>
 
     <build>
         <!-- To use the plugin goals in your POM or parent POM -->
@@ -138,7 +139,6 @@
                         <configuration>
                             <outputDirectory>${project.build.directory}/jars</outputDirectory>
                             <finalName>${project.artifactId}-${project.version}</finalName>
-                            <minimizeJar>true</minimizeJar>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <filters>
                                 <filter>
@@ -155,9 +155,10 @@
                                 </filter>
                             </filters>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>Main</Main-Class>
+                                        <Main-Class>com.intuit.idea.chopsticks.Main</Main-Class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>
