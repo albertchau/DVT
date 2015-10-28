@@ -1,0 +1,26 @@
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <withJansi>true</withJansi>
+        <encoder>
+            <pattern>
+                %highlight([%.-1level)|%date{mm:ss.SSS}|%highlight(%5.5thread)|%highlight(%25.25(%logger{0}:%line)]):
+                %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>log/akka.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>[%.-1level | %date{HH:mm:ss.SSS} | %thread | %-20.20(%logger{0}:%line]): %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+</configuration>

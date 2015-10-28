@@ -23,22 +23,29 @@ public class MetadataLoader implements Loader {
 
     @Override
     public Loaded load(DataProvider source, DataProvider target, ComparisonType type) throws ComparisonException {
+        logger.info("Loading metadata...");
+        List<Metadata> srcMetadata;
+        List<Metadata> tarMetadata;
         try {
-            List<Metadata> srcMetadata = source.getMetadata();
-            List<Metadata> tarMetadata = target.getMetadata();
-            if (isNullOrEmpty(srcMetadata)) {
-                logger.error("Could not find source metadata.;");
-                throw new ComparisonException("Could not find source metadata.");
-            }
-            if (isNullOrEmpty(tarMetadata)) {
-                logger.error("Could not find source metadata.;");
-                throw new ComparisonException("Could not find source metadata.");
-            }
-            return new Loaded(null, srcMetadata, null, tarMetadata);
-        } catch (DataProviderException e) {
-            e.printStackTrace();
-            logger.error("Could not get data for comparison.");
-            throw new ComparisonException("Could not get data for comparison.");
+            srcMetadata = getMetadatasFrom(source);
+        } catch (DataProviderException | ComparisonException e) {
+            throw new ComparisonException("Failed to LOAD source metadata for metadata comparison because: " + e.getMessage());
         }
+        try {
+            tarMetadata = getMetadatasFrom(target);
+        } catch (DataProviderException | ComparisonException e) {
+            throw new ComparisonException("Failed to LOAD target metadata for metadata comparison because: " + e.getMessage());
+        }
+        logger.info("Successfully loaded metadata...");
+        return new Loaded(null, srcMetadata, null, tarMetadata);
+    }
+
+    private List<Metadata> getMetadatasFrom(DataProvider dataProvider) throws ComparisonException {
+        List<Metadata> metadata;
+        metadata = dataProvider.getMetadata();
+        if (isNullOrEmpty(metadata)) {
+            throw new ComparisonException("Obtained metadata, but it was null or empty.");
+        }
+        return metadata;
     }
 }

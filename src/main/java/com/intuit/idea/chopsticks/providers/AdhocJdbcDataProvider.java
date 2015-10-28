@@ -55,8 +55,7 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
                 }
                 return new SimpleResultSet(rows);
             } catch (SQLException e) {
-                e.printStackTrace();
-                logger.error("Could not mock up count from adhoc query.");
+                logger.error("Could not mock up count from adhoc query: " + e.getMessage());
                 throw new DataProviderException("Could not mock up count from adhoc query.", e);
             }
         }

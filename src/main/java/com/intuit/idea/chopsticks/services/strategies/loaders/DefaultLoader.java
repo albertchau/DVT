@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import static com.intuit.idea.chopsticks.utils.CollectionUtils.isNullOrEmpty;
 import static com.intuit.idea.chopsticks.utils.ComparisonUtils.extractAllMetadata;
 import static java.util.Objects.isNull;
 
@@ -30,29 +31,50 @@ public class DefaultLoader implements Loader {
             logger.info("Assuming metadata comparison because type was " + type + ". For safety, next time - use MetadataLoader.");
             return new MetadataLoader().load(source, target, type);
         }
+        logger.info("Loading data...");
+        ResultSet srcData;
+        ResultSet tarData;
+        List<Metadata> srcMetadata;
+        List<Metadata> tarMetadata;
         try {
-            ResultSet srcData = source.getData(type);
-            ResultSet tarData = target.getData(type);
-            List<Metadata> srcMetadata = null;
-            List<Metadata> tarMetadata = null;
-            switch (type) {
-                case DATA:
-                    srcMetadata = source.getMetadata();
-                    tarMetadata = target.getMetadata();
-                    break;
-                case EXISTENCE:
-                case COUNT:
-                    srcMetadata = extractAllMetadata(srcData);
-                    tarMetadata = extractAllMetadata(tarData);
-                    break;
-            }
-            return new Loaded(srcData, srcMetadata, tarData, tarMetadata);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new ComparisonException("Could not get data from sources/targets.");
+            srcData = source.getData(type);
         } catch (DataProviderException e) {
-            e.printStackTrace();
-            throw new ComparisonException("Could not extract metadata from sources/targets.");
+            throw new ComparisonException("Failed to LOAD source data for comparison because: " + e.getMessage());
         }
+        try {
+            tarData = target.getData(type);
+        } catch (DataProviderException e) {
+            throw new ComparisonException("Failed to LOAD target data for comparison because: " + e.getMessage());
+        }
+        try {
+            srcMetadata = getMetadataFrom(source, type, srcData);
+        } catch (ComparisonException | SQLException e) {
+            throw new ComparisonException("Failed to LOAD source metadata for comparison because: " + e.getMessage());
+        }
+        try {
+            tarMetadata = getMetadataFrom(target, type, tarData);
+        } catch (SQLException e) {
+            throw new ComparisonException("Failed to LOAD target metadata for comparison because: " + e.getMessage());
+        }
+        logger.info("Successfully loaded data.");
+        return new Loaded(srcData, srcMetadata, tarData, tarMetadata);
     }
+
+    private List<Metadata> getMetadataFrom(DataProvider dataProvider, ComparisonType type, ResultSet data) throws ComparisonException, SQLException {
+        List<Metadata> metadata = null;
+        switch (type) {
+            case DATA:
+                metadata = dataProvider.getMetadata();
+                break;
+            case EXISTENCE:
+            case COUNT:
+                metadata = extractAllMetadata(data);
+                break;
+        }
+        if (isNullOrEmpty(metadata)) {
+            throw new ComparisonException("Obtained metadata, but it was null or empty.");
+        }
+        return metadata;
+    }
+
 }

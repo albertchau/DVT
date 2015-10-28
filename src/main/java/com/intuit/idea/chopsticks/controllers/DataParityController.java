@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.intuit.idea.chopsticks.utils.CollectionUtils.toProperCase;
+
 /**
  * ************************************
  * Author: achau1
@@ -50,8 +52,7 @@ public final class DataParityController {
                 comparisonService.compare(source, target);
             } catch (Exception e) {
                 ComparisonType ToCS = comparisonService.getType();
-                logger.error(ToCS + " failed!!!");
-                e.printStackTrace();
+                logger.error(toProperCase(ToCS.toString()) + " Failed!!! Reason: " + e.getMessage());
             }
         });
     }
@@ -66,4 +67,5 @@ public final class DataParityController {
         execute();
         after();
     }
+
 }

@@ -35,16 +35,14 @@ public class DefaultExtractor implements Extractor {
         try {
             sRowList = resultSetToSortedList(srcRowSet, metadatas, CombinedMetadata::getSrc);
         } catch (SQLException e) {
-            e.printStackTrace();
-            logger.error("During setup, retrieving source's resultsets into memory failed.");
-            throw new ComparisonException("During setup, retrieving source's resultsets into memory failed.");
+            logger.error("During setup, retrieving source's resultsets into memory failed: " + e.getMessage());
+            throw new ComparisonException("During setup, retrieving source's resultsets into memory failed: " + e.getMessage());
         }
         try {
             tRowList = resultSetToSortedList(tarRowSet, metadatas, CombinedMetadata::getTar);
         } catch (SQLException e) {
-            e.printStackTrace();
-            logger.error("During setup, retrieving target's resultsets into memory failed.");
-            throw new ComparisonException("During setup, retrieving target's resultsets into memory failed.");
+            logger.error("During setup, retrieving target's resultsets into memory failed: " + e.getMessage());
+            throw new ComparisonException("During setup, retrieving target's resultsets into memory failed: " + e.getMessage());
         }
         return new Extracted(sRowList, tRowList, metadatas);
     }

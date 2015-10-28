@@ -5,7 +5,7 @@ package com.intuit.idea.chopsticks.utils.exceptions;
  *
  * @author albert
  */
-public class DataProviderException extends Exception {
+public class DataProviderException extends RuntimeException {
     public DataProviderException() {
     }
 

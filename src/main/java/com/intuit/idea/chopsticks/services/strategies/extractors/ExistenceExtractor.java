@@ -39,16 +39,14 @@ public class ExistenceExtractor implements Extractor {
         try {
             sRowList = resultSetToSortedList(srcRowSet, pkMetadata, CombinedMetadata::getSrc);
         } catch (SQLException e) {
-            e.printStackTrace();
-            logger.error("During setup, retrieving source's resultsets into memory failed.");
-            throw new ComparisonException("During setup, retrieving source's resultsets into memory failed.");
+            logger.error("During setup, retrieving source's resultsets into memory failed: " + e.getMessage());
+            throw new ComparisonException("During setup, retrieving source's resultsets into memory failed: " + e.getMessage());
         }
         try {
             tRowList = resultSetToSortedList(tarRowSet, pkMetadata, CombinedMetadata::getTar);
         } catch (SQLException e) {
-            e.printStackTrace();
-            logger.error("During setup, retrieving target's resultsets into memory failed.");
-            throw new ComparisonException("During setup, retrieving target's resultsets into memory failed.");
+            logger.error("During setup, retrieving target's resultsets into memory failed: " + e.getMessage());
+            throw new ComparisonException("During setup, retrieving target's resultsets into memory failed: " + e.getMessage());
         }
         return new Extracted(sRowList, tRowList, pkMetadata);
     }

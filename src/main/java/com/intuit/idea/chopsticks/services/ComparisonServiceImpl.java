@@ -83,14 +83,14 @@ public final class ComparisonServiceImpl implements ComparisonService {
         try {
             source.openConnections();
         } catch (DataProviderException e) {
-            e.printStackTrace();
-            throw new ComparisonException("Could not establish connections to source.");
+            logger.error("Could not establish connections to source: " + e.getMessage());
+            throw new ComparisonException("Could not establish connections to source: " + e.getMessage());
         }
         try {
             target.openConnections();
         } catch (DataProviderException e) {
-            e.printStackTrace();
-            throw new ComparisonException("Could not establish connections to target.");
+            logger.error("Could not establish connections to target: " + e.getMessage());
+            throw new ComparisonException("Could not establish connections to target: " + e.getMessage());
         }
     }
 

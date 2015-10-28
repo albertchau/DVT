@@ -71,8 +71,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             Collections.sort(metadatas);
             return metadatas;
         } catch (DataProviderException e) {
-            logger.error("Error occurred when getting metadata.");
-            throw new DataProviderException("Error occurred when getting metadata.", e);
+            throw new DataProviderException(e.getMessage());
         }
     }
 
@@ -84,8 +83,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             Collections.sort(primaryKeys);
             return primaryKeys;
         } catch (DataProviderException e) {
-            logger.error("Error occurred when getting primary keys.");
-            throw new DataProviderException("Error occurred when getting primary keys.", e);
+            throw new DataProviderException(e.getMessage());
         }
     }
 
@@ -112,7 +110,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
         }
     }
 
-    private List<Metadata> metadataFromDatabase(Connection c) {
+    private List<Metadata> metadataFromDatabase(Connection c) throws DataProviderException {
         try {
             ResultSet rs = c.getMetaData().getColumns(null, "%", getName(), "%");
             List<Metadata> metadatas = new ArrayList<>();
@@ -127,13 +125,10 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             }
             return metadatas;
         } catch (DataProviderException | SQLException e) {
-            e.printStackTrace();
-            logger.error("Could not get Metadata for a data provider from this result set.");
-            return null;
+            throw new DataProviderException(e.getMessage());
         }
     }
 
-    // TODO: 10/4/15 might be eligible for refactoring or util .. also hive_1 bs... like describe table and such
     private <T> List<T> getFromDatabaseUsing(Function<Connection, List<T>> databaseConsumer) throws DataProviderException {
         if (vendor.equals(VendorType.HIVE_1)) {
             throw new NotImplementedException();
@@ -143,16 +138,13 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
                     .filter(Objects::nonNull)
                     .collect(toList());
             if (listsOfLists.isEmpty()) {
-                logger.error("Could not get data from database. All connections returned null");
-                throw new DataProviderException("Could not get data from database. All connections returned null");
+                throw new DataProviderException("Could not get data from database. All connections returned null.");
             }
             if (listsOfLists.size() < 1) {
-                logger.error("Could not get any data for this data provider for all result sets.");
                 throw new DataProviderException("Could not get any data for this data provider for all result sets.");
             } else if (listsOfLists.size() > 1) {
                 List<T> masterCopy = listsOfLists.get(0);
                 if (!listsOfLists.stream().allMatch(masterCopy::containsAll)) {
-                    logger.error("The data across the shards/connections differ.");
                     throw new DataProviderException("The data across the shards/connections differ.");
                 }
             }
@@ -160,7 +152,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
         }
     }
 
-    private List<String> primaryKeysFromDatabase(Connection c) {
+    private List<String> primaryKeysFromDatabase(Connection c) throws DataProviderException {
         try {
             String columnNameColumn = "COLUMN_NAME";
             ResultSet columns = c.getMetaData().getPrimaryKeys(null, "%", getName());
@@ -171,8 +163,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             }
             return colNames;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            throw new DataProviderException(e.getMessage());
         }
     }
 

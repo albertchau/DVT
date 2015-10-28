@@ -61,7 +61,7 @@ abstract public class JdbcDataProvider implements DataProvider {
                             shard.openConnections();
                             return shard.getConnections().stream();
                         } catch (DataProviderException e) {
-                            e.printStackTrace();
+                            logger.error("Could not open connection to shards: " + e.getMessage());
                             return null;
                         }
                     })
@@ -80,7 +80,6 @@ abstract public class JdbcDataProvider implements DataProvider {
                 }
                 logger.info("Successfully connected to [" + connectionUrl + "].");
             } catch (SQLException e) {
-                e.printStackTrace();
                 logger.error("Failed to connect to " + connectionUrl + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
                 throw new DataProviderException("Failed to connect to " + connectionUrl + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
             }
@@ -126,7 +125,7 @@ abstract public class JdbcDataProvider implements DataProvider {
                         try {
                             connection.close();
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            logger.error("Could not close connection: " + e.getMessage());
                         }
                     });
         }
@@ -143,11 +142,11 @@ abstract public class JdbcDataProvider implements DataProvider {
 
     public final ResultSet getData(String query) throws DataProviderException {
         if (connections == null) { //todo probably can call it for them though...
-            logger.error("You need to openConnections() before calling this getData() method.");
+//            logger.error("You need to openConnections() before calling this getData() method.");
             throw new DataProviderException("You need to openConnections() before calling this getData() method.");
         }
         if (connections.size() < 1) {
-            logger.error("There are no active connections open.");
+//            logger.error("There are no active connections open.");
             throw new DataProviderException("There are no active connections open.");
         }
         List<ResultSet> resultSetList = connections.stream()
@@ -157,16 +156,16 @@ abstract public class JdbcDataProvider implements DataProvider {
                     try {
                         stmt = c.createStatement();
                         rs = stmt.executeQuery(query);
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                        logger.error("SQLException: " + ex.getMessage());
+                    } catch (SQLException e) {
+//                        logger.error("SQLException: " + e.getMessage());
+                        throw new DataProviderException(e.getMessage());
                     }
                     return rs;
                 })
                 .filter(Objects::nonNull)
                 .collect(toList());
         if (resultSetList.size() < 1) {
-            logger.error("Could not get any resultSets. they were all null");
+//            logger.error("Could not get any resultSets. they were all null");
             throw new DataProviderException("Could not get any resultSets. they were all null");
         }
         return new ResultSets(resultSetList);

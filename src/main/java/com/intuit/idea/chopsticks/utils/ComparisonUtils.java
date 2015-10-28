@@ -71,7 +71,7 @@ public class ComparisonUtils {
             try {
                 return md.getType().cast(rs.getObject(md.getColumnLabel(), md.getType()));
             } catch (ClassCastException | SQLException e) {
-                e.printStackTrace();
+                logger.error("Could not get column value because: " + e.getMessage());
                 return null;
             }
         };
@@ -157,7 +157,7 @@ public class ComparisonUtils {
                                         .anyMatch(col -> col.equalsIgnoreCase(columnLabel));
                         return isToBeExtracted ? createWithNoAliasing(columnLabel, isPrimaryKey, type) : null;
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        logger.error("Could not extract metadata: " + e.getMessage());
                         return null;
                     }
                 })
