@@ -8,8 +8,7 @@
         <withJansi>true</withJansi>
         <encoder>
             <pattern>
-                %highlight([%.-1level)|%date{mm:ss.SSS}|%highlight(%5.5thread)|%highlight(%25.25(%logger{0}:%line)]):
-                %msg%n
+                %highlight([%.-1level)|%date{mm:ss.SSS}|%highlight(%5.5thread)|%highlight(%25.25(%logger{0}:%line)]):%msg%n
             </pattern>
         </encoder>
     </appender>
