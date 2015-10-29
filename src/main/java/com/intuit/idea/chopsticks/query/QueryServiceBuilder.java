@@ -72,7 +72,6 @@ public class QueryServiceBuilder {
                         .filter(wc -> wc.getLowerBound() != null || wc.getUpperBound() != null)
                         .count();
                 if (count < 1) {
-                    logger.error("Historic test case specified, however there is no where clause that specifies a matching date column.");
                     throw new QueryCreationError("Historic test case specified, however there is no where clause that specifies a matching date column.");
                 }
                 break;
@@ -82,7 +81,6 @@ public class QueryServiceBuilder {
                         .filter(wc -> wc.getLowerBound() != null)
                         .count();
                 if (count < 1) {
-                    logger.error("Incremental test case specified, however there is no where clause that specifies a matching date column.");
                     throw new QueryCreationError("Incremental test case specified, however there is no where clause that specifies a matching date column.");
                 }
                 break;

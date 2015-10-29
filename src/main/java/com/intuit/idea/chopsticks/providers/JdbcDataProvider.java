@@ -9,6 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
 import static java.util.Objects.isNull;
@@ -33,7 +34,7 @@ abstract public class JdbcDataProvider implements DataProvider {
     protected final List<? extends JdbcDataProvider> shards;
     protected List<Connection> connections;
     private Logger logger = LoggerFactory.getLogger(JdbcDataProvider.class);
-    private boolean hasAlreadyDisplayedConnectionStatus = false;
+    private AtomicBoolean hasAlreadyLoggedConnectionStatus;
 
     public JdbcDataProvider(VendorType vendor, String host, String port, String url, String user, String password, String database, String hivePrincipal, String tableName, List<? extends JdbcDataProvider> shards) {
         this.vendor = vendor;
@@ -47,6 +48,7 @@ abstract public class JdbcDataProvider implements DataProvider {
         this.tableName = tableName;
         this.shards = shards;
         connections = null;
+        hasAlreadyLoggedConnectionStatus = new AtomicBoolean(false);
     }
 
     @Override
@@ -74,19 +76,18 @@ abstract public class JdbcDataProvider implements DataProvider {
             try {
                 if (isNull(user) || isNull(password)) {
                     connection = DriverManager.getConnection(connectionUrl);
-                    if (!hasAlreadyDisplayedConnectionStatus) {
-                        logger.info("Successfully connected to [" + connectionUrl + "] without using username/password.");
-                        hasAlreadyDisplayedConnectionStatus = true;
+                    if (!hasAlreadyLoggedConnectionStatus.getAndSet(true)) { /* Don't need to be verbose... */
+                        logger.info("Successfully connected to [" + connectionUrl + "] without user/pass.");
                     }
                 } else {
                     connection = DriverManager.getConnection(connectionUrl, user, password);
-                    if (!hasAlreadyDisplayedConnectionStatus) {
-                        logger.info("Successfully connected to [" + connectionUrl + "] using username/password.");
-                        hasAlreadyDisplayedConnectionStatus = true;
+                    if (!hasAlreadyLoggedConnectionStatus.getAndSet(true)) { /* Don't need to be verbose... */
+                        logger.info("Successfully connected to [" + connectionUrl + "] using user/pass.");
                     }
                 }
             } catch (SQLException e) {
-                throw new DataProviderException("Failed to connect to [" + connectionUrl + "].", e);
+                logger.debug("Failed to connect to [" + connectionUrl + "]. Reason: " + e.getMessage() + ". Here is dump: " + this.toString());
+                throw new DataProviderException("Failed to connect to [" + connectionUrl + "]", e);
             }
             connections.add(connection);
         }
@@ -159,7 +160,7 @@ abstract public class JdbcDataProvider implements DataProvider {
                         stmt = c.createStatement();
                         rs = stmt.executeQuery(query);
                     } catch (SQLException e) {
-                        throw new DataProviderException(e.getMessage());
+                        throw new DataProviderException(e.getMessage(), e);
                     }
                     return rs;
                 })
@@ -178,7 +179,6 @@ abstract public class JdbcDataProvider implements DataProvider {
         closeConnections();
     }
 
-    @Override
     public final String getTableName() {
         return tableName;
     }

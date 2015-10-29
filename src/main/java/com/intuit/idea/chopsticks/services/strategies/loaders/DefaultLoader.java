@@ -31,7 +31,6 @@ public class DefaultLoader implements Loader {
             logger.debug("Assuming metadata comparison because type was " + type + ". For safety, next time - use MetadataLoader.");
             return new MetadataLoader().load(source, target, type);
         }
-        logger.debug("Loading data.");
         ResultSet srcData;
         ResultSet tarData;
         List<Metadata> srcMetadata;

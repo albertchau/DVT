@@ -232,7 +232,7 @@ public abstract class QueryServiceBase implements QueryService {
         String collect;
         if (includedColumns.isEmpty() && excludedColumns.isEmpty()) {
             collect = metadatas.stream()
-                    .map(Metadata::getColumnLabel)
+                    .map((metadata) -> metadata.getColumnName() + " AS " + metadata.getColumnLabel())
                     .collect(Collectors.joining(","));
         } else if (!includedColumns.isEmpty()) {
             collect = metadatas.stream()

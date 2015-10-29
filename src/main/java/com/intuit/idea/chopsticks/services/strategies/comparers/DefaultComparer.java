@@ -23,11 +23,11 @@ import static com.intuit.idea.chopsticks.utils.ComparisonUtils.compareColumns;
 public class DefaultComparer implements Comparer {
     private static Logger logger = LoggerFactory.getLogger(DefaultComparer.class);
     private Set<ResultStore> resultStores;
-    private Boolean isPassed = true;
+    private boolean isPassed = true;
 
     @Override
     public void compare(Extracted extracted, final Set<ResultStore> resultStores) {
-        logger.debug("Comparing data.");
+        logger.debug("Comparing data sets...");
         this.resultStores = resultStores;
         List<Comparable[]> sRowList = extracted.srcList;
         List<Comparable[]> tRowList = extracted.tarList;
@@ -64,7 +64,7 @@ public class DefaultComparer implements Comparer {
                     continue;
                 }
                 boolean isEqual = metadatas[i].getComparer().apply(sRow[i], tRow[i]) == 0;
-                isPassed = isPassed && isEqual;
+                isPassed = isEqual && isPassed;
                 results.add(createMatesFromMeta(isEqual, metadatas[i], sRow[i], tRow[i]));
             }
             resultStores.stream()
@@ -73,16 +73,14 @@ public class DefaultComparer implements Comparer {
             tRow = tRowIter.hasNext() ? tRowIter.next() : null;
         }
         while (sRow != null) {
-            isPassed = false;
             onlyInSource(sRow, metadatas);
             sRow = sRowIter.hasNext() ? sRowIter.next() : null;
         }
         while (tRow != null) {
-            isPassed = false;
             onlyInTarget(tRow, metadatas);
             tRow = tRowIter.hasNext() ? tRowIter.next() : null;
         }
-        logger.debug((isPassed ? "[PASSED]" : "[FAILED]") + " finished comparing data.");
+        logger.debug("Successfully compared data resulting in: " + (isPassed ? "[PASSED]" : "[FAILED]"));
     }
 
     @Override

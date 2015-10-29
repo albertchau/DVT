@@ -18,17 +18,17 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.intuit.idea.chopsticks.utils.CollectionUtils.identifyingName;
+import static com.intuit.idea.chopsticks.utils.Commons.identifierName;
 
 /**
  * Pre-steps:
  * 1) Initialize connections
- *
+ * <p>
  * Three Steps...
  * 1) Load: (DataProvider, DataProvider) -> Loaded
  * 2) Extract: Loaded -> Extracted
  * 3) Compare: Extracted -> void
- *
+ * <p>
  * Post-steps:
  * 1) Close connections
  *
@@ -41,39 +41,48 @@ public final class ComparisonServiceImpl implements ComparisonService {
     private final Extractor extractor;
     private final Comparer comparer;
     private final ComparisonType comparisonType;
+    private Long startTotal;
 
     /**
      * Constructor with injected Result Stores
-     * @param resultStores to store the results
+     *
+     * @param resultStores   to store the results
      * @param comparisonType the type of comparison we are doing
      */
     public ComparisonServiceImpl(Set<ResultStore> resultStores, Loader loader, Extractor extractor, Comparer comparer, ComparisonType comparisonType) {
         this.comparisonType = comparisonType;
         this.resultStores = resultStores == null ? new HashSet<>() : resultStores;
-        this.loader = loader == null ? new DefaultLoader(): loader;
+        this.loader = loader == null ? new DefaultLoader() : loader;
         this.extractor = extractor == null ? new DefaultExtractor() : extractor;
-        this.comparer = comparer == null ? new DefaultComparer(): comparer;
+        this.comparer = comparer == null ? new DefaultComparer() : comparer;
     }
+
     @Override
     public void compare(DataProvider source, DataProvider target) throws ComparisonException {
-        long start = System.nanoTime();
-        logger.info("Starting " + comparisonType.stringify() + " for " + identifyingName(source, target) + ".");
+        startTotal = System.nanoTime();
+        logger.info("Starting " + comparisonType.stringify() + " for " + identifierName(source, target) + ".");
         initializeConnections(source, target);
-        Loaded loaded = loader.load(source, target, comparisonType);
-        logger.debug("Loading Time = " + ((System.nanoTime() - start) / 1000000) + " ms.");
+        Loaded loaded = loader.load(source, target, comparisonType); //step one
+        logger.debug("Loading Time = " + ((System.nanoTime() - startTotal) / 1000000));
         startComparison(loaded);
         closeConnections(source, target);
-        logger.info((comparer.getResult() ? "[PASSED]" : "[FAILED]") + comparisonType.stringify() + " for " + identifyingName(source, target) + " finished. Total Time Elapsed = " + ((System.nanoTime() - start) / 1000000) + " ms.");
+        logger.info((comparer.getResult() ? "[PASS] " : "[FAIL] ") +
+                comparisonType.stringify() +
+                " for " +
+                identifierName(source, target) +
+                ". Total Elapsed = " +
+                ((System.nanoTime() - startTotal) / 1000000) +
+                " ms.");
     }
 
     @Override
     public void startComparison(Loaded loaded) throws ComparisonException {
         long startLeg = System.nanoTime();
         Extracted extracted = extractor.extract(loaded); //step two
-        logger.debug("Extracting Time = " + ((System.nanoTime() - startLeg) / 1000000) + " ms.");
+        logger.debug("Extracting Time = " + ((System.nanoTime() - startLeg) / 1000000));
         startLeg = System.nanoTime();
         comparer.compare(extracted, resultStores); // step three
-        logger.debug("Comparing Time = " + ((System.nanoTime() - startLeg) / 1000000) + " ms.");
+        logger.debug("Comparing Time = " + ((System.nanoTime() - startLeg) / 1000000));
     }
 
     @Override

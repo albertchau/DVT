@@ -29,9 +29,9 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
     private QueryService queryService;
 
     public StructuredJdbcDataProvider(VendorType vendor, String host, String port, String url, String user, String password,
-                                      String database, String hivePrincipal, String name,
+                                      String database, String hivePrincipal, String tableName,
                                       List<StructuredJdbcDataProvider> shards, QueryService queryService) {
-        super(vendor, host, port, url, user, password, database, hivePrincipal, name, shards);
+        super(vendor, host, port, url, user, password, database, hivePrincipal, tableName, shards);
         this.queryService = queryService;
     }
 
@@ -61,8 +61,8 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
                 default:
                     throw new UnsupportedOperationException("Unknown Comparison Service");
             }
-        } catch (QueryCreationError | DataProviderException | UnsupportedOperationException e) {
-            throw new DataProviderException("Could not generate query: " + e.getMessage(), e);
+        } catch (QueryCreationError | UnsupportedOperationException e) {
+            throw new DataProviderException("Failed to create query: " + e.getMessage(), e);
         }
     }
 
@@ -74,7 +74,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             Collections.sort(metadatas);
             return metadatas;
         } catch (DataProviderException e) {
-            throw new DataProviderException(e.getMessage());
+            throw new DataProviderException(e.getMessage(), e);
         }
     }
 
@@ -86,7 +86,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             Collections.sort(primaryKeys);
             return primaryKeys;
         } catch (DataProviderException e) {
-            throw new DataProviderException(e.getMessage());
+            throw new DataProviderException(e.getMessage(), e);
         }
     }
 
@@ -155,7 +155,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
     private List<String> primaryKeysFromDatabase(Connection c) throws DataProviderException {
         try {
             String columnNameColumn = "COLUMN_NAME";
-            ResultSet columns = c.getMetaData().getPrimaryKeys(null, "%", getTableName());
+            ResultSet columns = c.getMetaData().getPrimaryKeys(null, "%", getName());
             List<String> colNames = new ArrayList<>();
             while (columns.next()) {
                 String colName = columns.getString(columnNameColumn).trim();
@@ -163,7 +163,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             }
             return colNames;
         } catch (SQLException e) {
-            throw new DataProviderException(e.getMessage());
+            throw new DataProviderException(e.getMessage(), e);
         }
     }
 

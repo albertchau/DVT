@@ -25,7 +25,7 @@ public class CountComparer implements Comparer {
     private static Logger logger = LoggerFactory.getLogger(CountComparer.class);
     private final double thresholdPercent;
     private final DecimalFormat df = new DecimalFormat("#.###");
-    private Boolean isPassed = true;
+    private boolean isPassed = true;
 
     public CountComparer(Double thresholdPercent) throws ComparisonException {
         this.thresholdPercent = thresholdPercent == null ? 0.0 : thresholdPercent;
@@ -36,7 +36,7 @@ public class CountComparer implements Comparer {
 
     @Override
     public void compare(Extracted extracted, Set<ResultStore> resultStores) throws ComparisonException {
-        logger.debug("Comparing counts.");
+        logger.debug("Comparing count data sets...");
         List<Comparable[]> sRowList = extracted.srcList;
         List<Comparable[]> tRowList = extracted.tarList;
         double srcSum;
@@ -60,8 +60,8 @@ public class CountComparer implements Comparer {
             if (tarSum == 0) {
                 percentError = 0.0;
             } else {
-                isPassed = false;
                 percentError = 1.0;
+                isPassed = false;
                 logger.warn("The sum of the source counts was 0.");
             }
         } else {
@@ -69,12 +69,12 @@ public class CountComparer implements Comparer {
         }
         if (percentError > 0) {
             isPassed = false;
-            logger.info("Failed Count Comparison: Target count: "
+            logger.warn("Failed Count Comparison: Target count: "
                     + (df.format(tarSum)) + " was greater than source count: "
                     + (df.format(srcSum)) + " which should not happen.");
         } else if (percentError > thresholdPercent) {
             isPassed = false;
-            logger.info("Failed Count Comparison: Target count: "
+            logger.warn("Failed Count Comparison: Target count: "
                     + (df.format(tarSum)) + " was less than source count: "
                     + (df.format(srcSum)) + " producing a percent error: "
                     + (df.format(percentError))
@@ -100,7 +100,7 @@ public class CountComparer implements Comparer {
                                 false)
                         )
                 ));
-        logger.debug((isPassed ? "[PASSED]" : "[FAILED]") + " finished comparing counts.");
+        logger.debug("Successfully compared count data resulting in: " + (isPassed ? "[PASSED]" : "[FAILED]"));
     }
 
     @Override

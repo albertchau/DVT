@@ -25,7 +25,7 @@ public class DefaultExtractor implements Extractor {
 
     @Override
     public Extracted extract(Loaded loaded) throws ComparisonException {
-        logger.debug("Extracting data.");
+        logger.debug("Extracting data...");
         ResultSet srcRowSet = loaded.srcResultSet;
         List<Metadata> srcMetadata = loaded.srcMetadata;
         ResultSet tarRowSet = loaded.tarResultSet;
@@ -36,12 +36,12 @@ public class DefaultExtractor implements Extractor {
         try {
             sRowList = resultSetToSortedList(srcRowSet, metadatas, CombinedMetadata::getSrc);
         } catch (SQLException e) {
-            throw new ComparisonException("Failure during EXTRACT when trying to retrieve source's result sets: " + e.getMessage(), e);
+            throw new ComparisonException("Failed to EXTRACT source's result sets into memory: " + e.getMessage(), e);
         }
         try {
             tRowList = resultSetToSortedList(tarRowSet, metadatas, CombinedMetadata::getTar);
         } catch (SQLException e) {
-            throw new ComparisonException("Failure during EXTRACT when trying to retrieve target's result sets: " + e.getMessage(), e);
+            throw new ComparisonException("Failed to EXTRACT target's result sets into memory: " + e.getMessage(), e);
         }
         logger.debug("Successfully extracted data.");
         return new Extracted(sRowList, tRowList, metadatas);

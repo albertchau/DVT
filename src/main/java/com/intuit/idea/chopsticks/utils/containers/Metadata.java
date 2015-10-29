@@ -55,6 +55,7 @@ public final class Metadata implements Comparable<Metadata> {
     public String getColumnSelectStr() {
         return columnLabel.equalsIgnoreCase(columnName) ? columnLabel : columnName + " AS " + columnLabel;
     }
+
     public boolean isPk() {
         return isPk;
     }

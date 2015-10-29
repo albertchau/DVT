@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 public class DataParityControllerTestIt {
 
     public static final String TEST_RESOURCE_PATH = "src/test/resources/";
-    public static final String DB_URL = "jdbc:mysql:localhost/test";
+    public static final String DB_URL = "jdbc:mysql://localhost/test";
     private long start;
     private String USER = "root";
     private String PASS = "admin";
@@ -83,7 +83,7 @@ public class DataParityControllerTestIt {
                 VendorType.MYSQL,
                 "host",
                 "port",
-                "jdbc:mysql:localhost:3306/test",
+                "jdbc:mysql://localhost:3306/test",
                 "root",
                 "admin",
                 "test",
@@ -97,7 +97,7 @@ public class DataParityControllerTestIt {
                 VendorType.MYSQL,
                 "host",
                 "port",
-                "jdbc:mysql:localhost:3306/test",
+                "jdbc:mysql://localhost:3306/test",
                 "root",
                 "admin",
                 "test",
