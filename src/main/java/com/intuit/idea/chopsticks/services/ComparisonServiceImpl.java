@@ -63,7 +63,7 @@ public final class ComparisonServiceImpl implements ComparisonService {
         logger.info("Starting " + comparisonType.stringify() + " for " + identifierName(source, target) + ".");
         initializeConnections(source, target);
         Loaded loaded = loader.load(source, target, comparisonType); //step one
-        logger.debug("Loading Time = " + ((System.nanoTime() - startTotal) / 1000000));
+        logger.debug("Loading Time = " + ((System.nanoTime() - startTotal) / 1000000) + " ms.");
         startComparison(loaded);
         closeConnections(source, target);
         logger.info((comparer.getResult() ? "[PASS] " : "[FAIL] ") +
@@ -79,10 +79,10 @@ public final class ComparisonServiceImpl implements ComparisonService {
     public void startComparison(Loaded loaded) throws ComparisonException {
         long startLeg = System.nanoTime();
         Extracted extracted = extractor.extract(loaded); //step two
-        logger.debug("Extracting Time = " + ((System.nanoTime() - startLeg) / 1000000));
+        logger.debug("Extracting Time = " + ((System.nanoTime() - startLeg) / 1000000) + " ms.");
         startLeg = System.nanoTime();
         comparer.compare(extracted, resultStores); // step three
-        logger.debug("Comparing Time = " + ((System.nanoTime() - startLeg) / 1000000));
+        logger.debug("Comparing Time = " + ((System.nanoTime() - startLeg) / 1000000) + " ms.");
     }
 
     @Override

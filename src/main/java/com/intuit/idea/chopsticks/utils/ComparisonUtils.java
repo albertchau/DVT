@@ -211,7 +211,7 @@ public class ComparisonUtils {
         while (resultSet.next()) {
             Comparable[] tmp = Arrays.stream(columns)
                     .map(whichOne)
-                    .map(i -> getColumnValue(resultSet))
+                    .map(getColumnValue(resultSet))
                     .toArray(Comparable[]::new);
             listOfRows.add(tmp);
         }

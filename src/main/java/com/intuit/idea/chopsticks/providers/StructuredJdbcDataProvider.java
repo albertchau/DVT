@@ -155,7 +155,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
     private List<String> primaryKeysFromDatabase(Connection c) throws DataProviderException {
         try {
             String columnNameColumn = "COLUMN_NAME";
-            ResultSet columns = c.getMetaData().getPrimaryKeys(null, "%", getName());
+            ResultSet columns = c.getMetaData().getPrimaryKeys(null, "%", getTableName());
             List<String> colNames = new ArrayList<>();
             while (columns.next()) {
                 String colName = columns.getString(columnNameColumn).trim();
