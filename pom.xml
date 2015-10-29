@@ -21,10 +21,10 @@
     </modules>
 
     <scm>
-        <url>https://github.intuit.com/idea/chopsticks</url>
-        <connection>scm:git:git://github.intuit.com/idea/chopsticks.git</connection>
-        <developerConnection>scm:git:git@github.intuit.com:idea/chopsticks.git</developerConnection>
-        <tag>chopsticks-1.1</tag>
+        <url>https://github.intuit.com/idea/ziplock</url>
+        <connection>scm:git:git://github.intuit.com/idea/ziplock.git</connection>
+        <developerConnection>scm:git:git@github.intuit.com:idea/ziplock.git</developerConnection>
+        <tag>ziplock-1.1</tag>
     </scm>
 
     <build>
@@ -77,7 +77,7 @@
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>com.intuit.idea.chopsticks.Main</Main-Class>
+                                        <Main-Class>com.intuit.idea.ziplock.Main</Main-Class>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>

@@ -13,10 +13,10 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * ************************************
- * Author: achau1
- * Created On: 10/28/15
- * ************************************
+ * Copyright 2015
+ *
+ * @author albert
+ * @link http://onoffswitch.net/simplifying-class-matching-java-8/
  */
 public class Main {
 
