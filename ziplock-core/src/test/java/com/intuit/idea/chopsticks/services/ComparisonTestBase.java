@@ -2,7 +2,6 @@ package com.intuit.idea.chopsticks.services;
 
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.mockrunner.mock.jdbc.MockResultSet;
-import com.mockrunner.mock.jdbc.MockResultSetMetaData;
 import org.joda.time.DateTime;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
