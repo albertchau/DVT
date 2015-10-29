@@ -7,9 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import static com.intuit.idea.chopsticks.utils.CollectionUtils.toProperCase;
+import static com.intuit.idea.chopsticks.utils.CollectionUtils.identifyingName;
+import static java.util.Objects.nonNull;
 
 /**
  * ************************************
@@ -37,35 +40,25 @@ public final class DataParityController {
         comparisonServices = new ArrayList<>();
     }
 
-    public void registerComparisonService(ComparisonService comparisonService) {
-        comparisonServices.add(comparisonService);
-    }
-
-    public void before() {
-        logger.info("before");
-    }
-
     public void execute() {
-        logger.info("execute");
         comparisonServices.forEach(comparisonService -> {
             try {
                 comparisonService.compare(source, target);
             } catch (Exception e) {
-                ComparisonType ToCS = comparisonService.getType();
-                logger.error(toProperCase(ToCS.toString()) + " Failed!!! Reason: " + e.getMessage());
+                ComparisonType comparisonType = comparisonService.getType();
+                logger.error(comparisonType.stringify() + " for " + identifyingName(source, target) + " failed! Reason: " + e.getMessage() + ".");
+                String debugErrorMessage = Arrays.stream(e.getStackTrace())
+                        .filter(st -> nonNull(st.getFileName()) && !st.getFileName().equalsIgnoreCase("null"))
+                        .filter(st -> st.getClassName().contains("intuit"))
+                        .map(st -> st.getFileName() + ":" + st.getLineNumber())
+                        .collect(Collectors.joining(" --> "));
+                logger.debug(debugErrorMessage);
             }
         });
     }
 
-    public void after() {
-        logger.info("after");
-    }
-
     public void run() {
-        logger.info("run");
-        before();
         execute();
-        after();
     }
 
 }

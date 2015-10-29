@@ -56,7 +56,6 @@ public abstract class QueryServiceBase implements QueryService {
 
     protected void addSampledWhereClauses(List<Metadata> metadatas, Map<String, List<String>> pksWithHeaders) throws QueryCreationError {
         if (pksWithHeaders == null || pksWithHeaders.isEmpty()) {
-            logger.error("Did not pass in any primary keys or values into sampling.");
             throw new QueryCreationError("Did not pass in any primary keys or values into sampling.");
         }
         List<Tuple2<Metadata, List<String>>> pkTuple2edList = metadatas.stream()
@@ -70,11 +69,9 @@ public abstract class QueryServiceBase implements QueryService {
                 .min(Integer::compareTo)
                 .orElse(0);
         if (numOfRows < 1) {
-            logger.error("At least one of the primary key's used to sample has zero passed in values.");
             throw new QueryCreationError("At least one of the primary key's used to sample has zero passed in values.");
         }
         if (numOfInputPks != metadatas.stream().filter(Metadata::isPk).count()) {
-            logger.error("The number of registered primary keys from this QueryService's creation does not match the number of primary keys to sample the data set from.");
             throw new QueryCreationError("The number of registered primary keys from this QueryService's creation does not match the number of primary keys to sample the data set from.");
         }
         if (numOfInputPks == 1) {
@@ -252,7 +249,6 @@ public abstract class QueryServiceBase implements QueryService {
                     .collect(Collectors.joining(","));
         }
         if (collect.isEmpty()) {
-            logger.error("Select Statement was empty");
             throw new QueryCreationError("Select Statement was empty");
         }
         return collect;

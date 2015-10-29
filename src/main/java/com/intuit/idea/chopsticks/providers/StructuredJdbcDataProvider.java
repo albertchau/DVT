@@ -4,6 +4,7 @@ import com.intuit.idea.chopsticks.query.QueryService;
 import com.intuit.idea.chopsticks.services.ComparisonType;
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
+import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -47,19 +48,21 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
 
     @Override
     public String getQuery(ComparisonType cs) throws DataProviderException {
-        switch (cs) {
-            case DATA:
-                return queryService.createDataQuery(getMetadata());
-            case EXISTENCE:
-                return queryService.createExistenceQuery(getMetadata());
-            case COUNT:
-                return queryService.createCountQuery();
-            case METADATA:
-                logger.error("Cannot create query for metadata comparison type.");
-                throw new UnsupportedOperationException("Cannot create query for metadata comparison type.");
-            default:
-                logger.error("Unknown Comparison Service");
-                throw new UnsupportedOperationException("Unknown Comparison Service");
+        try {
+            switch (cs) {
+                case DATA:
+                    return queryService.createDataQuery(getMetadata());
+                case EXISTENCE:
+                    return queryService.createExistenceQuery(getMetadata());
+                case COUNT:
+                    return queryService.createCountQuery();
+                case METADATA:
+                    throw new UnsupportedOperationException("Cannot create query for metadata comparison type.");
+                default:
+                    throw new UnsupportedOperationException("Unknown Comparison Service");
+            }
+        } catch (QueryCreationError | DataProviderException | UnsupportedOperationException e) {
+            throw new DataProviderException("Could not generate query: " + e.getMessage(), e);
         }
     }
 
@@ -99,20 +102,17 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             case EXISTENCE:
                 return queryService.createExistenceQueryWithInputSamples(getMetadata(), pksWithHeaders);
             case COUNT:
-                logger.info("Cannot use sampling for Count Comparison Service.");
                 throw new UnsupportedOperationException("Cannot use sampling for Count Comparison Service.");
             case METADATA:
-                logger.error("Cannot use sampling for Metadata Comparison Service.");
                 throw new UnsupportedOperationException("Cannot use sampling for Metadata Comparison Service.");
             default:
-                logger.info("Unknown/Unsupported Comparison Service for sampling");
                 throw new UnsupportedOperationException("Unknown/Unsupported Comparison Service for sampling");
         }
     }
 
     private List<Metadata> metadataFromDatabase(Connection c) throws DataProviderException {
         try {
-            ResultSet rs = c.getMetaData().getColumns(null, "%", getName(), "%");
+            ResultSet rs = c.getMetaData().getColumns(null, "%", getTableName(), "%");
             List<Metadata> metadatas = new ArrayList<>();
             List<String> primaryKeys = getPrimaryKeys();
             while (rs.next()) {
@@ -125,7 +125,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             }
             return metadatas;
         } catch (DataProviderException | SQLException e) {
-            throw new DataProviderException(e.getMessage());
+            throw new DataProviderException(e.getMessage(), e);
         }
     }
 
@@ -155,7 +155,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
     private List<String> primaryKeysFromDatabase(Connection c) throws DataProviderException {
         try {
             String columnNameColumn = "COLUMN_NAME";
-            ResultSet columns = c.getMetaData().getPrimaryKeys(null, "%", getName());
+            ResultSet columns = c.getMetaData().getPrimaryKeys(null, "%", getTableName());
             List<String> colNames = new ArrayList<>();
             while (columns.next()) {
                 String colName = columns.getString(columnNameColumn).trim();

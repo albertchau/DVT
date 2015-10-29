@@ -25,9 +25,11 @@ import static java.util.stream.Collectors.toList;
 public class MetadataComparer implements Comparer {
     private static final Logger logger = LoggerFactory.getLogger(MetadataComparer.class);
     private Set<ResultStore> resultStores;
+    private Boolean isPassed = true;
 
     @Override
     public void compare(Extracted extracted, Set<ResultStore> resultStores) {
+        logger.debug("Comparing metadata.");
         this.resultStores = resultStores;
         List<Comparable[]> sRowList = extracted.srcList;
         List<Comparable[]> tRowList = extracted.tarList;
@@ -37,6 +39,7 @@ public class MetadataComparer implements Comparer {
         List<Metadata> tarMetadataOnly = findLeftNotInRight(tarMetadata, srcMetadata, Metadata::equals);
         List<Metadata> srcMetadataOnly = findLeftNotInRight(srcMetadata, tarMetadata, Metadata::equals);
         if (!tarMetadataOnly.isEmpty()) {
+            isPassed = false;
             String tColOnlyString = tarMetadataOnly.stream()
                     .map(col -> col.getColumnLabel() + ":" + col.getType().toString())
                     .collect(joining(", "));
@@ -47,6 +50,7 @@ public class MetadataComparer implements Comparer {
             resultStores.forEach(rs -> rs.storeRowResults(columnResults));
         }
         if (!srcMetadataOnly.isEmpty()) {
+            isPassed = false;
             String sColOnlyString = srcMetadataOnly.stream()
                     .map(col -> col.getColumnLabel() + ":" + col.getType().toString())
                     .collect(joining(", "));
@@ -56,6 +60,12 @@ public class MetadataComparer implements Comparer {
                     .collect(toList());
             resultStores.forEach(rs -> rs.storeRowResults(columnResults));
         }
+        logger.debug((isPassed ? "[PASSED]" : "[FAILED]") + " finished comparing metadata.");
+    }
+
+    @Override
+    public Boolean getResult() {
+        return isPassed;
     }
 
     private List<Metadata> listToUnaryMetadata(List<Comparable[]> metadataAsList) {
@@ -74,6 +84,7 @@ public class MetadataComparer implements Comparer {
         List<Metadata> tarPksOnly = findLeftNotInRight(tarPrimaryKeyMetadata, srcPrimaryKeyMetadata, Metadata::equals);
         List<Metadata> srcPksOnly = findLeftNotInRight(srcPrimaryKeyMetadata, tarPrimaryKeyMetadata, Metadata::equals);
         if (!isNullOrEmpty(srcPksOnly)) {
+            isPassed = false;
             String srcPksOnlyStr = srcPksOnly.stream()
                     .map(Metadata::getColumnLabel)
                     .collect(joining(", "));
@@ -85,6 +96,7 @@ public class MetadataComparer implements Comparer {
             resultStores.forEach(rs -> rs.storeRowResults(columnResults));
         }
         if (!isNullOrEmpty(tarPksOnly)) {
+            isPassed = false;
             String tarPksOnlyStr = tarPksOnly.stream()
                     .map(Metadata::getColumnLabel)
                     .collect(joining(", "));

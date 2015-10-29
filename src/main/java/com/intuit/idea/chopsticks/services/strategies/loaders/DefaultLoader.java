@@ -28,10 +28,10 @@ public class DefaultLoader implements Loader {
     @Override
     public Loaded load(DataProvider source, DataProvider target, ComparisonType type) throws ComparisonException {
         if (type == ComparisonType.METADATA || isNull(type)) {
-            logger.info("Assuming metadata comparison because type was " + type + ". For safety, next time - use MetadataLoader.");
+            logger.debug("Assuming metadata comparison because type was " + type + ". For safety, next time - use MetadataLoader.");
             return new MetadataLoader().load(source, target, type);
         }
-        logger.info("Loading data...");
+        logger.debug("Loading data.");
         ResultSet srcData;
         ResultSet tarData;
         List<Metadata> srcMetadata;
@@ -39,24 +39,24 @@ public class DefaultLoader implements Loader {
         try {
             srcData = source.getData(type);
         } catch (DataProviderException e) {
-            throw new ComparisonException("Failed to LOAD source data for comparison because: " + e.getMessage());
+            throw new ComparisonException("Failed to LOAD source data for comparison because: " + e.getMessage(), e);
         }
         try {
             tarData = target.getData(type);
         } catch (DataProviderException e) {
-            throw new ComparisonException("Failed to LOAD target data for comparison because: " + e.getMessage());
+            throw new ComparisonException("Failed to LOAD target data for comparison because: " + e.getMessage(), e);
         }
         try {
             srcMetadata = getMetadataFrom(source, type, srcData);
         } catch (ComparisonException | SQLException e) {
-            throw new ComparisonException("Failed to LOAD source metadata for comparison because: " + e.getMessage());
+            throw new ComparisonException("Failed to LOAD source metadata for comparison because: " + e.getMessage(), e);
         }
         try {
             tarMetadata = getMetadataFrom(target, type, tarData);
         } catch (SQLException e) {
-            throw new ComparisonException("Failed to LOAD target metadata for comparison because: " + e.getMessage());
+            throw new ComparisonException("Failed to LOAD target metadata for comparison because: " + e.getMessage(), e);
         }
-        logger.info("Successfully loaded data.");
+        logger.debug("Successfully loaded data.");
         return new Loaded(srcData, srcMetadata, tarData, tarMetadata);
     }
 

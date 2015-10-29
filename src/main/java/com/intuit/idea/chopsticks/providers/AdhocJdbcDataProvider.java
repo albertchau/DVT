@@ -55,8 +55,7 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
                 }
                 return new SimpleResultSet(rows);
             } catch (SQLException e) {
-                logger.error("Could not mock up count from adhoc query: " + e.getMessage());
-                throw new DataProviderException("Could not mock up count from adhoc query.", e);
+                throw new DataProviderException("Could not mock up count from adhoc query: " + e.getMessage(), e);
             }
         }
         return data;
@@ -64,7 +63,6 @@ public class AdhocJdbcDataProvider extends JdbcDataProvider {
 
     @Override
     public ResultSets getData(ComparisonType cs, Map<String, List<String>> pksWithHeaders) {
-        logger.error("Adhoc query does not support systematic sampling by specifying primary keys.");
         throw new UnsupportedOperationException("Adhoc query does not support systematic sampling by specifying primary keys.");
     }
 

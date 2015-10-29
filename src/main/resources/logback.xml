@@ -2,6 +2,9 @@
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
         <withJansi>true</withJansi>
         <encoder>
             <pattern>
@@ -13,12 +16,17 @@
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>log/akka.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>TRACE</level>
+        </filter>
         <append>false</append>
         <encoder>
-            <pattern>[%.-1level | %date{HH:mm:ss.SSS} | %thread | %-20.20(%logger{0}:%line]): %msg%n</pattern>
+            <pattern>
+                [%.-1level|%date{mm:ss.SSS}|%15.15thread|%25.25(%logger{0}:%line)]: %msg%n
+            </pattern>
         </encoder>
     </appender>
-    <root level="INFO">
+    <root level="TRACE">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>

@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.intuit.idea.chopsticks.utils.CollectionUtils.identifyingName;
+
 /**
  * Pre-steps:
  * 1) Initialize connections
@@ -54,19 +56,24 @@ public final class ComparisonServiceImpl implements ComparisonService {
     }
     @Override
     public void compare(DataProvider source, DataProvider target) throws ComparisonException {
+        long start = System.nanoTime();
+        logger.info("Starting " + comparisonType.stringify() + " for " + identifyingName(source, target) + ".");
         initializeConnections(source, target);
-        Loaded loaded = loader.load(source, target, comparisonType); //step one
+        Loaded loaded = loader.load(source, target, comparisonType);
+        logger.debug("Loading Time = " + ((System.nanoTime() - start) / 1000000) + " ms.");
         startComparison(loaded);
         closeConnections(source, target);
+        logger.info((comparer.getResult() ? "[PASSED]" : "[FAILED]") + comparisonType.stringify() + " for " + identifyingName(source, target) + " finished. Total Time Elapsed = " + ((System.nanoTime() - start) / 1000000) + " ms.");
     }
 
     @Override
     public void startComparison(Loaded loaded) throws ComparisonException {
-        long start = System.nanoTime();
+        long startLeg = System.nanoTime();
         Extracted extracted = extractor.extract(loaded); //step two
+        logger.debug("Extracting Time = " + ((System.nanoTime() - startLeg) / 1000000) + " ms.");
+        startLeg = System.nanoTime();
         comparer.compare(extracted, resultStores); // step three
-        long end = System.nanoTime();
-        logger.info("start - end /100000 = " + ((end - start) / 1000000));
+        logger.debug("Comparing Time = " + ((System.nanoTime() - startLeg) / 1000000) + " ms.");
     }
 
     @Override
@@ -83,14 +90,12 @@ public final class ComparisonServiceImpl implements ComparisonService {
         try {
             source.openConnections();
         } catch (DataProviderException e) {
-            logger.error("Could not establish connections to source: " + e.getMessage());
-            throw new ComparisonException("Could not establish connections to source: " + e.getMessage());
+            throw new ComparisonException("Could not establish connections to source: " + e.getMessage(), e);
         }
         try {
             target.openConnections();
         } catch (DataProviderException e) {
-            logger.error("Could not establish connections to target: " + e.getMessage());
-            throw new ComparisonException("Could not establish connections to target: " + e.getMessage());
+            throw new ComparisonException("Could not establish connections to target: " + e.getMessage(), e);
         }
     }
 

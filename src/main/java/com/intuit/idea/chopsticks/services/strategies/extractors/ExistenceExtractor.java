@@ -26,6 +26,7 @@ public class ExistenceExtractor implements Extractor {
 
     @Override
     public Extracted extract(Loaded loaded) throws ComparisonException {
+        logger.debug("Extracting existence data.");
         ResultSet srcRowSet = loaded.srcResultSet;
         List<Metadata> srcMetadata = loaded.srcMetadata;
         ResultSet tarRowSet = loaded.tarResultSet;
@@ -39,15 +40,14 @@ public class ExistenceExtractor implements Extractor {
         try {
             sRowList = resultSetToSortedList(srcRowSet, pkMetadata, CombinedMetadata::getSrc);
         } catch (SQLException e) {
-            logger.error("During setup, retrieving source's resultsets into memory failed: " + e.getMessage());
-            throw new ComparisonException("During setup, retrieving source's resultsets into memory failed: " + e.getMessage());
+            throw new ComparisonException("Failure during EXTRACT when trying to retrieve source's result sets: " + e.getMessage(), e);
         }
         try {
             tRowList = resultSetToSortedList(tarRowSet, pkMetadata, CombinedMetadata::getTar);
         } catch (SQLException e) {
-            logger.error("During setup, retrieving target's resultsets into memory failed: " + e.getMessage());
-            throw new ComparisonException("During setup, retrieving target's resultsets into memory failed: " + e.getMessage());
+            throw new ComparisonException("Failure during EXTRACT when trying to retrieve target's result sets: " + e.getMessage(), e);
         }
+        logger.debug("Successfully extracted existence data.");
         return new Extracted(sRowList, tRowList, pkMetadata);
     }
 

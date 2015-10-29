@@ -22,10 +22,12 @@ public class MetadataExtractor implements Extractor {
 
     @Override
     public Extracted extract(Loaded loaded) throws ComparisonException {
+        logger.debug("Extracting metadata.");
         List<Metadata> srcMetadata = loaded.srcMetadata;
         List<Metadata> tarMetadata = loaded.tarMetadata;
         List<Comparable[]> srcMetadataAsComparables = unaryToListOfComparables(srcMetadata);
         List<Comparable[]> tarMetadataAsComparables = unaryToListOfComparables(tarMetadata);
+        logger.debug("Successfully extracted metadata.");
         return new Extracted(srcMetadataAsComparables, tarMetadataAsComparables, new CombinedMetadata[]{});
     }
 

@@ -39,7 +39,7 @@ public interface ComparisonService {
     static ComparisonService createForExistence(Set<ResultStore> resultStores) {
         return new ComparisonServiceImpl(resultStores, new DefaultLoader(), new ExistenceExtractor(), new DefaultComparer(), EXISTENCE);
     }
-    
+
     static ComparisonService createForData(Set<ResultStore> resultStores) {
         return new ComparisonServiceImpl(resultStores, new DefaultLoader(), new DefaultExtractor(), new DefaultComparer(), DATA);
     }

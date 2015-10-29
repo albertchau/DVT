@@ -29,12 +29,13 @@ abstract public class JdbcDataProvider implements DataProvider {
     protected final String password;
     protected final String database;
     protected final String hivePrincipal;
-    protected final String name;
+    protected final String tableName;
     protected final List<? extends JdbcDataProvider> shards;
     protected List<Connection> connections;
     private Logger logger = LoggerFactory.getLogger(JdbcDataProvider.class);
+    private boolean hasAlreadyDisplayedConnectionStatus = false;
 
-    public JdbcDataProvider(VendorType vendor, String host, String port, String url, String user, String password, String database, String hivePrincipal, String name, List<? extends JdbcDataProvider> shards) {
+    public JdbcDataProvider(VendorType vendor, String host, String port, String url, String user, String password, String database, String hivePrincipal, String tableName, List<? extends JdbcDataProvider> shards) {
         this.vendor = vendor;
         this.host = host;
         this.port = port;
@@ -43,7 +44,7 @@ abstract public class JdbcDataProvider implements DataProvider {
         this.password = password;
         this.database = database;
         this.hivePrincipal = hivePrincipal;
-        this.name = name;
+        this.tableName = tableName;
         this.shards = shards;
         connections = null;
     }
@@ -72,16 +73,20 @@ abstract public class JdbcDataProvider implements DataProvider {
             String connectionUrl = getConnectionUrl();
             try {
                 if (isNull(user) || isNull(password)) {
-                    logger.info("Trying to connect using passwordless(username and/or password not set) login to database with connection url = [" + connectionUrl + "].");
                     connection = DriverManager.getConnection(connectionUrl);
+                    if (!hasAlreadyDisplayedConnectionStatus) {
+                        logger.info("Successfully connected to [" + connectionUrl + "] without using username/password.");
+                        hasAlreadyDisplayedConnectionStatus = true;
+                    }
                 } else {
-                    logger.info("Trying to connect using username/password to login to database with connection url = [" + connectionUrl + "].");
                     connection = DriverManager.getConnection(connectionUrl, user, password);
+                    if (!hasAlreadyDisplayedConnectionStatus) {
+                        logger.info("Successfully connected to [" + connectionUrl + "] using username/password.");
+                        hasAlreadyDisplayedConnectionStatus = true;
+                    }
                 }
-                logger.info("Successfully connected to [" + connectionUrl + "].");
             } catch (SQLException e) {
-                logger.error("Failed to connect to " + connectionUrl + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
-                throw new DataProviderException("Failed to connect to " + connectionUrl + " because: " + e.getMessage() + ". Here is dump: " + this.toString());
+                throw new DataProviderException("Failed to connect to [" + connectionUrl + "].", e);
             }
             connections.add(connection);
         }
@@ -92,7 +97,6 @@ abstract public class JdbcDataProvider implements DataProvider {
             return url;
         } else {
             if (Stream.of(host, port, database).anyMatch(Objects::isNull)) {
-                logger.error("URL is null and Host/Port/Database are null - Cannot construct url connection.");
                 throw new DataProviderException("URL is null and Host/Port/Database are null - Cannot construct url connection.");
             }
             String rtn = "";
@@ -141,12 +145,10 @@ abstract public class JdbcDataProvider implements DataProvider {
 
 
     public final ResultSet getData(String query) throws DataProviderException {
-        if (connections == null) { //todo probably can call it for them though...
-//            logger.error("You need to openConnections() before calling this getData() method.");
+        if (connections == null) {
             throw new DataProviderException("You need to openConnections() before calling this getData() method.");
         }
         if (connections.size() < 1) {
-//            logger.error("There are no active connections open.");
             throw new DataProviderException("There are no active connections open.");
         }
         List<ResultSet> resultSetList = connections.stream()
@@ -157,7 +159,6 @@ abstract public class JdbcDataProvider implements DataProvider {
                         stmt = c.createStatement();
                         rs = stmt.executeQuery(query);
                     } catch (SQLException e) {
-//                        logger.error("SQLException: " + e.getMessage());
                         throw new DataProviderException(e.getMessage());
                     }
                     return rs;
@@ -165,7 +166,6 @@ abstract public class JdbcDataProvider implements DataProvider {
                 .filter(Objects::nonNull)
                 .collect(toList());
         if (resultSetList.size() < 1) {
-//            logger.error("Could not get any resultSets. they were all null");
             throw new DataProviderException("Could not get any resultSets. they were all null");
         }
         return new ResultSets(resultSetList);
@@ -179,8 +179,8 @@ abstract public class JdbcDataProvider implements DataProvider {
     }
 
     @Override
-    public final String getName() {
-        return name;
+    public final String getTableName() {
+        return tableName;
     }
 
     @Override
@@ -199,7 +199,7 @@ abstract public class JdbcDataProvider implements DataProvider {
                 ", password='" + password + '\'' +
                 ", database='" + database + '\'' +
                 ", hivePrincipal='" + hivePrincipal + '\'' +
-                ", name='" + name + '\'' +
+                ", name='" + tableName + '\'' +
                 '}';
     }
 
