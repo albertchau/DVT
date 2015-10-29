@@ -22,6 +22,7 @@ public class CountExtractor implements Extractor {
 
     @Override
     public Extracted extract(Loaded loaded) throws ComparisonException {
+        logger.debug("Extracting count data...");
         ResultSet srcRowSet = loaded.srcResultSet;
         List<Metadata> srcMetadata = loaded.srcMetadata;
         ResultSet tarRowSet = loaded.tarResultSet;
@@ -31,15 +32,14 @@ public class CountExtractor implements Extractor {
         try {
             sRowList = resultSetToList(srcRowSet, srcMetadata);
         } catch (SQLException e) {
-            logger.error("During setup, retrieving source's resultsets into memory failed: " + e.getMessage());
-            throw new ComparisonException("During setup, retrieving source's resultsets into memory failed: " + e.getMessage());
+            throw new ComparisonException("During setup, retrieving source's resultsets into memory failed: " + e.getMessage(), e);
         }
         try {
             tRowList = resultSetToList(tarRowSet, tarMetadata);
         } catch (SQLException e) {
-            logger.error("During setup, retrieving target's resultsets into memory failed: " + e.getMessage());
-            throw new ComparisonException("During setup, retrieving target's resultsets into memory failed: " + e.getMessage());
+            throw new ComparisonException("During setup, retrieving target's resultsets into memory failed: " + e.getMessage(), e);
         }
+        logger.debug("Successfully extracted count data.");
         return new Extracted(sRowList, tRowList, null);
     }
 
@@ -47,7 +47,6 @@ public class CountExtractor implements Extractor {
         List<Comparable[]> listOfRows = new ArrayList<>();
         int columnCount = metadata.size();
         if (columnCount != 1) {
-            logger.error("Incorrect resultSet format. Only one column representing the count can be present. Found " + columnCount + " columns instead of one.");
             throw new ComparisonException("Incorrect resultSet format. Only one column representing the count can be present. Found " + columnCount + " columns instead of one.");
         }
         while (resultSet.next()) {

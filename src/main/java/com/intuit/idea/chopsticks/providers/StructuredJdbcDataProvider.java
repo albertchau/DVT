@@ -4,6 +4,7 @@ import com.intuit.idea.chopsticks.query.QueryService;
 import com.intuit.idea.chopsticks.services.ComparisonType;
 import com.intuit.idea.chopsticks.utils.containers.Metadata;
 import com.intuit.idea.chopsticks.utils.exceptions.DataProviderException;
+import com.intuit.idea.chopsticks.utils.exceptions.QueryCreationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -28,9 +29,9 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
     private QueryService queryService;
 
     public StructuredJdbcDataProvider(VendorType vendor, String host, String port, String url, String user, String password,
-                                      String database, String hivePrincipal, String name,
+                                      String database, String hivePrincipal, String tableName,
                                       List<StructuredJdbcDataProvider> shards, QueryService queryService) {
-        super(vendor, host, port, url, user, password, database, hivePrincipal, name, shards);
+        super(vendor, host, port, url, user, password, database, hivePrincipal, tableName, shards);
         this.queryService = queryService;
     }
 
@@ -47,19 +48,21 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
 
     @Override
     public String getQuery(ComparisonType cs) throws DataProviderException {
-        switch (cs) {
-            case DATA:
-                return queryService.createDataQuery(getMetadata());
-            case EXISTENCE:
-                return queryService.createExistenceQuery(getMetadata());
-            case COUNT:
-                return queryService.createCountQuery();
-            case METADATA:
-                logger.error("Cannot create query for metadata comparison type.");
-                throw new UnsupportedOperationException("Cannot create query for metadata comparison type.");
-            default:
-                logger.error("Unknown Comparison Service");
-                throw new UnsupportedOperationException("Unknown Comparison Service");
+        try {
+            switch (cs) {
+                case DATA:
+                    return queryService.createDataQuery(getMetadata());
+                case EXISTENCE:
+                    return queryService.createExistenceQuery(getMetadata());
+                case COUNT:
+                    return queryService.createCountQuery();
+                case METADATA:
+                    throw new UnsupportedOperationException("Cannot create query for metadata comparison type.");
+                default:
+                    throw new UnsupportedOperationException("Unknown Comparison Service");
+            }
+        } catch (QueryCreationError | UnsupportedOperationException e) {
+            throw new DataProviderException("Failed to create query: " + e.getMessage(), e);
         }
     }
 
@@ -71,7 +74,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             Collections.sort(metadatas);
             return metadatas;
         } catch (DataProviderException e) {
-            throw new DataProviderException(e.getMessage());
+            throw new DataProviderException(e.getMessage(), e);
         }
     }
 
@@ -83,7 +86,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             Collections.sort(primaryKeys);
             return primaryKeys;
         } catch (DataProviderException e) {
-            throw new DataProviderException(e.getMessage());
+            throw new DataProviderException(e.getMessage(), e);
         }
     }
 
@@ -112,7 +115,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
 
     private List<Metadata> metadataFromDatabase(Connection c) throws DataProviderException {
         try {
-            ResultSet rs = c.getMetaData().getColumns(null, "%", getName(), "%");
+            ResultSet rs = c.getMetaData().getColumns(null, "%", getTableName(), "%");
             List<Metadata> metadatas = new ArrayList<>();
             List<String> primaryKeys = getPrimaryKeys();
             while (rs.next()) {
@@ -125,7 +128,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             }
             return metadatas;
         } catch (DataProviderException | SQLException e) {
-            throw new DataProviderException(e.getMessage());
+            throw new DataProviderException(e.getMessage(), e);
         }
     }
 
@@ -155,7 +158,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
     private List<String> primaryKeysFromDatabase(Connection c) throws DataProviderException {
         try {
             String columnNameColumn = "COLUMN_NAME";
-            ResultSet columns = c.getMetaData().getPrimaryKeys(null, "%", getName());
+            ResultSet columns = c.getMetaData().getPrimaryKeys(null, "%", getTableName());
             List<String> colNames = new ArrayList<>();
             while (columns.next()) {
                 String colName = columns.getString(columnNameColumn).trim();
@@ -163,7 +166,7 @@ public final class StructuredJdbcDataProvider extends JdbcDataProvider {
             }
             return colNames;
         } catch (SQLException e) {
-            throw new DataProviderException(e.getMessage());
+            throw new DataProviderException(e.getMessage(), e);
         }
     }
 

@@ -25,17 +25,18 @@ public class CountComparer implements Comparer {
     private static Logger logger = LoggerFactory.getLogger(CountComparer.class);
     private final double thresholdPercent;
     private final DecimalFormat df = new DecimalFormat("#.###");
+    private boolean isPassed = true;
 
     public CountComparer(Double thresholdPercent) throws ComparisonException {
         this.thresholdPercent = thresholdPercent == null ? 0.0 : thresholdPercent;
         if (this.thresholdPercent < 0) {
-            logger.error("Threshold percent cannot be less than 0.");
             throw new ComparisonException("Threshold percent cannot be less than 0.");
         }
     }
 
     @Override
-    public void compare(Extracted extracted, Set<ResultStore> resultStores) {
+    public void compare(Extracted extracted, Set<ResultStore> resultStores) throws ComparisonException {
+        logger.debug("Comparing count data sets...");
         List<Comparable[]> sRowList = extracted.srcList;
         List<Comparable[]> tRowList = extracted.tarList;
         double srcSum;
@@ -43,18 +44,16 @@ public class CountComparer implements Comparer {
         try {
             srcSum = getSum(sRowList);
         } catch (ClassCastException e) {
-            logger.error("Could not cast source rows to integers.");
             resultStores.stream()
                     .forEach(r -> r.storeRowResults(singletonList(createFailure())));
-            return;
+            throw new ComparisonException("Could not cast source rows to integers.");
         }
         try {
             tarSum = getSum(tRowList);
         } catch (Exception e) {
-            logger.error("Could not cast target rows to integers.");
             resultStores.stream()
                     .forEach(r -> r.storeRowResults(singletonList(createFailure())));
-            return;
+            throw new ComparisonException("Could not cast target rows to integers.");
         }
         double percentError;
         if (srcSum == 0) {
@@ -62,24 +61,27 @@ public class CountComparer implements Comparer {
                 percentError = 0.0;
             } else {
                 percentError = 1.0;
+                isPassed = false;
                 logger.warn("The sum of the source counts was 0.");
             }
         } else {
             percentError = (tarSum - srcSum) / srcSum;
         }
         if (percentError > 0) {
-            logger.info("Failed Count Comparison: Target count: "
+            isPassed = false;
+            logger.warn("Failed Count Comparison: Target count: "
                     + (df.format(tarSum)) + " was greater than source count: "
                     + (df.format(srcSum)) + " which should not happen.");
         } else if (percentError > thresholdPercent) {
-            logger.info("Failed Count Comparison: Target count: "
+            isPassed = false;
+            logger.warn("Failed Count Comparison: Target count: "
                     + (df.format(tarSum)) + " was less than source count: "
                     + (df.format(srcSum)) + " producing a percent error: "
                     + (df.format(percentError))
                     + " that was greater than defined threshold for percent error: "
                     + (df.format(thresholdPercent)) + ".");
         } else {
-            logger.info("Passed Count Comparison: Target count: "
+            logger.debug("Passed Count Comparison: Target count: "
                     + (df.format(tarSum)) + " source count: "
                     + (df.format(srcSum)) + " producing a percent error: "
                     + (df.format(percentError))
@@ -98,6 +100,12 @@ public class CountComparer implements Comparer {
                                 false)
                         )
                 ));
+        logger.debug("Successfully compared count data resulting in: " + (isPassed ? "[PASSED]" : "[FAILED]"));
+    }
+
+    @Override
+    public Boolean getResult() {
+        return isPassed;
     }
 
     private double getSum(List<Comparable[]> rowList) {

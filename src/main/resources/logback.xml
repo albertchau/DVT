@@ -3,9 +3,12 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <withJansi>true</withJansi>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
         <encoder>
             <pattern>
-                %highlight([%.-1level)|%date{mm:ss.SSS}|%highlight(%5.5thread)|%highlight(%25.25(%logger{0}:%line)]):
+                %highlight([%.-1level)|%date{mm:ss.SSS}|%highlight(%8.8thread)|%highlight(%25.25(%logger{0}:%line)]):
                 %msg%n
             </pattern>
         </encoder>
@@ -14,13 +17,15 @@
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>log/akka.log</file>
         <append>false</append>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>TRACE</level>
+        </filter>
         <encoder>
-            <pattern>[%.-1level | %date{HH:mm:ss.SSS} | %thread | %-20.20(%logger{0}:%line]): %msg%n</pattern>
+            <pattern>[%.-1level|%date{mm:ss.SSS}|%19.19thread|%25.25(%logger{0}:%line)]: %msg%n</pattern>
         </encoder>
     </appender>
-    <root level="INFO">
+    <root level="TRACE">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </root>
-
 </configuration>

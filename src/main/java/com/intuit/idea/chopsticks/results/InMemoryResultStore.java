@@ -49,11 +49,11 @@ public class InMemoryResultStore implements ResultStore, Reportable {
         Map<String, Integer> colCountMap = new HashMap<>();
         results.stream()
                 .forEach(row -> row.stream()
-                                .forEach(col -> colCountMap
-                                                .merge(col.getField(),
-                                                        col.getOutcome() ? 1 : 0,
-                                                        (old, x) -> x + old)
-                                )
+                        .forEach(col -> colCountMap
+                                .merge(col.getField(),
+                                        col.getOutcome() ? 1 : 0,
+                                        (old, x) -> x + old)
+                        )
                 );
         colCountMap.forEach((s, i) -> logger.info(s + " quality: " + (i / mismatchedRows) + "; \tpassed: " + (i) + "; \tfailed: " + (mismatchedRows - i)));
     }

@@ -1,5 +1,8 @@
 package com.intuit.idea.chopsticks.controllers;
 
+import ch.qos.logback.classic.filter.ThresholdFilter;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import com.intuit.idea.chopsticks.providers.DataProvider;
 import com.intuit.idea.chopsticks.services.ComparisonService;
 import com.intuit.idea.chopsticks.services.ComparisonType;
@@ -8,8 +11,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static com.intuit.idea.chopsticks.utils.CollectionUtils.toProperCase;
+import static com.intuit.idea.chopsticks.utils.Commons.identifierName;
 
 /**
  * ************************************
@@ -18,12 +24,10 @@ import static com.intuit.idea.chopsticks.utils.CollectionUtils.toProperCase;
  * ************************************
  */
 public final class DataParityController {
-
+    private final DataProvider source;
+    private final DataProvider target;
+    private final List<ComparisonService> comparisonServices;
     private Logger logger = LoggerFactory.getLogger(DataParityController.class);
-
-    private DataProvider source;
-    private DataProvider target;
-    private List<ComparisonService> comparisonServices;
 
     public DataParityController(DataProvider source, DataProvider target, List<ComparisonService> comparisonServices) {
         this.source = source;
@@ -34,38 +38,42 @@ public final class DataParityController {
     public DataParityController(DataProvider source, DataProvider target) {
         this.source = source;
         this.target = target;
-        comparisonServices = new ArrayList<>();
+        this.comparisonServices = new ArrayList<>();
     }
 
-    public void registerComparisonService(ComparisonService comparisonService) {
-        comparisonServices.add(comparisonService);
+    private void execute() {
+        comparisonServices.stream()
+                .forEach(this::runComparisonService);
     }
 
-    public void before() {
-        logger.info("before");
-    }
-
-    public void execute() {
-        logger.info("execute");
-        comparisonServices.forEach(comparisonService -> {
-            try {
-                comparisonService.compare(source, target);
-            } catch (Exception e) {
-                ComparisonType ToCS = comparisonService.getType();
-                logger.error(toProperCase(ToCS.toString()) + " Failed!!! Reason: " + e.getMessage());
-            }
-        });
-    }
-
-    public void after() {
-        logger.info("after");
+    private void runComparisonService(ComparisonService comparisonService) {
+        try {
+            comparisonService.compare(source, target);
+        } catch (Exception e) {
+            ComparisonType comparisonType = comparisonService.getType();
+            logger.error(comparisonType.stringify() + " for " + identifierName(source, target) + " failed due to error! Reason: " + e.getMessage() + ".");
+            String debugErrorMessage = Stream.of(e.getStackTrace())
+                    .filter(st -> Objects.nonNull(st.getFileName()) && !st.getFileName().equals("null"))
+                    .filter(st -> st.getClassName().contains("intuit"))
+                    .map(st -> st.getFileName() + ":" + st.getLineNumber())
+                    .collect(Collectors.joining(" --> "));
+            logger.debug(debugErrorMessage);
+        }
     }
 
     public void run() {
-        logger.info("run");
-        before();
+        setup();
         execute();
-        after();
+    }
+
+    private void setup() {
+        /* Programmatically set the logging level for console */
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        Appender<ILoggingEvent> console = root.getAppender("CONSOLE");
+        ThresholdFilter thresholdFilter = new ThresholdFilter();
+        thresholdFilter.setLevel("INFO");
+        console.clearAllFilters();
+        console.addFilter(thresholdFilter);
     }
 
 }

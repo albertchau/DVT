@@ -41,6 +41,7 @@ public class ComparisonUtils {
 
     /**
      * Syntactic sugar for a functional lambda call to sort the list of comparable[] that uses every column in it's comparison. Also a wrapper for overloaded compareColumns().
+     *
      * @param source a comparable array
      * @param target a comparable array
      * @return 0 if equal, 1 if source is greater -1 if target is greater
@@ -51,6 +52,7 @@ public class ComparisonUtils {
 
     /**
      * Just fills an array of Comparable.compareTo() BiFunctions to the size specified.
+     *
      * @param size Specifies how big the array will be.
      * @return Array of nullSafeComparers
      */
@@ -63,6 +65,7 @@ public class ComparisonUtils {
 
     /**
      * Syntactic sugar for functional lambda that retrieves a column value and casts the value to the type specified in the metadata.
+     *
      * @param rs Result Set to get column value from.
      * @return a Function that takes in Metadata and returns a comparable value.
      */
@@ -79,11 +82,12 @@ public class ComparisonUtils {
 
     /**
      * Compares the range of rows in array (specified by inclusive start and exclusive end.
-     * @param sRow Array of comparables.
-     * @param tRow Array of comparables.
+     *
+     * @param sRow      Array of comparables.
+     * @param tRow      Array of comparables.
      * @param comparers Array of functions that compare the respective sRow[start...end] to tRow[start...end].
-     * @param start Inclusive where to start comparing the columns of the rows.
-     * @param end Exclusive of where to stop comparing the columns of the rows.
+     * @param start     Inclusive where to start comparing the columns of the rows.
+     * @param end       Exclusive of where to stop comparing the columns of the rows.
      * @return 0 if equal, 1 if source is greater -1 if target is greater
      */
     public static Integer compareColumns(Comparable[] sRow, Comparable[] tRow, BiFunction<Comparable, Comparable, Integer>[] comparers, int start, int end) {
@@ -103,6 +107,7 @@ public class ComparisonUtils {
      * 3) Makes a list of like metadata
      * 4) Throws an error if there are differing metadatas
      * 5) returns metadata
+     *
      * @param sMetadata List of metadata
      * @param tMetadata List of metadata
      * @return an Array of combined metadata
@@ -134,9 +139,10 @@ public class ComparisonUtils {
      * 2) for each column, get the column label
      * 3) check to make sure column label is a Pk
      * 4) add all pk'd columns and return as Array
-     * @param data Result Set of data.
+     *
+     * @param data              Result Set of data.
      * @param colsToBeExtracted List of Strings specifying which strings to be extracted.
-     * @param pks List of strings specifying which primary keys to be extracted.
+     * @param pks               List of strings specifying which primary keys to be extracted.
      * @return List of metadata.
      * @throws SQLException
      */
@@ -183,6 +189,7 @@ public class ComparisonUtils {
 
     /**
      * Wrapper for extractMetadata for times when PK is not specified in configuration.
+     *
      * @param data A Result Set.
      * @return List of Metadata
      * @throws SQLException
@@ -204,7 +211,7 @@ public class ComparisonUtils {
         while (resultSet.next()) {
             Comparable[] tmp = Arrays.stream(columns)
                     .map(whichOne)
-                    .map(getColumnValue(resultSet))
+                    .map(i -> getColumnValue(resultSet))
                     .toArray(Comparable[]::new);
             listOfRows.add(tmp);
         }

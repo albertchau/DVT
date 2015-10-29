@@ -23,20 +23,19 @@ public class MetadataLoader implements Loader {
 
     @Override
     public Loaded load(DataProvider source, DataProvider target, ComparisonType type) throws ComparisonException {
-        logger.info("Loading metadata...");
         List<Metadata> srcMetadata;
         List<Metadata> tarMetadata;
         try {
             srcMetadata = getMetadatasFrom(source);
         } catch (DataProviderException | ComparisonException e) {
-            throw new ComparisonException("Failed to LOAD source metadata for metadata comparison because: " + e.getMessage());
+            throw new ComparisonException("Failed to LOAD source metadata for metadata comparison because: " + e.getMessage(), e);
         }
         try {
             tarMetadata = getMetadatasFrom(target);
         } catch (DataProviderException | ComparisonException e) {
-            throw new ComparisonException("Failed to LOAD target metadata for metadata comparison because: " + e.getMessage());
+            throw new ComparisonException("Failed to LOAD target metadata for metadata comparison because: " + e.getMessage(), e);
         }
-        logger.info("Successfully loaded metadata...");
+        logger.debug("Successfully loaded metadata...");
         return new Loaded(null, srcMetadata, null, tarMetadata);
     }
 

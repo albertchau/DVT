@@ -9,6 +9,7 @@ import com.intuit.idea.chopsticks.query.TestType;
 import com.intuit.idea.chopsticks.services.ComparisonService;
 import com.intuit.idea.chopsticks.utils.exceptions.ComparisonException;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -19,8 +20,11 @@ import java.util.List;
  */
 public class Main {
 
-    public static void main(String[] args) throws ComparisonException {
+    public static void main(String[] args) throws ComparisonException, IOException {
+        runTestWithLoadedDatabaseAssumed();
+    }
 
+    private static void runTestWithLoadedDatabaseAssumed() throws ComparisonException {
         QueryService sourceQueryService = new QueryServiceBuilder().build("students_a", VendorType.MYSQL, TestType.FULL);
         StructuredJdbcDataProvider source = new StructuredJdbcDataProvider(
                 VendorType.MYSQL,

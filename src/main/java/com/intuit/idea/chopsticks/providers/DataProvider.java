@@ -34,6 +34,6 @@ public interface DataProvider extends AutoCloseable {
 
     DataProviderType getDataProviderType();
 
-    String getName();
+    String getTableName();
 
 }
