@@ -6,6 +6,14 @@
 *.class
 .DS_Store
 # Mobile Tools for Java (J2ME)
+/ziplock-api/log
+/ziplock-core/log
+/log
+/ziplock-api/example.yaml
+/complex.conf
+/simple.conf
+/test.json
+/test.conf
 .mtj.tmp/
 
 # Package Files #

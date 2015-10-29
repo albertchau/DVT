@@ -1,6 +1,5 @@
 package com.intuit.idea.ziplock.core.controllers;
 
-import com.typesafe.config.Config;
 
 /**
  * ************************************
@@ -10,7 +9,7 @@ import com.typesafe.config.Config;
  */
 public class DataParityControllerFactory {
 
-    public static DataParityController createDataParityFrom(Config config) {
-        return null;
-    }
+//    public static DataParityController createDataParityFrom(Config config) {
+//        return null;
+//    }
 }
