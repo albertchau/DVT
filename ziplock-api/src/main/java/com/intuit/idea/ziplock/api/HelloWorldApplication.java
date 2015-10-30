@@ -24,7 +24,7 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 
 
     public static void main(String[] args) throws Exception {
-        String [] ar = new String[] {"server", "/Users/achau1/Developing/IDEA/DVT/ziplock-api/example.yaml"};
+        String [] ar = new String[] {"server", "/Users/albert/Developing/Quant/Chopsticks/ziplock-api/example.yaml"};
         new HelloWorldApplication().run(ar);
     }
 
@@ -35,15 +35,18 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
 
     @Override
     public void initialize(Bootstrap<HelloWorldConfiguration> bootstrap) {
-        // nothing to do yet
+        bootstrap.addBundle(hibernate);
     }
+
     @Override
     public void run(HelloWorldConfiguration configuration,
                     Environment environment) {
+        final PersonDAO dao = new PersonDAO(hibernate.getSessionFactory());
         final HelloWorldResource resource = new HelloWorldResource(
                 configuration.getTemplate(),
                 configuration.getDefaultName()
         );
         environment.jersey().register(resource);
+        environment.jersey().register(new PersonResource(dao));
     }
 }

@@ -9,7 +9,6 @@
 /ziplock-api/log
 /ziplock-core/log
 /log
-/ziplock-api/example.yaml
 /complex.conf
 /simple.conf
 /test.json

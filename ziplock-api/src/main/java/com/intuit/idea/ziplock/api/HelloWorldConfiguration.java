@@ -30,6 +30,11 @@ public class HelloWorldConfiguration extends Configuration {
         return database;
     }
 
+    @JsonProperty("database")
+    public void setDataSourceFactory(DataSourceFactory database) {
+        this.database = database;
+    }
+
     @JsonProperty
     public String getTemplate() {
         return template;
