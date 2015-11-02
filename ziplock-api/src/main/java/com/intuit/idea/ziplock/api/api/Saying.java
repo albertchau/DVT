@@ -1,4 +1,4 @@
-package com.intuit.idea.ziplock.api;
+package com.intuit.idea.ziplock.api.api;
 
 /**
  * ************************************

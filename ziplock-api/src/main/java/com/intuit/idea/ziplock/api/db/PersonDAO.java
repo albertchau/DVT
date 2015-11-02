@@ -1,6 +1,8 @@
-package com.intuit.idea.ziplock.api;
+package com.intuit.idea.ziplock.api.db;
 
+import com.intuit.idea.ziplock.api.core.Person;
 import io.dropwizard.hibernate.AbstractDAO;
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 
 import java.util.List;
@@ -17,7 +19,8 @@ public class PersonDAO extends AbstractDAO<Person>{
     }
 
     public Optional<Person> findById(Long id) {
-        return Optional.ofNullable(get(id));
+        Query query = namedQuery("person.findById");
+        return Optional.ofNullable(uniqueResult(query.setLong(0, id)));
     }
 
     public Person create(Person person) {
@@ -25,6 +28,6 @@ public class PersonDAO extends AbstractDAO<Person>{
     }
 
     public List<Person> findAll() {
-        return list(namedQuery("com.intuit.idea.ziplock.api.Person.findAll"));
+        return list(namedQuery("person.findAll"));
     }
 }

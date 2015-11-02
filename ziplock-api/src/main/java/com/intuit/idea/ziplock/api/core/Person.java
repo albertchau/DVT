@@ -1,4 +1,4 @@
-package com.intuit.idea.ziplock.api;
+package com.intuit.idea.ziplock.api.core;
 
 /**
  * ************************************
@@ -8,14 +8,20 @@ package com.intuit.idea.ziplock.api;
  */
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "people")
 @NamedQueries({
         @NamedQuery(
-                name = "com.intuit.idea.ziplock.api.Person.findAll",
-                query = "SELECT p FROM Person p"
+                name = "person.findAll",
+                query = "select distinct p from Person as p left join fetch p.job"
+        ),
+        @NamedQuery(
+                name = "person.findById",
+                query = "select distinct p from Person as p left join fetch p.job where p.id = ?"
         )
 })
 public class Person {
@@ -29,12 +35,23 @@ public class Person {
     @Column(name = "jobTitle", nullable = false)
     private String jobTitle;
 
+    @OneToMany
+    private List<Job> job = new ArrayList<>();
+
     public Person() {
     }
 
     public Person(String fullName, String jobTitle) {
         this.fullName = fullName;
         this.jobTitle = jobTitle;
+    }
+
+    public List<Job> getJob() {
+        return job;
+    }
+
+    public void setJob(List<Job> job) {
+        this.job = job;
     }
 
     public long getId() {
@@ -79,6 +96,6 @@ public class Person {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, fullName, jobTitle);
+        return Objects.hash(id, fullName, jobTitle, job);
     }
 }

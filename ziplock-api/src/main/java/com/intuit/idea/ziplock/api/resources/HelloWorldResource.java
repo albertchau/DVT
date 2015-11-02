@@ -1,4 +1,4 @@
-package com.intuit.idea.ziplock.api;
+package com.intuit.idea.ziplock.api.resources;
 
 /**
  * ************************************
@@ -10,6 +10,7 @@ package com.intuit.idea.ziplock.api;
 
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.base.Optional;
+import com.intuit.idea.ziplock.api.api.Saying;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

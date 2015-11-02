@@ -1,4 +1,4 @@
-package com.intuit.idea.ziplock.api;
+package com.intuit.idea.ziplock.api.resources;
 
 /**
  * Copyright 2015
@@ -6,6 +6,8 @@ package com.intuit.idea.ziplock.api;
  * @author albert
  */
 
+import com.intuit.idea.ziplock.api.core.Person;
+import com.intuit.idea.ziplock.api.db.PersonDAO;
 import io.dropwizard.hibernate.UnitOfWork;
 import io.dropwizard.jersey.params.LongParam;
 

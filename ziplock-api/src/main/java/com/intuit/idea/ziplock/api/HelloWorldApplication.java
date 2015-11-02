@@ -7,6 +7,14 @@ package com.intuit.idea.ziplock.api;
  * ************************************
  */
 
+import com.intuit.idea.ziplock.api.core.Job;
+import com.intuit.idea.ziplock.api.core.Person;
+import com.intuit.idea.ziplock.api.db.JobDAO;
+import com.intuit.idea.ziplock.api.db.PersonDAO;
+import com.intuit.idea.ziplock.api.health.TemplateHealthCheck;
+import com.intuit.idea.ziplock.api.resources.HelloWorldResource;
+import com.intuit.idea.ziplock.api.resources.JobResource;
+import com.intuit.idea.ziplock.api.resources.PersonResource;
 import io.dropwizard.Application;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
@@ -15,7 +23,7 @@ import io.dropwizard.setup.Environment;
 
 public class HelloWorldApplication extends Application<HelloWorldConfiguration> {
 
-    private final HibernateBundle<HelloWorldConfiguration> hibernate = new HibernateBundle<HelloWorldConfiguration>(Person.class) {
+    private final HibernateBundle<HelloWorldConfiguration> hibernate = new HibernateBundle<HelloWorldConfiguration>(Person.class, Job.class) {
         @Override
         public DataSourceFactory getDataSourceFactory(HelloWorldConfiguration configuration) {
             return configuration.getDataSourceFactory();
@@ -41,12 +49,17 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
     @Override
     public void run(HelloWorldConfiguration configuration,
                     Environment environment) {
-        final PersonDAO dao = new PersonDAO(hibernate.getSessionFactory());
+        final TemplateHealthCheck healthCheck =
+                new TemplateHealthCheck(configuration.getTemplate());
+        final PersonDAO personDAO = new PersonDAO(hibernate.getSessionFactory());
+        final JobDAO jobDAO = new JobDAO(hibernate.getSessionFactory());
         final HelloWorldResource resource = new HelloWorldResource(
                 configuration.getTemplate(),
                 configuration.getDefaultName()
         );
+        environment.healthChecks().register("template", healthCheck);
         environment.jersey().register(resource);
-        environment.jersey().register(new PersonResource(dao));
+        environment.jersey().register(new PersonResource(personDAO));
+        environment.jersey().register(new JobResource(jobDAO));
     }
 }
