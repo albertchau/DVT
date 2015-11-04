@@ -31,7 +31,15 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
             Config.class,
             RelationMap.class,
             RelationMapConfig.class,
-            Comparison.class) {
+            Comparison.class,
+            DateFormat.class,
+            DatasourceType.class,
+            FieldType.class,
+            OrderDirection.class,
+            RunStatus.class,
+            TestType.class,
+            WhereClause.class
+    ) {
         @Override
         public DataSourceFactory getDataSourceFactory(HelloWorldConfiguration configuration) {
             return configuration.getDataSourceFactory();

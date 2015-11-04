@@ -13,7 +13,7 @@ database:
     hibernate.show_sql: true
     hibernate.format_sql: true
     hibernate.dialect: org.hibernate.dialect.MySQLDialect
-    hibernate.hbm2ddl.import_files: import.sql
+    hibernate.hbm2ddl.import_files: import2.sql
 
   # the username
   user: root
@@ -35,7 +35,7 @@ logging:
   loggers:
 
     # Sets the level for 'com.example.app' to DEBUG.
-    com.intuit.idea.ziplock.api: DEBUG
+    com.intuit.idea.ziplock.api: INFO
 
 #    # Redirects SQL logs to a separate file
 #    org.hibernate.SQL:

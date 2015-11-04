@@ -11,7 +11,6 @@ import java.util.Objects;
  */
 
 @Entity
-@javax.persistence.Table(name = "relation")
 @NamedQueries({
         @NamedQuery(
                 name = "Relation.findAll",
@@ -27,66 +26,51 @@ import java.util.Objects;
         )
 })
 public class Relation {
+    @GeneratedValue
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+    @Basic
+    private String name;
+    @Basic
+    private String query;
 
-    @javax.persistence.Column(name = "url", nullable = false)
-    private String url;
-
-    @javax.persistence.Column(name = "username", nullable = false)
-    private String username;
-
-    public Relation() {
-    }
-
-    public Relation(String url, String username) {
-        this.url = url;
-        this.username = username;
-    }
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    public String getName() {
+        return name;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getUsername() {
-        return username;
+    public String getQuery() {
+        return query;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setQuery(String query) {
+        this.query = query;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Relation)) {
-            return false;
-        }
 
-        final Relation that = (Relation) o;
-
-        return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.url, that.url) &&
-                Objects.equals(this.username, that.username);
+        if (this == o) return true;
+        if (!(o instanceof Relation)) return false;
+        Relation relation = (Relation) o;
+        return Objects.equals(id, relation.id) &&
+                Objects.equals(name, relation.name) &&
+                Objects.equals(query, relation.query);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, url, username);
+        return Objects.hash(id, name, query);
     }
 }

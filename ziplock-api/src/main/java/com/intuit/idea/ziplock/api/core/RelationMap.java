@@ -1,6 +1,7 @@
 package com.intuit.idea.ziplock.api.core;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -11,7 +12,6 @@ import java.util.Objects;
  */
 
 @Entity
-@Table(name = "relationMap")
 @NamedQueries({
         @NamedQuery(
                 name = "RelationMap.findAll",
@@ -19,66 +19,61 @@ import java.util.Objects;
         )
 })
 public class RelationMap {
+    @GeneratedValue
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Relation relationA;
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Relation relationB;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "relationMap")
+    private Collection<RelationMapConfig> configsFromThisMap;
 
-    @Column(name = "url", nullable = false)
-    private String url;
-
-    @Column(name = "username", nullable = false)
-    private String username;
-
-    public RelationMap() {
-    }
-
-    public RelationMap(String url, String username) {
-        this.url = url;
-        this.username = username;
-    }
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    public Relation getRelationA() {
+        return relationA;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setRelationA(Relation relationA) {
+        this.relationA = relationA;
     }
 
-    public String getUsername() {
-        return username;
+    public Relation getRelationB() {
+        return relationB;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setRelationB(Relation relationB) {
+        this.relationB = relationB;
+    }
+
+    public Collection<RelationMapConfig> getConfigsFromThisMap() {
+        return configsFromThisMap;
+    }
+
+    public void setConfigsFromThisMap(Collection<RelationMapConfig> configsFromThisMap) {
+        this.configsFromThisMap = configsFromThisMap;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof RelationMap)) {
-            return false;
-        }
-
-        final RelationMap that = (RelationMap) o;
-
-        return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.url, that.url) &&
-                Objects.equals(this.username, that.username);
+        if (this == o) return true;
+        if (!(o instanceof RelationMap)) return false;
+        RelationMap that = (RelationMap) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(relationA, that.relationA) &&
+                Objects.equals(relationB, that.relationB) &&
+                Objects.equals(configsFromThisMap, that.configsFromThisMap);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, url, username);
+        return Objects.hash(id, relationA, relationB, configsFromThisMap);
     }
 }

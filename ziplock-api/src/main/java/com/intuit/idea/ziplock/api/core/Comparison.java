@@ -11,7 +11,6 @@ import java.util.Objects;
  */
 
 @Entity
-@Table(name = "comparison")
 @NamedQueries({
         @NamedQuery(
                 name = "Comparison.findAll",
@@ -19,66 +18,39 @@ import java.util.Objects;
         )
 })
 public class Comparison {
+    @GeneratedValue
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @Basic(optional = false)
-    private String url;
-
+    private Long id;
     @Basic
-    private String username;
+    private String name;
 
-    public Comparison() {
-    }
-
-    public Comparison(String url, String username) {
-        this.url = url;
-        this.username = username;
-    }
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    public String getName() {
+        return name;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Comparison)) {
-            return false;
-        }
-
-        final Comparison that = (Comparison) o;
-
-        return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.url, that.url) &&
-                Objects.equals(this.username, that.username);
+        if (this == o) return true;
+        if (!(o instanceof Comparison)) return false;
+        Comparison that = (Comparison) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, url, username);
+        return Objects.hash(id, name);
     }
 }

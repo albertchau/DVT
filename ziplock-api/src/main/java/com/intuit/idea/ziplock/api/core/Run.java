@@ -1,6 +1,7 @@
 package com.intuit.idea.ziplock.api.core;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Objects;
 
 /**
@@ -10,75 +11,96 @@ import java.util.Objects;
  * ************************************
  */
 
+
 @Entity
-@javax.persistence.Table(name = "run")
 @NamedQueries({
         @NamedQuery(
                 name = "Run.findAll",
-                query = "SELECT r FROM Run r"
+                query = "SELECT distinct r " +
+                        "FROM Run as r "
+//                        +
+//                        "left join r.config as rc " +
+//                        "left join fetch rc.relationMapConfigs"
         )
 })
 public class Run {
+    @GeneratedValue
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+    @Basic
+    private Timestamp created_date;
+    @Basic
+    private Timestamp start_timestamp;
+    @Basic
+    private Timestamp end_timestamp;
+    @ManyToOne
+    private RunStatus runStatus;
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Config config;
 
-    @javax.persistence.Column(name = "url", nullable = false)
-    private String url;
-
-    @javax.persistence.Column(name = "username", nullable = false)
-    private String username;
-
-    public Run() {
-    }
-
-    public Run(String url, String username) {
-        this.url = url;
-        this.username = username;
-    }
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    public Timestamp getCreated_date() {
+        return created_date;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setCreated_date(Timestamp created_date) {
+        this.created_date = created_date;
     }
 
-    public String getUsername() {
-        return username;
+    public Timestamp getStart_timestamp() {
+        return start_timestamp;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setStart_timestamp(Timestamp start_timestamp) {
+        this.start_timestamp = start_timestamp;
+    }
+
+    public Timestamp getEnd_timestamp() {
+        return end_timestamp;
+    }
+
+    public void setEnd_timestamp(Timestamp end_timestamp) {
+        this.end_timestamp = end_timestamp;
+    }
+
+    public RunStatus getRunStatus() {
+        return runStatus;
+    }
+
+    public void setRunStatus(RunStatus runStatusId) {
+        this.runStatus = runStatusId;
+    }
+
+    public Config getConfig() {
+        return config;
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Run)) {
-            return false;
-        }
-
-        final Run that = (Run) o;
-
-        return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.url, that.url) &&
-                Objects.equals(this.username, that.username);
+        if (this == o) return true;
+        if (!(o instanceof Run)) return false;
+        Run run = (Run) o;
+        return Objects.equals(id, run.id) &&
+                Objects.equals(created_date, run.created_date) &&
+                Objects.equals(start_timestamp, run.start_timestamp) &&
+                Objects.equals(end_timestamp, run.end_timestamp) &&
+                Objects.equals(runStatus, run.runStatus) &&
+                Objects.equals(config, run.config);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, url, username);
+        return Objects.hash(id, created_date, start_timestamp, end_timestamp, runStatus, config);
     }
 }

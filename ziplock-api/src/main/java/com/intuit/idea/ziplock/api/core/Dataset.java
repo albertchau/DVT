@@ -11,7 +11,6 @@ import java.util.Objects;
  */
 
 @Entity
-@javax.persistence.Table(name = "dataset")
 @NamedQueries({
         @NamedQuery(
                 name = "Dataset.findAll",
@@ -23,66 +22,61 @@ import java.util.Objects;
         )
 })
 public class Dataset {
+    private Long id;
+    private String name;
+    private Datasource datasourceA;
+    private Datasource datasourceB;
+
+    @GeneratedValue
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @javax.persistence.Column(name = "url", nullable = false)
-    private String url;
-
-    @javax.persistence.Column(name = "username", nullable = false)
-    private String username;
-
-    public Dataset() {
-    }
-
-    public Dataset(String url, String username) {
-        this.url = url;
-        this.username = username;
-    }
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    @Basic
+    public String getName() {
+        return name;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getUsername() {
-        return username;
+    @ManyToOne(cascade = CascadeType.ALL)
+    public Datasource getDatasourceA() {
+        return datasourceA;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setDatasourceA(Datasource datasourceA) {
+        this.datasourceA = datasourceA;
+    }
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    public Datasource getDatasourceB() {
+        return datasourceB;
+    }
+
+    public void setDatasourceB(Datasource datasourceB) {
+        this.datasourceB = datasourceB;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Dataset)) {
-            return false;
-        }
-
-        final Dataset that = (Dataset) o;
-
-        return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.url, that.url) &&
-                Objects.equals(this.username, that.username);
+        if (this == o) return true;
+        if (!(o instanceof Dataset)) return false;
+        Dataset dataset = (Dataset) o;
+        return Objects.equals(id, dataset.id) &&
+                Objects.equals(name, dataset.name) &&
+                Objects.equals(datasourceA, dataset.datasourceA) &&
+                Objects.equals(datasourceB, dataset.datasourceB);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, url, username);
+        return Objects.hash(id, name, datasourceA, datasourceB);
     }
 }

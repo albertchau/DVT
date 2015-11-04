@@ -1,6 +1,7 @@
 package com.intuit.idea.ziplock.api.core;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -11,7 +12,6 @@ import java.util.Objects;
  */
 
 @Entity
-@Table(name = "config")
 @NamedQueries({
         @NamedQuery(
                 name = "Config.findAll",
@@ -19,66 +19,95 @@ import java.util.Objects;
         )
 })
 public class Config {
+
+    private Long id;
+    private String label;
+    private Dataset dataset;
+    private Collection<RelationMapConfig> relationMapConfigs;
+    private String email;
+    private Boolean debug;
+    private Collection<Reporter> reporters;
+
+    @GeneratedValue
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @Column(name = "url", nullable = false)
-    private String url;
-
-    @Column(name = "username", nullable = false)
-    private String username;
-
-    public Config() {
-    }
-
-    public Config(String url, String username) {
-        this.url = url;
-        this.username = username;
-    }
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    @Basic
+    public String getLabel() {
+        return label;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setLabel(String name) {
+        this.label = name;
     }
 
-    public String getUsername() {
-        return username;
+    @ManyToOne
+    public Dataset getDataset() {
+        return dataset;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setDataset(Dataset dataset) {
+        this.dataset = dataset;
+    }
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    public Collection<RelationMapConfig> getRelationMapConfigs() {
+        return relationMapConfigs;
+    }
+
+    public void setRelationMapConfigs(Collection<RelationMapConfig> relationMapConfigs) {
+        this.relationMapConfigs = relationMapConfigs;
+    }
+
+    @Basic
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Basic
+    public Boolean getDebug() {
+        return debug;
+    }
+
+    public void setDebug(Boolean debug) {
+        this.debug = debug;
+    }
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    public Collection<Reporter> getReporters() {
+        return reporters;
+    }
+
+    public void setReporters(Collection<Reporter> reporters) {
+        this.reporters = reporters;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Config)) {
-            return false;
-        }
-
-        final Config that = (Config) o;
-
-        return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.url, that.url) &&
-                Objects.equals(this.username, that.username);
+        if (this == o) return true;
+        if (!(o instanceof Config)) return false;
+        Config config = (Config) o;
+        return Objects.equals(id, config.id) &&
+                Objects.equals(label, config.label) &&
+                Objects.equals(dataset, config.dataset) &&
+                Objects.equals(relationMapConfigs, config.relationMapConfigs) &&
+                Objects.equals(email, config.email) &&
+                Objects.equals(debug, config.debug) &&
+                Objects.equals(reporters, config.reporters);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, url, username);
+        return Objects.hash(id, label, dataset, relationMapConfigs, email, debug, reporters);
     }
 }

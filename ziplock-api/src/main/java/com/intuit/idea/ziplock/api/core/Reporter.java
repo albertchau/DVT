@@ -11,7 +11,6 @@ import java.util.Objects;
  */
 
 @Entity
-@javax.persistence.Table(name = "reporter")
 @NamedQueries({
         @NamedQuery(
                 name = "Reporter.findAll",
@@ -19,66 +18,105 @@ import java.util.Objects;
         )
 })
 public class Reporter {
+    @GeneratedValue
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
+    @Basic
+    private String verbosity_level;
+    @Basic
+    private String host;
+    @Basic
+    private String name;
+    @Basic
+    private Long port;
+    @Basic
+    private String cluster_name;
+    @Basic
+    private String protocol;
+    @Basic
+    private String idx;
 
-    @javax.persistence.Column(name = "url", nullable = false)
-    private String url;
-
-    @javax.persistence.Column(name = "username", nullable = false)
-    private String username;
-
-    public Reporter() {
-    }
-
-    public Reporter(String url, String username) {
-        this.url = url;
-        this.username = username;
-    }
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getUrl() {
-        return url;
+    public String getVerbosity_level() {
+        return verbosity_level;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setVerbosity_level(String verbosity_level) {
+        this.verbosity_level = verbosity_level;
     }
 
-    public String getUsername() {
-        return username;
+    public String getHost() {
+        return host;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Long getPort() {
+        return port;
+    }
+
+    public void setPort(Long port) {
+        this.port = port;
+    }
+
+    public String getCluster_name() {
+        return cluster_name;
+    }
+
+    public void setCluster_name(String cluster_name) {
+        this.cluster_name = cluster_name;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public String getIdx() {
+        return idx;
+    }
+
+    public void setIdx(String index) {
+        this.idx = index;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Reporter)) {
-            return false;
-        }
-
-        final Reporter that = (Reporter) o;
-
-        return Objects.equals(this.id, that.id) &&
-                Objects.equals(this.url, that.url) &&
-                Objects.equals(this.username, that.username);
+        if (this == o) return true;
+        if (!(o instanceof Reporter)) return false;
+        Reporter reporter = (Reporter) o;
+        return Objects.equals(id, reporter.id) &&
+                Objects.equals(verbosity_level, reporter.verbosity_level) &&
+                Objects.equals(host, reporter.host) &&
+                Objects.equals(name, reporter.name) &&
+                Objects.equals(port, reporter.port) &&
+                Objects.equals(cluster_name, reporter.cluster_name) &&
+                Objects.equals(protocol, reporter.protocol) &&
+                Objects.equals(idx, reporter.idx);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, url, username);
+        return Objects.hash(id, verbosity_level, host, name, port, cluster_name, protocol, idx);
     }
 }

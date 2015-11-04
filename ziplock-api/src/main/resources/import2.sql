@@ -44,6 +44,13 @@ INSERT INTO DatasourceType (id, Label) VALUES (6, 'Vertica');
 INSERT INTO Datasource (id, database_schema, hive_principal_queue, host, name, password, port, url, username, datasourceType_id) VALUES (1, 'QA_UED_QBO_PSA', null, 'nztwinfin01.bosptc.intuit.com', 'IAC Netezza', 'Uedc_123#', '5480', 'jdbc:netezza://nztwinfin01.bosptc.intuit.com:5480/QA_UED_QBO_PSA', 'uedc_etl', 5);
 INSERT INTO Datasource (id, database_schema, hive_principal_queue, host, name, password, port, url, username, datasourceType_id) VALUES (2, 'psplt2prod', null, 'pprdpsplt2-drdb.corp.intuit.net', 'PSP prod', 'Intuit2014', '1521', 'jdbc:oracle:thin:@//pprdpsplt2-drdb.corp.intuit.net:1521/psplt2prod', 'iacetl', 3);
 
+INSERT INTO Datasource_Relation (Datasource_id, relations_id) VALUES (2, 6);
+INSERT INTO Datasource_Relation (Datasource_id, relations_id) VALUES (2, 4);
+INSERT INTO Datasource_Relation (Datasource_id, relations_id) VALUES (2, 2);
+INSERT INTO Datasource_Relation (Datasource_id, relations_id) VALUES (1, 5);
+INSERT INTO Datasource_Relation (Datasource_id, relations_id) VALUES (1, 3);
+INSERT INTO Datasource_Relation (Datasource_id, relations_id) VALUES (1, 1);
+
 INSERT INTO Dataset (id, name, datasourceA_id, datasourceB_id) VALUES (1, 'QBO', 1, 2);
 
 INSERT INTO RelationMapConfig (id, fetch_amount, dateFormatA_id, dateFormatB_id, orderDirectionA_id, orderDirectionB_id, relationMap_id, testTypeA_id, testTypeB_id) VALUES (1, 100, 1, 1, 1, 1, 1, 1, 1);
