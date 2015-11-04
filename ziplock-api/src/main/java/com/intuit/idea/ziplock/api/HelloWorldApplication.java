@@ -7,14 +7,10 @@ package com.intuit.idea.ziplock.api;
  * ************************************
  */
 
-import com.intuit.idea.ziplock.api.core.Job;
-import com.intuit.idea.ziplock.api.core.Person;
-import com.intuit.idea.ziplock.api.db.JobDAO;
-import com.intuit.idea.ziplock.api.db.PersonDAO;
+import com.intuit.idea.ziplock.api.core.*;
+import com.intuit.idea.ziplock.api.db.*;
 import com.intuit.idea.ziplock.api.health.TemplateHealthCheck;
-import com.intuit.idea.ziplock.api.resources.HelloWorldResource;
-import com.intuit.idea.ziplock.api.resources.JobResource;
-import com.intuit.idea.ziplock.api.resources.PersonResource;
+import com.intuit.idea.ziplock.api.resources.*;
 import io.dropwizard.Application;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
@@ -23,7 +19,19 @@ import io.dropwizard.setup.Environment;
 
 public class HelloWorldApplication extends Application<HelloWorldConfiguration> {
 
-    private final HibernateBundle<HelloWorldConfiguration> hibernate = new HibernateBundle<HelloWorldConfiguration>(Person.class, Job.class) {
+    private final HibernateBundle<HelloWorldConfiguration> hibernate = new HibernateBundle<HelloWorldConfiguration>(
+            Person.class,
+            Job.class,
+            Datasource.class,
+            Relation.class,
+            Field.class,
+            Dataset.class,
+            Run.class,
+            Reporter.class,
+            Config.class,
+            RelationMap.class,
+            RelationMapConfig.class,
+            Comparison.class) {
         @Override
         public DataSourceFactory getDataSourceFactory(HelloWorldConfiguration configuration) {
             return configuration.getDataSourceFactory();
@@ -53,6 +61,12 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
                 new TemplateHealthCheck(configuration.getTemplate());
         final PersonDAO personDAO = new PersonDAO(hibernate.getSessionFactory());
         final JobDAO jobDAO = new JobDAO(hibernate.getSessionFactory());
+        final DatasourceDAO datasourceDAO = new DatasourceDAO(hibernate.getSessionFactory());
+        final DatasetDAO datasetDAO = new DatasetDAO(hibernate.getSessionFactory());
+        final FieldDAO fieldDAO = new FieldDAO(hibernate.getSessionFactory());
+        final RelationDAO relationDAO = new RelationDAO(hibernate.getSessionFactory());
+        final ReporterDAO reporterDAO = new ReporterDAO(hibernate.getSessionFactory());
+        final RunDAO runDAO = new RunDAO(hibernate.getSessionFactory());
         final HelloWorldResource resource = new HelloWorldResource(
                 configuration.getTemplate(),
                 configuration.getDefaultName()
@@ -61,5 +75,13 @@ public class HelloWorldApplication extends Application<HelloWorldConfiguration> 
         environment.jersey().register(resource);
         environment.jersey().register(new PersonResource(personDAO));
         environment.jersey().register(new JobResource(jobDAO));
+        environment.jersey().register(new DatasourceResource(datasourceDAO));
+        environment.jersey().register(new DatasetResource(datasetDAO));
+        environment.jersey().register(new FieldResource(fieldDAO));
+        environment.jersey().register(new RelationResource(relationDAO));
+        environment.jersey().register(new ReporterResource(reporterDAO));
+        environment.jersey().register(new RunResource(runDAO));
+        environment.jersey().register(new DatasourceResource(datasourceDAO));
+        environment.jersey().register(new DatasourceResource(datasourceDAO));
     }
 }

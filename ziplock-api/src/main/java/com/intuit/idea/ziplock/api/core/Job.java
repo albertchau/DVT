@@ -11,11 +11,16 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "job")
+@javax.persistence.Table(name = "job")
 @NamedQueries({
         @NamedQuery(
                 name = "com.intuit.idea.ziplock.api.core.Job.findAll",
                 query = "SELECT j FROM Job j"
+        ),
+        @NamedQuery(
+                name = "job.findById2",
+                query = "select distinct jobs from Person as p left join p.job as jobs where p.id = :ID"
+//                query = "select distinct p from Person as p left join fetch p.job where p.id = :ID"
         )
 })
 public class Job {
@@ -23,10 +28,10 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "paymentType", nullable = false)
+    @javax.persistence.Column(name = "paymentType", nullable = false)
     private String paymentType;
 
-    @Column(name = "perks", nullable = false)
+    @javax.persistence.Column(name = "perks", nullable = false)
     private String perks;
 
     public Job() {

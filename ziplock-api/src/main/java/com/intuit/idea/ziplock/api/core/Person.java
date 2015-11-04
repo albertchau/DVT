@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "people")
+@javax.persistence.Table(name = "people")
 @NamedQueries({
         @NamedQuery(
                 name = "person.findAll",
@@ -21,7 +21,7 @@ import java.util.Objects;
         ),
         @NamedQuery(
                 name = "person.findById",
-                query = "select distinct p from Person as p left join fetch p.job where p.id = ?"
+                query = "select distinct p from Person as p left join fetch p.job where p.id = :ID"
         )
 })
 public class Person {
@@ -29,10 +29,10 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "fullName", nullable = false)
+    @javax.persistence.Column(name = "fullName", nullable = false)
     private String fullName;
 
-    @Column(name = "jobTitle", nullable = false)
+    @javax.persistence.Column(name = "jobTitle", nullable = false)
     private String jobTitle;
 
     @OneToMany

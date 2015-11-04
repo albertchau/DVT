@@ -28,3 +28,5 @@ insert into people_job (people_id, job_id) values (2, 5);
 insert into people_job (people_id, job_id) values (5, 6);
 insert into people_job (people_id, job_id) values (7, 8);
 
+insert into datasource (id, url, username) values (9, 'Theresa', 'Gonzalez');
+insert into datasource (id, url, username) values (10, 'Edward', 'Clark');

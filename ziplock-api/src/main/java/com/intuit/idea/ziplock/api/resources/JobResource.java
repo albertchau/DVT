@@ -26,10 +26,16 @@ public class JobResource {
         this.jobDAO = jobDAO;
     }
 
+//    @GET
+//    @UnitOfWork
+//    public Job getJob(@PathParam("jobId") LongParam jobId) {
+//        return findSafely(jobId.get());
+//    }
+
     @GET
     @UnitOfWork
-    public Job getJob(@PathParam("jobId") LongParam jobId) {
-        return findSafely(jobId.get());
+    public List<Job> getJobByPerson(@PathParam("jobId") LongParam personId) {
+        return jobDAO.findByPersonId(personId.get());
     }
 
     @GET

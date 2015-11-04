@@ -2,6 +2,7 @@ package com.intuit.idea.ziplock.api.db;
 
 import com.intuit.idea.ziplock.api.core.Job;
 import io.dropwizard.hibernate.AbstractDAO;
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 
 import java.util.List;
@@ -27,5 +28,11 @@ public class JobDAO extends AbstractDAO<Job>{
 
     public List<Job> findAll() {
         return list(namedQuery("com.intuit.idea.ziplock.api.core.Job.findAll"));
+    }
+
+    public List<Job> findByPersonId(Long aLong) {
+        Query query = namedQuery("job.findById2");
+        query.setLong("ID", aLong);
+        return list(query);
     }
 }

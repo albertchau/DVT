@@ -20,7 +20,7 @@ public class PersonDAO extends AbstractDAO<Person>{
 
     public Optional<Person> findById(Long id) {
         Query query = namedQuery("person.findById");
-        return Optional.ofNullable(uniqueResult(query.setLong(0, id)));
+        return Optional.ofNullable(uniqueResult(query.setLong("ID", id)));
     }
 
     public Person create(Person person) {
